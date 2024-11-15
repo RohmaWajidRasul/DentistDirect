@@ -1,0 +1,27 @@
+stages:
+  - setup
+  - test
+
+
+variables:
+  NODE_ENV: test
+  FRONTEND_DIR: frontend
+  BACKEND_DIR: backend
+
+cache:
+  paths:
+    - node_modules/
+
+setup:
+  stage: setup
+  script:
+    - npm install
+    - cd $FRONTEND_DIR && npm install && cd ..
+    - cd $BACKEND_DIR && npm install && cd ..
+
+test:
+  stage: test
+  script:
+    - cd $BACKEND_DIR && npm test
+  dependencies:
+    - setup
