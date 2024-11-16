@@ -19,6 +19,11 @@ app.use('/v1/slots', createProxyMiddleware({
     changeOrigin: true,
 }));
 
+app.use('/v1/slots/:dentisId', createProxyMiddleware({
+    target: process.env.AVAILABLE_SERVICE_URL || 'http://localhost:5003',
+    changeOrigin: true,
+}));
+
 app.listen(PORT, () => {
     console.log(`API Gateway running on http://localhost:${PORT}`);
 });
