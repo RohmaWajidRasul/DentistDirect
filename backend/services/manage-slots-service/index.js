@@ -21,7 +21,7 @@ app.use(morgan('dev'));
 connectDB();
 mqttClient.on('connect', () => console.log('MQTT connected for Slot Management Service'));
 
-app.use('/slots', slotRoutes);
+app.use('/v1/slots', slotRoutes);
 
 app.listen(PORT, () => {
     console.log(`Slot Management Service running on port ${PORT}`);

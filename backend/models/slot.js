@@ -5,6 +5,10 @@ const slotSchema = new Schema({
     dentistId: { 
         type: String, 
         required: true 
+
+        //type: mongoose.Schema.Types.ObjectId,
+        //ref: 'Dentist',
+        //required: true,
     },
     startTime: { 
         type: String, 
@@ -24,7 +28,7 @@ const slotSchema = new Schema({
     },
     status: { 
         type: String, 
-        default: 'available' 
+        default: 'available',
     }
 });
 

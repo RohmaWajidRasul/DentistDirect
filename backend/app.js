@@ -14,7 +14,7 @@ app.use(morgan('dev'));
 
 app.get('/', (req, res) => res.send('Backend running'));
 
-app.use('/slots', createProxyMiddleware({
+app.use('/v1/slots', createProxyMiddleware({
     target: process.env.SLOT_SERVICE_URL || 'http://localhost:5001',
     changeOrigin: true,
 }));
