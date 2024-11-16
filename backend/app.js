@@ -19,6 +19,12 @@ app.use('/v1/slots', createProxyMiddleware({
     changeOrigin: true,
 }));
 
+app.use('/v1/appointments', createProxyMiddleware({
+    target: process.env.SLOT_SERVICE_URL || 'http://localhost:5002',
+    changeOrigin: true,
+}));
+
+
 app.listen(PORT, () => {
     console.log(`API Gateway running on http://localhost:${PORT}`);
 });
