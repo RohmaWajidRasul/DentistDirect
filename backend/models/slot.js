@@ -3,12 +3,12 @@ var Schema = mongoose.Schema;
 
 const slotSchema = new Schema({
     dentistId: { 
-        type: String, 
-        required: true 
+        //type: String, 
+        //required: true 
 
-        //type: mongoose.Schema.Types.ObjectId,
-        //ref: 'Dentist',
-        //required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Dentist',
+        required: true,
     },
     startTime: { 
         type: String, 
