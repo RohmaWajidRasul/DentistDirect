@@ -32,10 +32,7 @@ mqttClient.on('connect', () => {
 
 mqttClient.on('message', handleAppointmentRequest);
 
-app.use('/*', function (req, res) {
-    res.status(404).json({ 'message': 'Not Found appointment' });
-});
 
 app.listen(PORT, () => {
-    console.log(`Slot Management Service running on port ${PORT}`);
+    console.log(`booking appointment Service running on port ${PORT}`);
 });

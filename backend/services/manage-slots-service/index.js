@@ -32,9 +32,6 @@ mqttClient.on('connect', () => {
 
 mqttClient.on('message', handleSlotRequest);
 
-app.use('/*', function (req, res) {
-    res.status(404).json({ 'message': 'Not Found slot' });
-});
 
 app.listen(PORT, () => {
     console.log(`Slot Management Service running on port ${PORT}`);
