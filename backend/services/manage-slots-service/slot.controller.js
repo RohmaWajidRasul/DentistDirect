@@ -6,7 +6,7 @@ export const createSlot = async (req, res) => {
         const { dentistId, date, startTime, endTime } = req.body;
 
         if (!dentistId || !date || !startTime || !endTime) {
-            return res.status(400).json({ message: 'All fields are required' });
+            return res.status(400).json({ message: 'All slot fields are required' });
         }
 
         const [startHour, startMinute] = startTime.split(':').map(Number);
