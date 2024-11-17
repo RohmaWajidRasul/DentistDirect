@@ -1,9 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from '../../shared/database.js';
+import connectDB from '../database.js';
 import mqttClient from '../../shared/mqtt-client.js';
-import slotRoutes from './slot.router.js';
+import { handleSlotRequest } from './slot.controller.js';
 import morgan from'morgan';
 
 
@@ -19,9 +19,18 @@ app.use(morgan('dev'));
 
 
 connectDB();
-mqttClient.on('connect', () => console.log('MQTT connected for Slot Management Service'));
+mqttClient.on('connect', () => {
+    console.log('MQTT connected for Slot Management Service');
+    mqttClient.subscribe('request/slots/create', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to request/slots/create:', err);
+        } else {
+            console.log('Subscribed to request/slots/create');
+        }
+    });
+});
 
-app.use('/v1/slots', slotRoutes);
+mqttClient.on('message', handleSlotRequest);
 
 app.listen(PORT, () => {
     console.log(`Slot Management Service running on port ${PORT}`);
