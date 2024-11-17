@@ -32,6 +32,7 @@ mqttClient.on('connect', () => {
 
 mqttClient.on('message', handleSlotRequest);
 
+
 app.listen(PORT, () => {
     console.log(`Slot Management Service running on port ${PORT}`);
 });

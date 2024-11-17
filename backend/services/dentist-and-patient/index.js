@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from '../../shared/database.js';
+import connectDB from '../database.js';
 //import mqttClient from '../../shared/mqtt-client.js';
 import dentistRouter from './dentist.router.js';
 import patientRouter from './patient.router.js';
@@ -28,5 +28,5 @@ app.use('/*', function (req, res) {
 });
 
 app.listen(PORT, () => {
-    console.log(`Slot Management Service running on port ${PORT}`);
+    console.log(`Dentist and Patient Service running on port ${PORT}`);
 });

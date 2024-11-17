@@ -1,4 +1,4 @@
-import Patient from '../../models/patient.js';
+import Patient from '../models/patient.js';
 import mqttClient from '../../shared/mqtt-client.js';
 
 export const createPatient = async (req, res) => {
