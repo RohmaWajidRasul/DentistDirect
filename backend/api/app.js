@@ -1,5 +1,6 @@
 import express from 'express';
 import slotRoutes from './routes/slotRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js'
 import availableSlotsRoutes from './routes/availableSlotsRoutes.js';
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -16,6 +17,7 @@ app.use(morgan('dev'));
 app.get('/', (req, res) => res.send('Backend running'));
 
 app.use('/v1/slots', slotRoutes);
+app.use('/v1/appointments', appointmentRoutes);
 app.use('/v1/slots/:dentisId', availableSlotsRoutes);
 
 app.listen(PORT, () => {
