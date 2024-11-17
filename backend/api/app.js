@@ -1,5 +1,6 @@
 import express from 'express';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+import slotRoutes from './routes/slotRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js'
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from'morgan';
@@ -14,15 +15,8 @@ app.use(morgan('dev'));
 
 app.get('/', (req, res) => res.send('Backend running'));
 
-app.use('/v1/slots', createProxyMiddleware({
-    target: process.env.SLOT_SERVICE_URL || 'http://localhost:5001',
-    changeOrigin: true,
-}));
-
-app.use('/v1/appointments', createProxyMiddleware({
-    target: process.env.SLOT_SERVICE_URL || 'http://localhost:5002',
-    changeOrigin: true,
-}));
+app.use('/v1/slots', slotRoutes);
+app.use('/v1/appointments', appointmentRoutes);
 
 
 app.listen(PORT, () => {
