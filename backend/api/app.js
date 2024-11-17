@@ -1,5 +1,6 @@
 import express from 'express';
 import slotRoutes from './routes/slotRoutes.js';
+import appointmentRoutes from './routes/appointmentRoutes.js'
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from'morgan';
@@ -15,6 +16,7 @@ app.use(morgan('dev'));
 app.get('/', (req, res) => res.send('Backend running'));
 
 app.use('/v1/slots', slotRoutes);
+app.use('/v1/appointments', appointmentRoutes);
 
 
 app.listen(PORT, () => {
