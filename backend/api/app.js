@@ -22,8 +22,7 @@ app.get('/', (req, res) => res.send('Backend running'));
 app.use('/v1/slots/availability', availableSlotsRoutes);
 
 app.use('/v1/slots', slotRoutes);
-
-app.use('/v1/appointments/cancel', cancellationRoutes);
+app.use('/v1/appointments', cancellationRoutes);
 
 app.use('/v1/appointments', appointmentRoutes);
 app.use('/v1/slots/:dentisId', availableSlotsRoutes);
