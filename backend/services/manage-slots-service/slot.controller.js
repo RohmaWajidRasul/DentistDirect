@@ -80,3 +80,14 @@ const publishResponse = (correlationId, response) => {
         }
     });
 };
+
+const publishResponse = (correlationId, response) => {
+    const responseTopic = `response/slots/created/${correlationId}`;
+    mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${responseTopic}:`, err);
+        } else {
+            console.log(`Response sent to ${responseTopic}`);
+        }
+    });
+};
