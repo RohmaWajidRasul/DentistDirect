@@ -28,5 +28,5 @@ app.use('/*', function (req, res) {
 });
 
 app.listen(PORT, () => {
-    console.log(`dentist and patient Service running on port ${PORT}`);
+    console.log(`Dentist and Patient Service running on port ${PORT}`);
 });

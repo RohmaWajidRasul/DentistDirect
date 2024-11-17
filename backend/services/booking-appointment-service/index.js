@@ -34,5 +34,5 @@ mqttClient.on('message', handleAppointmentRequest);
 
 
 app.listen(PORT, () => {
-    console.log(`booking appointment Service running on port ${PORT}`);
+    console.log(`Booking Appointment Service running on port ${PORT}`);
 });
