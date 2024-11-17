@@ -1,9 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from '../../shared/database.js';
+import connectDB from '../database.js';
 import mqttClient from '../../shared/mqtt-client.js';
-import availableRoutes from './available-router.js';
+import { handleAvailabilityRequest } from './available-controller.js';
 import morgan from'morgan';
 
 
@@ -19,9 +19,18 @@ app.use(morgan('dev'));
 
 
 connectDB();
-mqttClient.on('connect', () => console.log('MQTT connected for Available Slots Service'));
+mqttClient.on('connect', () => {
+    console.log('MQTT connected for Available Slots Service');
+    mqttClient.subscribe('rrequest/availability/fetch', (err) => {
+        if (err) {
+            console.error('Failed to subscribe to request/availability/fetch:', err);
+        } else {
+            console.log('Subscribed to request/availability/fetch');
+        }
+    });
+});
 
-app.use('/v1/slots', availableRoutes);
+mqttClient.on('message', handleAvailabilityRequest);
 
 app.listen(PORT, () => {
     console.log(`Available Slots Service running on port ${PORT}`);

@@ -1,14 +1,32 @@
 import Slot from '../../models/slot.js';
 import mqttClient from '../../shared/mqtt-client.js';
 
-export const getSlotsByDentist = async (req, res) => {
-    try {
-        const { dentistId } = req.params;
-        const { date } = req.query;
+export const handleAvailabilityRequest = async (topic, message) => {
+    console.log(`Request received on topic: ${topic}`);
 
-        // Validate the required parameter
+    if (topic !== 'request/availability/fetch') {
+        return;
+    }
+
+    let correlationId;
+
+    try {
+        const parsedMessage = JSON.parse(message.toString());
+        correlationId = parsedMessage.correlationId;
+
+        if (!correlationId) {
+            throw new Error('Correlation ID is missing in the request');
+        }
+
+        const { dentistId, date } = parsedMessage.payload;
+
         if (!dentistId) {
-            return res.status(400).json({ message: 'Dentist ID is required' });
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Dentist ID is required',
+            };
+            return publishAvailabilityResponse(correlationId, errorResponse);
         }
 
         // Build the query object
@@ -20,25 +38,47 @@ export const getSlotsByDentist = async (req, res) => {
         // Fetch slots from the database
         const slots = await Slot.find(query).sort({ date: 1, startTime: 1 });
 
-        // Check if slots are found
         if (!slots.length) {
-            // Publish event to MQTT to indicate no slots were found
-            mqttClient.publish(
-                'slots/fetched',
-                JSON.stringify({ dentistId, date, message: 'No slots found' })
-            );
-            return res.status(404).json({ message: 'No slots found for the given dentist' });
+            // Publish event for no slots found
+            const noSlotsResponse = {
+                correlationId,
+                status: 'error',
+                message: 'No slots found for the given dentist',
+            };
+            return publishAvailabilityResponse(correlationId, noSlotsResponse);
         }
 
-        // Publish event to MQTT to indicate slots were fetched
-        mqttClient.publish(
-            'slots/fetched',
-            JSON.stringify({ dentistId, date, count: slots.length })
-        );
-        // Respond with the found slots
-        res.status(200).json({ message: 'Slots retrieved successfully', slots });
+        // Successful fetch
+        const successResponse = {
+            correlationId,
+            status: 'success',
+            message: 'Slots retrieved successfully',
+            slots,
+        };
+        return publishAvailabilityResponse(correlationId, successResponse);
     } catch (error) {
-        // Handle errors
-        res.status(500).json({ message: 'Error retrieving slots', error });
+        if (!correlationId) {
+            console.error('Critical error: Correlation ID is missing or undefined.', error.message);
+            return;
+        }
+
+        const errorResponse = {
+            correlationId,
+            status: 'error',
+            message: 'Error retrieving slots',
+            error: error.message,
+        };
+        return publishAvailabilityResponse(correlationId, errorResponse);
     }
+};
+
+const publishAvailabilityResponse = (correlationId, response) => {
+    const responseTopic = `response/availability/fetched/${correlationId}`;
+    mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${responseTopic}:`, err);
+        } else {
+            console.log(`Response sent to ${responseTopic}`);
+        }
+    });
 };
