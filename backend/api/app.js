@@ -37,6 +37,15 @@ process.on('SIGINT', () => {
 });
 
 
+process.on('SIGINT', () => {
+    console.log('Gracefully shutting down...');
+    mqttClient.end(() => {
+        console.log('MQTT client disconnected');
+        process.exit(0);
+    });
+});
+
+
 app.listen(PORT, () => {
     console.log(`API Gateway running on http://localhost:${PORT}`);
 });
