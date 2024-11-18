@@ -3,7 +3,7 @@ import mqttClient from '../../shared/mqtt-client.js';
 
 const router = express.Router(); 
 
-router.post('/cancel', (req,res) => {
+router.patch('/', (req,res) => {
     const payload = req.body; 
     const correlationId = Date.now().toString(); 
 
@@ -17,7 +17,18 @@ router.post('/cancel', (req,res) => {
         if(topic === responseTopic){
             mqttClient.unsubscribe(responseTopic); 
             const response = JSON.parse(message.toString()); 
-            res.status(response.status === 'success' ? 201 : 500).json(response); 
+            let statusCode;
+
+            if (response.status === 'success') {
+                statusCode = 200;
+            } else if (response.status === 'not_found') {
+                statusCode = 404;
+            } else {
+                statusCode = 500;
+            }
+
+            res.status(statusCode).json(response);
+
         }
     });
 }); 

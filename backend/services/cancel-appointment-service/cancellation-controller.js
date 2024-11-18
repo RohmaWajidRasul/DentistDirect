@@ -45,12 +45,11 @@ export const cancelAppointment = async (topic, message) => {
         if (appointment.status === 'canceled') {
             const errorResponse = {
                 correlationId,
-                status: 'error',
+                status: 'not_found',
                 message: 'Appointment is already canceled',
             };
             return publishResponse(correlationId, errorResponse);
         }
-
         
         appointment.status = 'canceled';
         await appointment.save();
