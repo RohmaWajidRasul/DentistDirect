@@ -6,6 +6,7 @@ import availableSlotsRoutes from './routes/availableSlotsRoutes.js';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from'morgan';
+import mqttClient from '../shared/mqtt-client.js';
 
 
 dotenv.config();
@@ -18,13 +19,22 @@ app.use(morgan('dev'));
 
 app.get('/', (req, res) => res.send('Backend running'));
 
-app.use('/v1/slots/:dentistId', availableSlotsRoutes);
-
+app.use('/v1/slots/availability', availableSlotsRoutes);
 
 app.use('/v1/slots', slotRoutes);
+
 app.use('/v1/appointments/cancel', cancellationRoutes);
 
 app.use('/v1/appointments', appointmentRoutes);
+
+process.on('SIGINT', () => {
+    console.log('Gracefully shutting down...');
+    mqttClient.end(() => {
+        console.log('MQTT client disconnected');
+        process.exit(0);
+    });
+});
+
 
 app.listen(PORT, () => {
     console.log(`API Gateway running on http://localhost:${PORT}`);
