@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from '../database.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 import { handleSlotRequest } from './slot.controller.js';
 import morgan from'morgan';
 

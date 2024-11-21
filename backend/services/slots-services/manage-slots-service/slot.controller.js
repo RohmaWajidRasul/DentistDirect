@@ -1,5 +1,5 @@
-import Slot from '../models/slot.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Slot from '../slot.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 
 export const handleSlotRequest = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
@@ -68,17 +68,6 @@ export const handleSlotRequest = async (topic, message) => {
         };
         return publishResponse(correlationId, errorResponse);
     }
-};
-
-const publishResponse = (correlationId, response) => {
-    const responseTopic = `response/slots/created/${correlationId}`;
-    mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
-        if (err) {
-            console.error(`Failed to publish to ${responseTopic}:`, err);
-        } else {
-            console.log(`Response sent to ${responseTopic}`);
-        }
-    });
 };
 
 const publishResponse = (correlationId, response) => {

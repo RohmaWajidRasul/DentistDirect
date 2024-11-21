@@ -1,5 +1,5 @@
-import Slot from '../../models/slot.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Slot from '../slot.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 
 export const handleAvailabilityRequest = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
