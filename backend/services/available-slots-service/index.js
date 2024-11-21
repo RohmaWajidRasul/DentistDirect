@@ -21,7 +21,7 @@ app.use(morgan('dev'));
 connectDB();
 mqttClient.on('connect', () => {
     console.log('MQTT connected for Available Slots Service');
-    mqttClient.subscribe('rrequest/availability/fetch', (err) => {
+    mqttClient.subscribe('request/availability/fetch', (err) => {
         if (err) {
             console.error('Failed to subscribe to request/availability/fetch:', err);
         } else {

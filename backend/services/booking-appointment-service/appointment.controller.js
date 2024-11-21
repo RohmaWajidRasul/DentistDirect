@@ -32,14 +32,14 @@ export const handleAppointmentRequest = async (topic, message) => {
         }
 
 
-        const slot = new Appointment({ patientId, dentistId, slotId });
-        await slot.save();
+        const appointment = new Appointment({ patientId, dentistId, slotId });
+        await appointment.save();
 
         const successResponse = {
             correlationId,
             status: 'success',
             message: 'Appointment created successfully',
-            slot,
+            appointment,
         };
         return publishResponse(correlationId, successResponse);
     } catch (error) {
