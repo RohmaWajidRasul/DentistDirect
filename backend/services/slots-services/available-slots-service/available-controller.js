@@ -1,4 +1,4 @@
-import Slot from '../slot.js';
+import Slot from '../model/slot.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
 export const handleAvailabilityRequest = async (topic, message) => {
@@ -35,8 +35,8 @@ export const handleAvailabilityRequest = async (topic, message) => {
             query.date = date; // Filter by date if provided
         }
 
-        // Fetch slots from the database
-        const slots = await Slot.find(query).sort({ date: 1, startTime: 1 });
+        // Fetch slots with a timeout wrapper
+        const slots = await withTimeout(Slot.find(query).sort({ date: 1, startTime: 1 }), 5000);
 
         if (!slots.length) {
             // Publish event for no slots found
@@ -62,10 +62,16 @@ export const handleAvailabilityRequest = async (topic, message) => {
             return;
         }
 
+        // Handle timeout-specific errors
+        const errorMessage =
+            error.name === 'TimeoutError'
+                ? 'The request timed out while retrieving slots'
+                : 'Error retrieving slots';
+
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: 'Error retrieving slots',
+            message: errorMessage,
             error: error.message,
         };
         return publishAvailabilityResponse(correlationId, errorResponse);
@@ -81,4 +87,21 @@ const publishAvailabilityResponse = (correlationId, response) => {
             console.log(`Response sent to ${responseTopic}`);
         }
     });
+};
+
+// Timeout Wrapper Function
+const withTimeout = (promise, ms) => {
+    let timeoutId;
+    const timeoutPromise = new Promise((_, reject) => {
+        timeoutId = setTimeout(() => {
+            const error = new Error('Operation timed out');
+            error.name = 'TimeoutError';
+            reject(error);
+        }, ms);
+    });
+
+    return Promise.race([
+        promise.finally(() => clearTimeout(timeoutId)), // Clears the timeout if the promise resolves
+        timeoutPromise,
+    ]);
 };
