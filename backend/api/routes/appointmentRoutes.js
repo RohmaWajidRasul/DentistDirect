@@ -30,6 +30,7 @@ router.post('/create', (req, res) => {
             .status(500)
             .json({ message: "Failed to subscribe to response topic" });
         }
+    });
   
 
     mqttClient.on('message', (topic, message) => {

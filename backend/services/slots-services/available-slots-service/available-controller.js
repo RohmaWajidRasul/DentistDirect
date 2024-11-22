@@ -1,5 +1,5 @@
-import Slot from '../../models/slot.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Slot from '../model/slot.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 
 export const handleAvailabilityRequest = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
@@ -30,12 +30,12 @@ export const handleAvailabilityRequest = async (topic, message) => {
         }
 
         // Build the query object
-        const query = { dentistId };
+        const query = { dentistId, status: 'available' };
         if (date) {
             query.date = date; // Filter by date if provided
         }
 
-        // Fetch slots from the database
+        // Fetch slots with a timeout wrapper
         const slots = await Slot.find(query).sort({ date: 1, startTime: 1 });
 
         if (!slots.length) {
@@ -65,7 +65,7 @@ export const handleAvailabilityRequest = async (topic, message) => {
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: 'Error retrieving slots',
+            message: 'Critical error: Correlation ID is missing or undefined.',
             error: error.message,
         };
         return publishAvailabilityResponse(correlationId, errorResponse);
