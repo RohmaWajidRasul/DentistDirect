@@ -1,5 +1,5 @@
-import Slot from '../models/slot.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Slot from '../model/slot.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 
 export const handleSlotRequest = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
@@ -80,4 +80,3 @@ const publishResponse = (correlationId, response) => {
         }
     });
 };
-

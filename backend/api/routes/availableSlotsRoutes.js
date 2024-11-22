@@ -16,14 +16,39 @@ router.get('/:dentistId', (req, res) => {
     console.log (payload);
 
     // Publish the request to the MQTT broker
-    mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }));
+    mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
+        if (err) {
+          console.error("Failed to publish fetch request", err);
+          return res
+            .status(500)
+            .json({ message: "Failed to publish fetch request" });
+        }
+    });
+    
+    // Timeout after 5sec
+    const timeout = setTimeout(() => {
+        mqttClient.unsubscribe(responseTopic);
+        return res
+            .status(504)
+            .json({ message: "Request timeout. No response from server." });
+    }, 5000);
+  
 
     // Subscribe to the response topic
-    mqttClient.subscribe(responseTopic);
+    mqttClient.subscribe(responseTopic, (err) => {
+        if (err) {
+          clearTimeout(timeout);
+          console.error("Failed to subscribe to response topic", err);
+          return res
+            .status(500)
+            .json({ message: "Failed to subscribe to response topic" });
+        }
+    });
 
     // Listen for the response message
     mqttClient.on('message', (topic, message) => {
         if (topic === responseTopic) {
+            clearTimeout(timeout);
             mqttClient.unsubscribe(responseTopic); // Unsubscribe after receiving the response
             const response = JSON.parse(message.toString());
             const status = response.status === 'success' ? 200 : 404;

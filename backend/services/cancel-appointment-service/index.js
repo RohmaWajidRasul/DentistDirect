@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from '../database.js';
+import connectDB from '../slots-services/database.js';
 import mqttClient from '../../shared/mqtt-client.js'; 
 import { cancelAppointment } from '../cancel-appointment-service/cancellation-controller.js';
 import morgan from 'morgan';
@@ -35,3 +35,4 @@ mqttClient.on('message', cancelAppointment);
 app.listen(PORT, () => {
     console.log(`Appointment Management Service running on port ${PORT}`);
 });
+
