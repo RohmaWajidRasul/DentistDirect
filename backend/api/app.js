@@ -1,14 +1,17 @@
+// app.js 
 import express from 'express';
 import slotRoutes from './routes/slotRoutes.js';
 import cancellationRoutes from './routes/cancellation-router.js';
 import appointmentRoutes from './routes/appointmentRoutes.js'
 import availableSlotsRoutes from './routes/availableSlotsRoutes.js';
+import registerPatientRoutes from './routes/patient.router.js'; 
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from'morgan';
 import mqttClient from '../shared/mqtt-client.js';
+import connectDB from '../services/database.js';
 
-
+connectDB();
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT_GATEWAY || 3000;
@@ -26,6 +29,8 @@ app.use('/v1/slots', slotRoutes);
 app.use('/v1/appointments/cancel', cancellationRoutes);
 
 app.use('/v1/appointments', appointmentRoutes);
+
+app.use('/v1/register', registerPatientRoutes); 
 
 process.on('SIGINT', () => {
     console.log('Gracefully shutting down...');
