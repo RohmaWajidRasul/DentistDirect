@@ -13,6 +13,7 @@ router.get('/:dentistId', (req, res) => {
 
     // Construct the payload for the availability request
     const payload = { dentistId, date };
+    console.log (payload);
 
     // Publish the request to the MQTT broker
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }));

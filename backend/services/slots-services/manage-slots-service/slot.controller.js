@@ -1,4 +1,4 @@
-import Slot from '../slot.js';
+import Slot from '../model/slot.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
 export const handleSlotRequest = async (topic, message) => {

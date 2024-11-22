@@ -1,6 +1,6 @@
 import express from 'express';
 import slotRoutes from './routes/slotRoutes.js';
-import cancellationRoutes from '../api/routes/cancellation-router.js';
+import cancellationRoutes from './routes/cancellation-router.js';
 import appointmentRoutes from './routes/appointmentRoutes.js'
 import availableSlotsRoutes from './routes/availableSlotsRoutes.js';
 import dotenv from 'dotenv';
@@ -26,7 +26,15 @@ app.use('/v1/slots', slotRoutes);
 app.use('/v1/appointments/cancel', cancellationRoutes);
 
 app.use('/v1/appointments', appointmentRoutes);
-app.use('/v1/slots/:dentisId', availableSlotsRoutes);
+
+process.on('SIGINT', () => {
+    console.log('Gracefully shutting down...');
+    mqttClient.end(() => {
+        console.log('MQTT client disconnected');
+        process.exit(0);
+    });
+});
+
 
 process.on('SIGINT', () => {
     console.log('Gracefully shutting down...');
