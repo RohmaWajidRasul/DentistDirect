@@ -30,7 +30,7 @@ export const handleAvailabilityRequest = async (topic, message) => {
         }
 
         // Build the query object
-        const query = { dentistId };
+        const query = { dentistId, status: 'available' };
         if (date) {
             query.date = date; // Filter by date if provided
         }
