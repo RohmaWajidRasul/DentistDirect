@@ -41,6 +41,7 @@ export const handleAppointmentRequest = async (topic, message) => {
             message: 'Appointment created successfully',
             slot,
         };
+        notifySlot(slot.slotId)
         return publishResponse(correlationId, successResponse);
     } catch (error) {
         if (!correlationId) {
@@ -69,3 +70,15 @@ const publishResponse = (correlationId, response) => {
     });
 };
 
+const notifySlot = (slotId) => {
+    const AlertBookedSlotServiceTopic = "request/slots/book"
+    const correlationId = Date.now().toString();
+    mqttClient.publish(AlertBookedSlotServiceTopic, JSON.stringify({ correlationId, slotId }), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${AlertBookedSlotServiceTopic}:`, err);
+        } else {
+            console.log(`Response sent to ${AlertBookedSlotServiceTopic}`);
+        }
+    
+    });
+}

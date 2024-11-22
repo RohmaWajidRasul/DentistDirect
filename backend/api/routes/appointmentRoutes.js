@@ -14,30 +14,32 @@ router.post('/create', (req, res) => {
 
     mqttClient.subscribe(responseTopic);
     
-    let messageReceived = false;
+
+    var timeout = setTimeout(function() {
+
+        mqttClient.unsubscribe(responseTopic);
+        return res.status(504).json({ message : "Request timeout. No response from server"})
+
+    }, 5000)
+
+    mqttClient.subscribe(responseTopic, (err) => {
+        if (err) {
+          clearTimeout(timeout);
+          console.error("Failed to subscribe to response topic", err);
+          return res
+            .status(500)
+            .json({ message: "Failed to subscribe to response topic" });
+        }
+  
+
     mqttClient.on('message', (topic, message) => {
         if (topic === responseTopic) {
-            messageReceived = true;
+            clearTimeout(timeout);
             mqttClient.unsubscribe(responseTopic); 
             const response = JSON.parse(message.toString());
             res.status(response.status === 'success' ? 201 : 500).json(response);
         }
     });
-
-    let counter = 0;
-    var timer = setInterval(function() {
-
-        counter++;
-        if (messageReceived) {
-            clearInterval(timer);
-        }
-        else if(counter === 5) {
-            clearInterval(timer);
-            mqttClient.unsubscribe(responseTopic); 
-            res.status(500).json({ "Message" : "Server error" })
-        }
-
-    }, 1000)
 });
 
 export default router;
