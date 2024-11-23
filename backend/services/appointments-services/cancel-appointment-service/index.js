@@ -1,9 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from '../slots-services/database.js';
-import mqttClient from '../../shared/mqtt-client.js'; 
-import { cancelAppointment } from '../cancel-appointment-service/cancellation-controller.js';
+import connectDB from '../database.js';
+import mqttClient from '../../../shared/mqtt-client.js'; 
+import { cancelAppointment } from './cancellation-controller.js';
 import morgan from 'morgan';
 
 dotenv.config();
@@ -19,7 +19,7 @@ app.use(morgan('dev'));
 connectDB();
 
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Appointment Management Service');
+    console.log('MQTT connected for Cancel Appointment Service');
     
     mqttClient.subscribe('request/appointments/cancel', (err) => {
         if (err) {
