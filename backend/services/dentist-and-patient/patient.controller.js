@@ -19,7 +19,6 @@ export const createPatientRequest = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-
         const { firstName, lastName, email, phoneNumber, dateOfBirth } = parsedMessage.payload;
 
         if (!firstName || !lastName || !email || !phoneNumber || !dateOfBirth ) {

@@ -28,7 +28,7 @@ app.use('/v1/appointments/cancel', cancellationRoutes);
 
 app.use('/v1/appointments', appointmentRoutes);
 
-app.use('/v1/slots/cancel', cancelSlotRouter);
+app.use('/v1/slots/cancel/:appointmentID', cancelSlotRouter);
 
 app.use('/v1/register', registerPatientRoutes); 
 
