@@ -1,4 +1,3 @@
-// app.js 
 import express from 'express';
 import slotRoutes from './routes/slotRoutes.js';
 import cancellationRoutes from './routes/cancellation-router.js';
@@ -9,9 +8,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from'morgan';
 import mqttClient from '../shared/mqtt-client.js';
-import connectDB from '../services/database.js';
 
-connectDB();
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT_GATEWAY || 3000;
