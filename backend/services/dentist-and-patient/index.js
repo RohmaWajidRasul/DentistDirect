@@ -11,7 +11,7 @@ dotenv.config();
 
 const app = express();
 
-const PORT = process.env.PORT_SLOT_SERVICE || 5006;
+const PORT = process.env.PORT_SLOT_SERVICE || 5007;
 
 app.use(cors());
 app.use(express.json());
