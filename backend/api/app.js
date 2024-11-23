@@ -3,6 +3,7 @@ import slotRoutes from './routes/slotRoutes.js';
 import cancellationRoutes from './routes/cancellation-router.js';
 import appointmentRoutes from './routes/appointmentRoutes.js'
 import availableSlotsRoutes from './routes/availableSlotsRoutes.js';
+import cancelSlotRouter from './routes/cancel-slot-router.js';
 import registerPatientRoutes from './routes/patient.router.js'; 
 import dotenv from 'dotenv';
 import cors from 'cors';
@@ -27,6 +28,8 @@ app.use('/v1/appointments/cancel', cancellationRoutes);
 
 app.use('/v1/appointments', appointmentRoutes);
 
+app.use('/v1/slots/cancel', cancelSlotRouter);
+
 app.use('/v1/register', registerPatientRoutes); 
 
 process.on('SIGINT', () => {
@@ -36,7 +39,6 @@ process.on('SIGINT', () => {
         process.exit(0);
     });
 });
-
 
 app.listen(PORT, () => {
     console.log(`API Gateway running on http://localhost:${PORT}`);

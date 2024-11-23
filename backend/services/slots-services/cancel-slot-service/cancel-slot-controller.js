@@ -1,83 +1,89 @@
-import Slot from '../models/slot.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Slot from '../model/slot.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 
-export const handleSlotRequest = async (topic, message) => {
+export const handleCancelSlotRequests = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
 
-    if (topic !== 'request/slots/create') {
+    if (topic !== 'request/slots/cancel') {
         return;
     }
 
     let correlationId;
 
     try {
-
         const parsedMessage = JSON.parse(message.toString());
         correlationId = parsedMessage.correlationId;
 
         if (!correlationId) {
-            throw new Error('Correlation ID is missing in the request'); 
+            throw new Error('Correlation ID is missing in the request');
         }
 
-        const { dentistId, date, startTime, endTime } = parsedMessage.payload;
+        const { slotId } = parsedMessage.payload;
 
-
-        if (!dentistId || !date || !startTime || !endTime) {
+        if (!slotId) {
             const errorResponse = {
                 correlationId,
                 status: 'error',
-                message: 'All fields are required',
+                message: 'Slot ID is required'
             };
             return publishResponse(correlationId, errorResponse);
         }
 
-        const [startHour, startMinute] = startTime.split(':').map(Number);
-        const [endHour, endMinute] = endTime.split(':').map(Number);
-        const duration = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
+        const slot = await Slot.findById(slotId);
 
-        if (duration <= 0) {
+        if (!slot) {
             const errorResponse = {
                 correlationId,
                 status: 'error',
-                message: 'End time must be after start time',
+                message: 'Slot not found'
             };
             return publishResponse(correlationId, errorResponse);
         }
 
-        const slot = new Slot({ dentistId, date, startTime, endTime, duration });
+        if (slot.status === 'cancelled' || slot.status === 'Cancelled') {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Slot is already cancelled'
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
+        slot.status = 'cancelled';
         await slot.save();
 
         const successResponse = {
             correlationId,
             status: 'success',
-            message: 'Slot created successfully',
-            slot,
+            message: 'Slot successfully cancelled',
+            slot
         };
         return publishResponse(correlationId, successResponse);
+
     } catch (error) {
         if (!correlationId) {
-            console.error('Critical error: Correlation ID is missing or undefined.', error.message);
+            console.error('Error. Correlation ID is missing or is undefined.', error.message);
             return;
         }
 
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: 'Error creating slot',
-            error: error.message,
+            message: 'Error cancelling slot',
+            error: error.message
         };
         return publishResponse(correlationId, errorResponse);
     }
 };
 
 const publishResponse = (correlationId, response) => {
-    const responseTopic = `response/slots/created/${correlationId}`;
+    const responseTopic = `response/slots/cancelled/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);
         } else {
-            console.log(`Response sent to ${responseTopic}`);
+            console.log(`Response sent to ${responseTopic}:`);
         }
     });
-};
 
+}
