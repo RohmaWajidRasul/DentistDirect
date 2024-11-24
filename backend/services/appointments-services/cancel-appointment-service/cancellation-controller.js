@@ -18,9 +18,10 @@ export const cancelAppointment = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { appointmentId } = parsedMessage.payload;
+        const { appointmentID } = parsedMessage.payload;
 
-        if (!appointmentId) {
+        if (!appointmentID) {
+            console.error('Appointment ID missing in payload');
             const errorResponse = {
                 correlationId,
                 status: 'error',
@@ -30,7 +31,7 @@ export const cancelAppointment = async (topic, message) => {
         }
 
         
-        const appointment = await Appointment.findById(appointmentId);
+        const appointment = await Appointment.findById(appointmentID);
 
         if (!appointment) {
             const errorResponse = {

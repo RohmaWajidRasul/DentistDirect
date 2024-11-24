@@ -3,14 +3,21 @@ import mqttClient from '../../shared/mqtt-client.js';
 
 const router = express.Router(); 
 
-router.patch('/', (req,res) => {
-    const payload = req.body; 
+router.patch('/:appointmentID', (req,res) => {
+    const {appointmentID} = req.params;
     const correlationId = Date.now().toString(); 
+    const payload = {
+        correlationId, 
+        payload: {appointmentID} 
+    };
+
+    console.log('Payload to be published:', JSON.stringify(payload, null, 2));
+
 
     const requestTopic = 'request/appointments/cancel';
     const responseTopic = `response/appointments/canceled/${correlationId}`;
 
-    mqttClient.publish(requestTopic,JSON.stringify({correlationId, payload}), (err) => {
+    mqttClient.publish(requestTopic,JSON.stringify(payload), (err) => {
         if (err){
             console.error('Failed to publish cancel to request', err);
             return res.status(500).json({ message: 'Failed to publish cancel request to MQTT', error: err.message });
