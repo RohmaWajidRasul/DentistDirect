@@ -1,5 +1,5 @@
-import Appointment from '../models/appointment.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Appointment from '../../models/appointment.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 
 export const handleAppointmentRequest = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);

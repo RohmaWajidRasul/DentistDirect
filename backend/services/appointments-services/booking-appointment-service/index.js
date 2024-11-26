@@ -1,8 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from './database.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import connectDB from '../database.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 import { handleAppointmentRequest } from './appointment.controller.js';
 import morgan from'morgan';
 

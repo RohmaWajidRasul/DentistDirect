@@ -4,11 +4,12 @@ import cancellationRoutes from './routes/cancellation-router.js';
 import appointmentRoutes from './routes/appointmentRoutes.js'
 import availableSlotsRoutes from './routes/availableSlotsRoutes.js';
 import cancelSlotRouter from './routes/cancel-slot-router.js';
+import dentistRoute from '../services/dentist-and-patient/dentist.router.js';
+import registerPatientRoutes from './routes/patient.router.js'; 
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from'morgan';
 import mqttClient from '../shared/mqtt-client.js';
-
 
 dotenv.config();
 const app = express();
@@ -29,6 +30,8 @@ app.use('/v1/appointments/cancel', cancellationRoutes);
 app.use('/v1/appointments', appointmentRoutes);
 
 app.use('/v1/slots/cancel', cancelSlotRouter);
+
+app.use('/v1/register', registerPatientRoutes); 
 
 process.on('SIGINT', () => {
     console.log('Gracefully shutting down...');
