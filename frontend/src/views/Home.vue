@@ -1,5 +1,8 @@
 <template>
     <div>
+      <div>
+        <img src = /image.png class="banner-image" alt="">
+      </div>
       <div v-if="globalState.isLoggedIn">
         <!-- If the user is logged in, show personalized home page -->
         <b-container fluid>
@@ -13,9 +16,6 @@
         <b-container fluid>
           <h1 class="display-5 fw-bold">Welcome to DentistDirect</h1>
           <p class="fs-4">Check available slots at your dentist, book and cancel appointments easily.</p>
-          <RouterLink to="/login">
-            <b-button variant="primary">Login</b-button>
-          </RouterLink>
         </b-container>
       </div>
     </div>
@@ -128,6 +128,10 @@
     background-color: var(--button-color); /* Example: change the background color on hover */
     transition: background-color 0.3s ease; /* Smooth transition */
     cursor: pointer;
+  }
+
+  .banner-image {
+    width : 1500px;
   }
   </style>
   
