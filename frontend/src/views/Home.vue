@@ -5,7 +5,7 @@
         <b-container fluid>
           <h1 class="display-5 fw-bold">Welcome Back!</h1>
           <p class="fs-4">Check dentist appointments easily with one click.</p>
-          <b-button variant="primary" @click="goToMealPlanner">Go to My Appointments</b-button>
+          <b-button variant="primary" @click="goToMyAppointments">Go to My Appointments</b-button>
         </b-container>
       </div>
       <div v-else>
@@ -28,8 +28,8 @@
   export default {
     name: 'home',
     methods: {
-      goToMealPlanner() {
-        this.$router.push('/meal-planner') // Navigate to meal planner
+      goToMyAppointments() {
+        this.$router.push('/my-appointments') // Navigate to meal planner
       },
       checkLoginStatus() {
         this.$router.go() // Reload the component to reflect the new state
