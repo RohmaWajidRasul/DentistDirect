@@ -5,7 +5,7 @@ import Slots from './views/Slots.vue'
 
 const routes = [
   { path: '/', name: 'home', component: Home },
-  { path: '/slots', name: 'slots', component: Slots }
+  { path: '/slots', name: 'Slots', component: Slots }
 ]
 
 const router = createRouter({
