@@ -11,7 +11,7 @@
       <div v-else>
         <!-- If the user is not logged in, show generic home page -->
         <b-container fluid>
-          <h1 class="display-5 fw-bold">DentistDirect</h1>
+          <h1 class="display-5 fw-bold">Welcome to DentistDirect</h1>
           <p class="fs-4">Check available slots at your dentist, book and cancel appointments easily.</p>
           <RouterLink to="/login">
             <b-button variant="primary">Login</b-button>

@@ -1,24 +1,19 @@
 <template>
   <b-container fluid class="footer">
-    <b-row>
-      <b-col>
-        <p class="text-white">&copy; 2024 DentistDirect</p>
-      </b-col>
-    </b-row>
-    <b-row class="justify-content-center">
+    <b-row class="align-items-center justify-content-between">
       <b-col cols="auto">
+        <p class="text-white mb-0">&copy; 2024 DentistDirect</p>
+      </b-col>
+      <b-col cols="auto" class="d-flex align-items-center">
+        <!-- Email Icon -->
         <a href="mailto:contact@mealmate.com" target="_blank" class="footer-icon">
           <i class="fas fa-envelope"></i> Email
         </a>
-      </b-col> <!-- This closing tag was missing -->
-    </b-row>
-    <b-row class="justify-content-center">
-      <b-col cols="auto">
+        <!-- GitHub Icon -->
         <a href="https://github.com/yourrepo" target="_blank" class="footer-icon">
           <i class="fab fa-github"></i> GitHub
         </a>
-      </b-col>
-      <b-col cols="auto">
+        <!-- Instagram Icon -->
         <a href="https://instagram.com/yourpage" target="_blank" class="footer-icon">
           <i class="fab fa-instagram"></i> Instagram
         </a>
@@ -30,13 +25,20 @@
 <script>
 export default {
 
-}
+};
 </script>
 
 <style scoped>
+.footer {
+  background-color: var(--footer-bg-color);
+  color: var(--footer-text-color);
+  padding: 0.5em 0;
+  text-align: center;
+}
+
 .footer-icon {
   margin: 0 10px;
-  font-size: 1.0em;
+  font-size: 1em;
   color: white;
   cursor: pointer;
   text-decoration: none;
