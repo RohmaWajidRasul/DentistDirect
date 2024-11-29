@@ -4,6 +4,7 @@
       :selected-date="selectedDate"
       :view="view"
       time="24"
+      navigation="true"
       @cell-click="handleSlotClick"
       @view-change="handleViewChange"
     />

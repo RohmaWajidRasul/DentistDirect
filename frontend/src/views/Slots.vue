@@ -20,7 +20,7 @@
     </div>
   </template>
   
-
+  
   <script>
 import { ref } from "vue";
 import Calendar from "../components/Calendar.vue";
@@ -40,21 +40,51 @@ export default {
     };
   },
   mounted() {
-    this.fetchDentists();
-    this.fetchSlots();
+    this.fetchSlotsAndDentists();
   },
   methods: {
+    /*
+    async fetchDentists() {
+      try {
+        const response = await Api.get("/v1/dentists");
+        this.dentists = response.data;
+        this.locations = [
+          ...new Set(response.data.map((dentist) => dentist.location)),
+        ];
+      } catch (error) {
+        console.error("Failed to fetch dentists:", error);
+      }
+    },
+    async fetchSlots(filters = {}) {
+      try {
+        const response = await Api.get("/v1/slots/availability", { params: filters });
+        this.events = response.data.slots.map((slot) => ({
+          start: `${slot.date}T${slot.startTime}`,
+          end: `${slot.date}T${slot.endTime}`,
+          title: "Available Slot",
+          class: "available-slot",
+        }));
+      } catch (error) {
+        console.error("Failed to fetch slots:", error);
+      }
+    },
+    */
     async fetchSlotsAndDentists(filters = {}) {
         try {
             const response = await Api.get("/v1/slots/availability", { params: filters });
+            console.log("Backend response:", response.data); // Log the response
 
             // Transform slot data for calendar
-            this.events = response.data.slots.map((slot) => ({
-            start: `${slot.date}T${slot.startTime}`,
-            end: `${slot.date}T${slot.endTime}`,
-            title: `Available Slot: ${slot.dentistId.firstName} ${slot.dentistId.lastName}`,
-            class: "available-slot",
-            }));
+            this.events = response.data.slots
+            ? response.data.slots.map((slot) => ({
+                start: `${slot.date}T${slot.startTime}`,
+                end: `${slot.date}T${slot.endTime}`,
+                title: `Available Slot: ${slot.dentistId?.firstName || "Unknown"} ${
+                    slot.dentistId?.lastName || ""
+                }`,
+                class: "available-slot",
+                }))
+            : [];
 
             // Extract unique dentists and locations
             const uniqueDentists = new Map();
@@ -69,13 +99,19 @@ export default {
 
             // Convert to arrays for filters
             this.dentists = Array.from(uniqueDentists.values()).map((dentist) => dentist.name);
-            this.locations = Array.from(new Set(Array.from(uniqueDentists.values()).map((d) => d.location)));
+            this.locations = Array.from(
+            new Set(Array.from(uniqueDentists.values()).map((d) => d.location))
+            );
+
+            console.log("Events:", this.events);
+            console.log("Dentists:", this.dentists);
+            console.log("Locations:", this.locations);
         } catch (error) {
             console.error("Failed to fetch slots and dentists:", error);
         }
     },
     handleFilterChange(filters) {
-      this.fetchSlots(filters);
+      this.fetchSlotsAndDentists(filters);
     },
     handleSlotClick(event) {
       console.log("Cell clicked event data:", event);
