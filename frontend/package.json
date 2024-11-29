@@ -9,10 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.7.7",
+    "axios": "^1.7.8",
     "bootstrap": "^5.3.3",
-    "bootstrap-vue-next": "^0.25.14",
-    "vue": "^3.5.12",
+    "bootstrap-vue-next": "^0.25.15",
+    "dotenv": "^16.4.5",
+    "vue": "^3.5.13",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {
