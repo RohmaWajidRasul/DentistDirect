@@ -1,15 +1,12 @@
 <template>
     <div>
       <div>
-        <img src = /image.png class="banner-image" alt="">
+        <img src = /image.png class="banner-image" alt="View from Stenpiren">
       </div>
-      <div v-if="globalState.isLoggedIn">
+      <div v-if="true" class ="row">
         <!-- If the user is logged in, show personalized home page -->
-        <b-container fluid>
-          <h1 class="display-5 fw-bold">Welcome Back!</h1>
-          <p class="fs-4">Check dentist appointments easily with one click.</p>
-          <b-button variant="primary" @click="goToMyAppointments">Go to My Appointments</b-button>
-        </b-container>
+         <card text="Check my appointments" link="my-appointments" style="margin-left: 300px;"></card>
+         <card text="Check available times" link="slots"></card>
       </div>
       <div v-else>
         <!-- If the user is not logged in, show generic home page -->
@@ -23,13 +20,15 @@
   
   <script>
   import axios from 'axios'
-  import { inject } from 'vue'
+  import { inject } from 'vue'  
+  import Card from '../components/Card.vue'
+
   
   export default {
     name: 'home',
     methods: {
       goToMyAppointments() {
-        this.$router.push('/my-appointments') // Navigate to meal planner
+        this.$router.push('/my-appointments') 
       },
       checkLoginStatus() {
         this.$router.go() // Reload the component to reflect the new state
@@ -131,7 +130,7 @@
   }
 
   .banner-image {
-    width : 1500px;
+    width : 90%;
   }
   </style>
   
