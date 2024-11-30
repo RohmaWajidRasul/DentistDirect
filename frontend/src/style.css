@@ -107,6 +107,10 @@ body {
   border: solid #A3CEF1
 }
 
+.left-card {
+  margin-left: 20%;
+}
+
 .card:hover {
   background-color: #335A87;
   color: #E7ECEF;

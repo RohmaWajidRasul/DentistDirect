@@ -3,10 +3,13 @@
       <div>
         <img src = /image.png class="banner-image" alt="View from Stenpiren">
       </div>
+      <h1 class ="welcome-text">
+        Welcome back to Dentist Direct!
+      </h1>
       <div v-if="true" class ="row">
         <!-- If the user is logged in, show personalized home page -->
-         <card text="Check my appointments" link="my-appointments" style="margin-left: 300px;"></card>
-         <card text="Check available times" link="slots"></card>
+          <card text="Check my appointments" link="my-appointments" class="left-card"></card>
+          <card text="Check available times" link="slots"></card>
       </div>
       <div v-else>
         <!-- If the user is not logged in, show generic home page -->
@@ -61,12 +64,6 @@
   </script>
   
   <style scoped>
-  
-  .ingredients-list {
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 1rem;
-  }
   
   .checked .custom-control-input:checked {
     background-color: green !important;
@@ -131,6 +128,25 @@
 
   .banner-image {
     width : 90%;
+  }
+  .Welcome-text {
+    font-size: 40;
+  }
+
+  @media (width <= 700px) {
+    .left-card {
+      margin-left: 30px;
+    }
+  }
+
+  @media (width <= 305px) {
+    .left-card {
+      margin-left: 0px;
+    }
+
+    .card {
+      margin-top: 10px;
+    }
   }
   </style>
   
