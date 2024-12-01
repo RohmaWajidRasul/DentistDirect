@@ -1,10 +1,10 @@
-import Slot from '../model/slot.js';
+import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
-export const handleAvailabilityRequest = async (topic, message) => {
+export const getAvailableAppointments = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
 
-    if (topic !== 'request/availability/fetch') {
+    if (topic !== 'request/appointments/availability/fetch') {
         return;
     }
 
@@ -29,31 +29,28 @@ export const handleAvailabilityRequest = async (topic, message) => {
             return publishAvailabilityResponse(correlationId, errorResponse);
         }
 
-        // Build the query object
-        const query = { dentistId, status: 'available' };
+        const query = { dentistId, status: { $in: ['available', 'canceled'] } };
+
         if (date) {
-            query.date = date; // Filter by date if provided
+            query.date = date; 
         }
 
-        // Fetch slots with a timeout wrapper
-        const slots = await Slot.find(query).sort({ date: 1, startTime: 1 });
+        const appointments = await Appointment.find(query).sort({ date: 1, startTime: 1 });
 
-        if (!slots.length) {
-            // Publish event for no slots found
-            const noSlotsResponse = {
+        if (!appointments.length) {
+            const noAppointmentsResponse = {
                 correlationId,
                 status: 'error',
-                message: 'No slots found for the given dentist',
+                message: 'No appointments found for the given dentist',
             };
-            return publishAvailabilityResponse(correlationId, noSlotsResponse);
+            return publishAvailabilityResponse(correlationId, noAppointmentsResponse);
         }
 
-        // Successful fetch
         const successResponse = {
             correlationId,
             status: 'success',
-            message: 'Slots retrieved successfully',
-            slots,
+            message: 'Appointments retrieved successfully',
+            appointments,
         };
         return publishAvailabilityResponse(correlationId, successResponse);
     } catch (error) {
@@ -65,7 +62,7 @@ export const handleAvailabilityRequest = async (topic, message) => {
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: 'Critical error: Correlation ID is missing or undefined.',
+            message: 'Error fetching appointments',
             error: error.message,
         };
         return publishAvailabilityResponse(correlationId, errorResponse);
@@ -73,7 +70,7 @@ export const handleAvailabilityRequest = async (topic, message) => {
 };
 
 const publishAvailabilityResponse = (correlationId, response) => {
-    const responseTopic = `response/availability/fetched/${correlationId}`;
+    const responseTopic = `response/appointments/availability/fetched/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);

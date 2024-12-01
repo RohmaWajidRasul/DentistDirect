@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-var mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/group-5';
+var mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/patients';
 
 async function connectDB() {
     try {

@@ -1,5 +1,5 @@
 import mqttClient from '../../../shared/mqtt-client.js';
-import Appointment from '../../models/appointment.js';
+import Appointment from '../models/appointment.js';
 
 export const cancelAppointment = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
@@ -18,9 +18,9 @@ export const cancelAppointment = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { appointmentID } = parsedMessage.payload;
+        const { appointmentId } = parsedMessage.payload;
 
-        if (!appointmentID) {
+        if (!appointmentId) {
             console.error('Appointment ID missing in payload');
             const errorResponse = {
                 correlationId,
@@ -31,7 +31,7 @@ export const cancelAppointment = async (topic, message) => {
         }
 
         
-        const appointment = await Appointment.findById(appointmentID);
+        const appointment = await Appointment.findById(appointmentId);
 
         if (!appointment) {
             const errorResponse = {
@@ -43,11 +43,11 @@ export const cancelAppointment = async (topic, message) => {
         }
 
        
-        if (appointment.status === 'canceled') {
+        if (appointment.status === 'canceled' || appointment.status ==='deleted') {
             const errorResponse = {
                 correlationId,
                 status: 'not_found',
-                message: 'Appointment is already canceled',
+                message: `Appointment is already ${appointment.status}`,
             };
             return publishResponse(correlationId, errorResponse);
         }
@@ -55,7 +55,6 @@ export const cancelAppointment = async (topic, message) => {
         appointment.status = 'canceled';
         await appointment.save();
 
-        // Prepare success response
         const successResponse = {
             correlationId,
             status: 'success',

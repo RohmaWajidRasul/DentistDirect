@@ -1,8 +1,9 @@
 import Patient from '../models/patient.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import mqttClient from '../../../shared/mqtt-client.js';
+import bcrypt from 'bcrypt';
 
-export const createPatientRequest = async (topic, message) => {
-    const patientTopic = 'request/patient/create'; 
+export const createPatient = async (topic, message) => {
+    const patientTopic = 'request/patients/create'; 
 
     if (topic !== patientTopic){
         return; 
@@ -19,7 +20,7 @@ export const createPatientRequest = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { firstName, lastName, email, phoneNumber, dateOfBirth } = parsedMessage.payload;
+        const { firstName, lastName, email, password, phoneNumber, dateOfBirth } = parsedMessage.payload;
 
         if (!firstName || !lastName || !email || !phoneNumber || !dateOfBirth ) {
             const errorResponse ={
@@ -31,14 +32,27 @@ export const createPatientRequest = async (topic, message) => {
             return publishResponse(correlationId, errorResponse);
         }
 
-        const patient = new Patient({ firstName, lastName, email, phoneNumber, dateOfBirth });
-        await patient.save();
+        const patient = await Patient.findOne({ email});
+        if ( patient ) {
+            const errorResponse ={
+                correlationId, 
+                status: 'error', 
+                message : 'Email already in use.', 
+            }; 
+
+            return publishResponse(correlationId, errorResponse);
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newPatient = new Patient({ firstName, lastName, email, password: hashedPassword, phoneNumber, dateOfBirth });
+        await newPatient.save();
 
         const successResponse = {
             correlationId, 
             status: 'success', 
             message: 'Patient created successfully', 
-            patient,
+            newPatient,
         }; 
         return publishResponse(correlationId, successResponse);
 
@@ -60,7 +74,7 @@ export const createPatientRequest = async (topic, message) => {
 };
 
 const publishResponse = (correlationId, response) => {
-    const responseTopic = `response/patient/created/${correlationId}`;
+    const responseTopic = `response/patients/created/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);
