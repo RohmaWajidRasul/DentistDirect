@@ -18,7 +18,7 @@ app.get('/', (req, res) => res.send('Backend running'));
 
 app.use('/v1/appointments', appointmentRoutes);
 
-app.use('/v1/patient', patientRoutes); 
+app.use('/v1/patients', patientRoutes); 
 
 app.use('/*', function (req, res) {
     res.status(404).json({ message: 'Not Found' });
