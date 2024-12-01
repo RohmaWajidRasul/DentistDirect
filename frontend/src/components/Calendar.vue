@@ -1,21 +1,20 @@
 <template>
-    <div>
-      <vue-cal
-        :events="events"
-        :selected-date="selectedDate"
-        :view="view"
-        time="24"
-        @cell-click="handleSlotClick"
-      />
-    </div>
+    <vue-cal
+      :events="events"
+      :selected-date="selectedDate"
+      :view="view"
+      time="24"
+      @cell-click="handleSlotClick"
+      @view-change="handleViewChange"
+    />
   </template>
   
   <script>
-  import VueCal from 'vue-cal';
-  import 'vue-cal/dist/vuecal.css';
+  import VueCal from "vue-cal";
+  import "vue-cal/dist/vuecal.css";
   
   export default {
-    name: 'Calendar',
+    name: "Calendar",
     components: { VueCal },
     props: {
       events: {
@@ -24,23 +23,22 @@
       },
       view: {
         type: String,
-        default: 'month',
+        default: "month",
       },
       selectedDate: {
         type: Date,
         default: () => new Date(),
       },
     },
-    emits: ['slot-click'],
+    emits: ["slot-click", "view-change"],
     methods: {
       handleSlotClick(event) {
-        this.$emit('slot-click', event); // Emit the selected slot to parent
+        this.$emit("slot-click", event); // Emit event to parent
+      },
+      handleViewChange(newView) {
+        this.$emit("view-change", newView); // Emit view change to parent
       },
     },
   };
   </script>
-  
-  <style scoped>
-  /* Add any calendar-specific styling if needed */
-  </style>
   

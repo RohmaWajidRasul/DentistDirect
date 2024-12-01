@@ -39,7 +39,9 @@ export const getAvailableAppointments = async (topic, message) => {
             query.location = location; // Filter by location if provided
         }
 
-        const appointments = await Appointment.find(query).sort({ date: 1, startTime: 1 });
+        const appointments = await Appointment.find(query)
+            .populate('dentistId', 'firstName lastName location')
+            .sort({ date: 1, startTime: 1 });
 
         if (!appointments.length) {
             const noAppointmentsResponse = {
