@@ -99,10 +99,10 @@ export default {
           if (topic === responseTopic) {
             const response = JSON.parse(message.toString());
             console.log("Response received:", response);
-            console.log("Filtered slots response:", response.slots);
+            console.log("Filtered slots response:", response.appointments);
 
             if (response.status === "success") {
-              this.processSlots(response.slots);
+              this.processSlots(response.appointments);
             } else {
               console.error("Error response:", response.message);
               //alert(response.message);
