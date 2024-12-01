@@ -32,7 +32,7 @@ export const createPatient = async (topic, message) => {
             return publishResponse(correlationId, errorResponse);
         }
 
-        const patient = await Patient.findOne({ email});
+        const patient = await Patient.findOne({ email });
         if ( patient ) {
             const errorResponse ={
                 correlationId, 

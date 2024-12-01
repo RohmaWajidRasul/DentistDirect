@@ -1,8 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from './database.js';
-import dentistRouter from './dentist.router.js';
+import dentistRoutes from './routes/dentist.router.js';
+import appointmentRoutes from './routes/appointment.router.js';
+
 import morgan from'morgan';
 dotenv.config();
 
@@ -14,9 +15,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-connectDB();
+app.use('/v1/appointments', appointmentRoutes);
 
-app.use('/v1/dentists', dentistRouter);
+
+app.use('/v1/dentists', dentistRoutes);
 
 app.use('/*', function (req, res) {
     res.status(404).json({ message: 'Not Found' });
