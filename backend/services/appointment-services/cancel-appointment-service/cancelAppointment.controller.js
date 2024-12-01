@@ -1,10 +1,10 @@
-import Slot from '../model/slot.js';
 import mqttClient from '../../../shared/mqtt-client.js';
+import Appointment from '../appointment.js';
 
-export const handleCancelSlotRequests = async (topic, message) => {
+export const cancelAppointment = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
 
-    if (topic !== 'request/slots/cancel') {
+    if (topic !== 'request/appointments/cancel') {
         return;
     }
 
@@ -18,72 +18,75 @@ export const handleCancelSlotRequests = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { slotId } = parsedMessage.payload;
+        const { appointmentId } = parsedMessage.payload;
 
-        if (!slotId) {
+        if (!appointmentId) {
+            console.error('Appointment ID missing in payload');
             const errorResponse = {
                 correlationId,
                 status: 'error',
-                message: 'Slot ID is required'
+                message: 'Appointment ID is required',
             };
             return publishResponse(correlationId, errorResponse);
         }
 
-        const slot = await Slot.findById(slotId);
+        
+        const appointment = await Appointment.findById(appointmentId);
 
-        if (!slot) {
+        if (!appointment) {
             const errorResponse = {
                 correlationId,
                 status: 'error',
-                message: 'Slot not found'
+                message: 'Appointment not found',
             };
             return publishResponse(correlationId, errorResponse);
         }
 
-        if (slot.status === 'cancelled' || slot.status === 'Cancelled') {
+       
+        if (appointment.status === 'canceled' || appointment.status ==='deleted') {
             const errorResponse = {
                 correlationId,
-                status: 'error',
-                message: 'Slot is already cancelled'
+                status: 'not_found',
+                message: `Appointment is already ${appointment.status}`,
             };
             return publishResponse(correlationId, errorResponse);
         }
-
-        slot.status = 'cancelled';
-        await slot.save();
+        
+        appointment.status = 'canceled';
+        await appointment.save();
 
         const successResponse = {
             correlationId,
             status: 'success',
-            message: 'Slot successfully cancelled',
-            slot
+            message: 'Appointment canceled successfully',
+            appointment,
         };
+
         return publishResponse(correlationId, successResponse);
 
     } catch (error) {
         if (!correlationId) {
-            console.error('Error. Correlation ID is missing or is undefined.', error.message);
+            console.error('Error: Correlation ID is missing or undefined.', error.message);
             return;
         }
 
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: 'Error cancelling slot',
-            error: error.message
+            message: 'Error canceling appointment',
+            error: error.message,
         };
         return publishResponse(correlationId, errorResponse);
     }
 };
 
 const publishResponse = (correlationId, response) => {
-    const responseTopic = `response/slots/cancelled/${correlationId}`;
+    const responseTopic = `response/appointments/canceled/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);
         } else {
-            console.log(`Response sent to ${responseTopic}:`);
+            console.log(`Response sent to ${responseTopic}`);
         }
     });
-
-}
+};

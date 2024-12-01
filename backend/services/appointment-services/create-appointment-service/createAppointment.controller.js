@@ -1,7 +1,7 @@
-import Appointment from '../../models/appointment.js';
+import Appointment from '../appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
-export const handleAppointmentRequest = async (topic, message) => {
+export const createAppointment = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
 
     if (topic !== 'request/appointments/create') {
@@ -19,10 +19,10 @@ export const handleAppointmentRequest = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request'); 
         }
 
-        const { patientId, dentistId, slotId } = parsedMessage.payload;
+        const { dentistId, date, startTime, endTime } = parsedMessage.payload;
 
 
-        if (!patientId || !dentistId || !slotId) {
+        if (!dentistId || !date || !startTime || !endTime) {
             const errorResponse = {
                 correlationId,
                 status: 'error',
@@ -31,8 +31,20 @@ export const handleAppointmentRequest = async (topic, message) => {
             return publishResponse(correlationId, errorResponse);
         }
 
+        const [startHour, startMinute] = startTime.split(':').map(Number);
+        const [endHour, endMinute] = endTime.split(':').map(Number);
+        const duration = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
 
-        const appointment = new Appointment({ patientId, dentistId, slotId });
+        if (duration <= 0) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'End time must be after start time',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
+        const appointment = new Appointment({ dentistId, date, startTime, endTime, duration });
         await appointment.save();
 
         const successResponse = {
@@ -41,7 +53,6 @@ export const handleAppointmentRequest = async (topic, message) => {
             message: 'Appointment created successfully',
             appointment,
         };
-        notifySlot(slotId)
         return publishResponse(correlationId, successResponse);
     } catch (error) {
         if (!correlationId) {
@@ -52,7 +63,7 @@ export const handleAppointmentRequest = async (topic, message) => {
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: 'Error creating slot',
+            message: 'Error creating appointment',
             error: error.message,
         };
         return publishResponse(correlationId, errorResponse);
@@ -69,16 +80,3 @@ const publishResponse = (correlationId, response) => {
         }
     });
 };
-
-const notifySlot = (slotId) => {
-    const AlertBookedSlotServiceTopic = "request/slots/book"
-    const correlationId = Date.now().toString();
-    mqttClient.publish(AlertBookedSlotServiceTopic, JSON.stringify({ correlationId, slotId }), (err) => {
-        if (err) {
-            console.error(`Failed to publish to ${AlertBookedSlotServiceTopic}:`, err);
-        } else {
-            console.log(`Response sent to ${AlertBookedSlotServiceTopic}`);
-        }
-    
-    });
-}

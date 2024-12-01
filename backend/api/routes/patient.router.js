@@ -2,7 +2,7 @@ import express from 'express';
 import mqttClient from '../../shared/mqtt-client.js';
 const router = express.Router();
 
-router.post('/create', (req, res) => {
+router.post('/', (req, res) => {
     const payload = req.body;
     const correlationId = Date.now().toString();
 
