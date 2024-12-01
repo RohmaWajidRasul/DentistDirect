@@ -1,5 +1,4 @@
-import Dentist from '../models/dentist.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Dentist from '../services/models/dentist.js';
 
 export const createDentist = async (req, res) => {
     try {
@@ -12,7 +11,6 @@ export const createDentist = async (req, res) => {
         const dentist = new Dentist( req.body );
         await dentist.save();
 
-        mqttClient.publish('dentist/create', JSON.stringify(dentist));
 
         res.status(201).json({ message: 'Dentist created successfully', dentist });
     } catch (error) {
