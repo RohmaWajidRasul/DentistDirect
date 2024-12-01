@@ -1,11 +1,11 @@
 :root {
-  --navbar-bg-color: #305784; /* Warm pastel yellow */
- --navbar-text-color: #E7ECEF; /* Soft dark brown for good contrast */
- --navbar-active-text-color: #A3CEF1; /* Muted pastel coral for active text */
- --button-color: #6096BA; /* Warm pastel coral for buttons */
- --button-hover-color: #335A87; /* Slightly deeper coral for hover effect */
- --background-color: #E7ECEF; /* Light warm peach for background */
- --footer-bg-color: #305784; /* Same as navbar for consistency */
+  --navbar-bg-color: white; /* Warm pastel yellow */
+ --navbar-text-color: #51b2dd; /* Soft dark brown for good contrast */
+ --navbar-active-text-color: #51b2dd; /* Muted pastel coral for active text */
+ --button-color: #51b2dd; /* Warm pastel coral for buttons */
+ --button-hover-color: #6096BA; /* Slightly deeper coral for hover effect */
+ --background-color: white; /* Light warm peach for background */
+ --footer-bg-color: #51b2dd; /* Same as navbar for consistency */
  --footer-text-color: #E7ECEF; /* Soft dark brown for footer text */
  --text-color: #E7ECEF; /* Consistent soft dark brown for readability */
  /* Gradient background for sections */
@@ -98,11 +98,13 @@ body {
 }
 
 .card {
-  width: 150px;
-  height: 100px;
+  width: 180px;
+  height: 170px;
   margin-top: 50px;
-  padding: 0;
-  background-color: #6096BA;
+  margin-bottom: 60px;
+  padding-left: 0px;
+  padding-right: 0px;
+  background-color: #51b2dd;
   border-radius: 0px;
   border: solid #A3CEF1
 }
@@ -112,7 +114,7 @@ body {
 }
 
 .card:hover {
-  background-color: #335A87;
+  background-color: #6096BA;
   color: #E7ECEF;
   cursor: pointer 
 }
@@ -123,4 +125,9 @@ body {
   bottom: 0;
   left: 0;
   width: 100%;
+  }
+
+  .navbar {
+    border-bottom: 2.5px solid #51b2dd;
+
   }

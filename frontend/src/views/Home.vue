@@ -4,12 +4,12 @@
         <img src = /image.png class="banner-image" alt="View from Stenpiren">
       </div>
       <h1 class ="welcome-text">
-        Welcome back to Dentist Direct!
+        Your dentist finder in Gothenburg!
       </h1>
-      <div v-if="true" class ="row">
+      <div v-if="globalState.isLoggedIn()" class ="row">
         <!-- If the user is logged in, show personalized home page -->
-          <card text="Check my appointments" link="my-appointments" class="left-card"></card>
-          <card text="Check available times" link="slots"></card>
+          <card text="My Appointments" link="my-appointments" class="left-card"></card>
+          <card text="Book Appointment" link="slots" imgsrc="booking"></card>
       </div>
       <div v-else>
         <!-- If the user is not logged in, show generic home page -->
@@ -25,6 +25,7 @@
   import axios from 'axios'
   import { inject } from 'vue'  
   import Card from '../components/Card.vue'
+  import booking from '/booking.png'
 
   
   export default {
@@ -127,7 +128,7 @@
   }
 
   .banner-image {
-    width : 90%;
+    width : 100%;
   }
   .Welcome-text {
     font-size: 40;
