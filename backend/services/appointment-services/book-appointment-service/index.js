@@ -19,7 +19,7 @@ app.use(morgan('dev'));
 
 connectDB();
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Booking Appointment Service');
+    console.log('MQTT connected for Book Appointment Service');
     mqttClient.subscribe('request/appointments/book', (err) => {
         if (err) {
             console.error('Failed to subscribe to request/appointments/book:', err);
