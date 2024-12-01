@@ -27,7 +27,7 @@
   import mqttClient from "../mqttClient.js";
   
   export default {
-    name: "Slots",
+    name: "slots-page",
     components: { Calendar, Filters },
     data() {
       return {
@@ -40,55 +40,78 @@
       };
     },
     mounted() {
+      this.mqttClient = mqttClient;
       this.fetchSlotsAndDentists();
     },
     methods: {
-      fetchSlotsAndDentists(filters = {}) {
-        this.isLoading = true;
-        const correlationId = Date.now().toString();
-  
-        // Construct payload for the request
-        const payload = { correlationId, filters };
-  
-        // Subscribe to the response topic
-        const responseTopic = `response/availability/fetched/${correlationId}`;
-        mqttClient.subscribe(responseTopic, (err) => {
-          if (err) {
-            console.error("Failed to subscribe to response topic:", err);
-            this.isLoading = false;
-            return;
-          }
-        });
-  
-        // Listen for the response
-        mqttClient.on("message", (topic, message) => {
-          if (topic === responseTopic) {
-            const response = JSON.parse(message.toString());
-  
-            // Unsubscribe from the response topic after receiving the response
-            mqttClient.unsubscribe(responseTopic);
-  
-            if (response.status === "success") {
-              this.processSlots(response.slots);
-            } else {
-              console.error("Failed to fetch slots and dentists:", response.message);
-            }
-  
-            this.isLoading = false;
-          }
-        });
-  
-        // Publish the request to the broker
-        mqttClient.publish(
-          "request/availability/fetch",
-          JSON.stringify(payload),
-          (err) => {
-            if (err) {
-              console.error("Failed to publish availability request:", err);
-              this.isLoading = false;
-            }
-          }
-        );
+      async fetchSlotsAndDentists(filters = {}) {
+        try {
+            const correlationId = Date.now().toString(); // Generate unique correlationId
+
+            const payload = {
+                correlationId,
+                dentistId: filters.dentistId || null, // Default to null if not provided
+                date: filters.date || null,          // Default to null if not provided
+                location: filters.location || null,  // Default to null if not provided
+            };
+
+            console.log("Publishing payload:", payload);
+
+            this.mqttClient.publish(
+                "request/availability/fetch",
+                JSON.stringify({ correlationId, payload }),
+                (err) => {
+                    if (err) {
+                        console.error("Failed to publish request:", err);
+                        throw new Error("Failed to publish request");
+                    } else {
+                        console.log(`Request published with correlationId: ${correlationId}`);
+                    }
+                }
+            );
+
+            const responseTopic = `response/availability/fetched/${correlationId}`;
+            this.mqttClient.subscribe(responseTopic, (err) => {
+                if (err) {
+                    console.error("Failed to subscribe to response topic:", err);
+                    throw new Error("Failed to subscribe to response topic");
+                } else {
+                    console.log(`Subscribed to response topic: ${responseTopic}`);
+                }
+            });
+
+            this.mqttClient.on("message", (topic, message) => {
+                if (topic === responseTopic) {
+                    const response = JSON.parse(message.toString());
+                    console.log("Response received:", response);
+
+                    if (response.status === "success") {
+                        this.events = response.slots.map((slot) => ({
+                            start: `${slot.date}T${slot.startTime}`,
+                            end: `${slot.date}T${slot.endTime}`,
+                            title: `Available Slot: ${slot.dentistId?.firstName || "Unknown"} ${
+                                slot.dentistId?.lastName || ""
+                            }`,
+                            class: "available-slot",
+                        }));
+                    } else {
+                        console.error("Error response:", response.message);
+                        alert(response.message);
+                    }
+
+                    this.mqttClient.unsubscribe(responseTopic, (err) => {
+                        if (err) {
+                            console.error("Failed to unsubscribe from response topic:", err);
+                        } else {
+                            console.log(`Unsubscribed from response topic: ${responseTopic}`);
+                        }
+                    });
+                }
+            });
+        } catch (error) {
+            console.error("Error in fetchSlotsAndDentists:", error.message);
+            alert("An error occurred while fetching slots. Please try again later.");
+        }
       },
       processSlots(slots) {
         // Transform slot data for the calendar

@@ -26,7 +26,7 @@
 
   
   export default {
-    name: 'home',
+    name: 'home-page',
     methods: {
       goToMyAppointments() {
         this.$router.push('/my-appointments') 

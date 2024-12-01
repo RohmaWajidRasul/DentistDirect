@@ -4,8 +4,8 @@ import Home from './views/Home.vue'
 import Slots from './views/Slots.vue'
 
 const routes = [
-  { path: '/', name: 'home', component: Home },
-  { path: '/slots', name: 'Slots', component: Slots }
+  { path: '/', name: 'home-page', component: Home },
+  { path: '/slots', name: 'slots-page', component: Slots }
 ]
 
 const router = createRouter({

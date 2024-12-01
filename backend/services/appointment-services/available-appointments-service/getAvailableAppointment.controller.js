@@ -3,6 +3,7 @@ import mqttClient from '../../../shared/mqtt-client.js';
 
 export const getAvailableAppointments = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
+    console.log("Raw message:", message.toString());
 
     if (topic !== 'request/appointments/availability/fetch') {
         return;
@@ -14,22 +15,26 @@ export const getAvailableAppointments = async (topic, message) => {
         const parsedMessage = JSON.parse(message.toString());
         correlationId = parsedMessage.correlationId;
 
-        if (!correlationId) {
-            throw new Error('Correlation ID is missing in the request');
-        }
-
-        const { dentistId, date, location } = parsedMessage.payload;
-
-        if (!dentistId) {
-            const errorResponse = {
+        // Validate that payload exists and is an object
+        if (!("payload" in parsedMessage)) {
+            console.error("Payload is missing in the request.");
+            return publishAvailabilityResponse(correlationId, {
                 correlationId,
-                status: 'error',
-                message: 'Dentist ID is required',
-            };
-            return publishAvailabilityResponse(correlationId, errorResponse);
+                status: "error",
+                message: "Payload is missing or undefined.",
+            });
         }
 
-        const query = { dentistId, status: { $in: ['available', 'canceled'] } };
+        const { payload } = parsedMessage;
+
+        // Safely destructure payload
+        const { dentistId = null, date = null, location = null } = payload || {};
+
+        console.log("Parsed message:", parsedMessage);
+        console.log("Payload:", { dentistId, date, location });
+
+        const query = { status: { $in: ['available', 'canceled'] } };
+        if (dentistId) query.dentistId = dentistId;
 
         if (date) {
             query.date = date; // Filter by date if provided
@@ -60,11 +65,7 @@ export const getAvailableAppointments = async (topic, message) => {
         };
         return publishAvailabilityResponse(correlationId, successResponse);
     } catch (error) {
-        if (!correlationId) {
-            console.error('Critical error: Correlation ID is missing or undefined.', error.message);
-            return;
-        }
-
+        console.error("Error processing request:", error.message);
         const errorResponse = {
             correlationId,
             status: 'error',
@@ -74,6 +75,7 @@ export const getAvailableAppointments = async (topic, message) => {
         return publishAvailabilityResponse(correlationId, errorResponse);
     }
 };
+
 
 const publishAvailabilityResponse = (correlationId, response) => {
     const responseTopic = `response/appointments/availability/fetched/${correlationId}`;
