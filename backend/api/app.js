@@ -20,6 +20,10 @@ app.use('/v1/appointments', appointmentRoutes);
 
 app.use('/v1/patient', patientRoutes); 
 
+app.use('/*', function (req, res) {
+    res.status(404).json({ message: 'Not Found' });
+});
+
 process.on('SIGINT', async () => {
     console.log('Gracefully shutting down...');
     try {

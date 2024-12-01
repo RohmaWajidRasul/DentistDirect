@@ -5,6 +5,7 @@ import connectDB from '../database.js';
 import mqttClient from '../../../shared/mqtt-client.js'; 
 import { cancelAppointment } from './cancelAppointment.controller.js';
 import morgan from 'morgan';
+import mongoose from 'mongoose';
 
 dotenv.config();
 
@@ -30,3 +31,30 @@ mqttClient.on('connect', () => {
 
 mqttClient.on('message', cancelAppointment);
 
+const shutdown = async () => {
+    console.log('Shutting down service...');
+
+    mqttClient.unsubscribe('request/appointments/cancel', (err) => {
+        if (err) {
+            console.error('Failed to unsubscribe:', err);
+        } else {
+            console.log('Unsubscribed from request/appointments/cancel');
+        }
+    });
+
+    mqttClient.end(false, () => {
+        console.log('MQTT client disconnected');
+    });
+
+    try {
+        await mongoose.connection.close();
+        console.log('MongoDB connection closed');
+    } catch (err) {
+        console.error('Error closing MongoDB connection:', err);
+    }
+
+    process.exit(0);
+};
+
+process.on('SIGINT', shutdown); 
+process.on('SIGTERM', shutdown); 

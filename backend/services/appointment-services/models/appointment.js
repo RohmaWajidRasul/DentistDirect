@@ -43,6 +43,10 @@ const appointmentSchema = new Schema({
 appointmentSchema.pre('save', async function (next) {
     const appointment = this;
 
+    if (!appointment.isNew) {
+        return next();
+    }
+
     const overlappingAppointment = await mongoose.model('Appointment').findOne({
         dentistId: appointment.dentistId,
         date: appointment.date,
