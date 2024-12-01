@@ -18,7 +18,7 @@ export const getAvailableAppointments = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { dentistId, date } = parsedMessage.payload;
+        const { dentistId, date, location } = parsedMessage.payload;
 
         if (!dentistId) {
             const errorResponse = {
@@ -32,7 +32,11 @@ export const getAvailableAppointments = async (topic, message) => {
         const query = { dentistId, status: { $in: ['available', 'canceled'] } };
 
         if (date) {
-            query.date = date; 
+            query.date = date; // Filter by date if provided
+        }
+
+        if (location) {
+            query.location = location; // Filter by location if provided
         }
 
         const appointments = await Appointment.find(query).sort({ date: 1, startTime: 1 });
