@@ -31,6 +31,25 @@ mqttClient.on('connect', () => {
 
 mqttClient.on('message', manageAppointment);
 
+const publishHeartbeat = () => {
+    const heartbeat = {
+        service: 'Appointment Management Service',
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+    };
+
+    mqttClient.publish('heartbeat/appointment-management', JSON.stringify(heartbeat), (err) => {
+        if (err) {
+            console.error('Failed to publish heartbeat:', err);
+        } else {
+            console.log('Heartbeat published for Appointment Management Service');
+        }
+    });
+};
+
+setInterval(publishHeartbeat, 5000);
+
 const shutdown = async () => {
     console.log('Shutting down service...');
 
