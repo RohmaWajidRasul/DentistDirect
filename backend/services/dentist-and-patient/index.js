@@ -6,7 +6,7 @@ import patientRouter from '../../api/routes/patient.router.js';
 import mqttClient from '../../shared/mqtt-client.js';
 import dentistRouter from './dentist.router.js';
 import morgan from'morgan';
-import { createPatientRequest } from './patient.controller.js';
+import { createPatientRequest } from '../patient-services/create-patient-service/createPatient.controller.js';
 dotenv.config();
 
 const app = express();

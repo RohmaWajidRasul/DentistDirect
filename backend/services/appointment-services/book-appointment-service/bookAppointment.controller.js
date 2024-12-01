@@ -1,4 +1,4 @@
-import Appointment from '../appointment.js';
+import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
 export const bookAppointment = async (topic, message) => {

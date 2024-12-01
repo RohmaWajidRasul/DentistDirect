@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from '../../appointment-services/database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
-import { getAvailableAppointments } from './availableAppointment.controller.js';
+import { getAvailableAppointments } from './getAvailableAppointment.controller.js';
 import morgan from'morgan';
 import mongoose from 'mongoose';
 

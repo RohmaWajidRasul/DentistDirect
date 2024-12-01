@@ -16,6 +16,10 @@ const patientSchema = new Schema({
         required: true,
         unique: true,
     },
+    password: {
+        type: String,
+        required: true
+    },
     phoneNumber: {
         type: String,
         required: true,

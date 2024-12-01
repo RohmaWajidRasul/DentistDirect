@@ -1,4 +1,4 @@
-import Appointment from '../appointment.js';
+import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
 export const getAvailableAppointments = async (topic, message) => {
@@ -29,7 +29,6 @@ export const getAvailableAppointments = async (topic, message) => {
             return publishAvailabilityResponse(correlationId, errorResponse);
         }
 
-        // Build the query object
         const query = { dentistId, status: { $in: ['available', 'canceled'] } };
 
         if (date) {
@@ -47,7 +46,6 @@ export const getAvailableAppointments = async (topic, message) => {
             return publishAvailabilityResponse(correlationId, noAppointmentsResponse);
         }
 
-        // Successful fetch
         const successResponse = {
             correlationId,
             status: 'success',

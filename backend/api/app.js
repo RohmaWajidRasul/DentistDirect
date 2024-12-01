@@ -1,6 +1,6 @@
 import express from 'express';
-import appointmentRoutes from './routes/appointmentRoutes.js';
-import registerPatientRoutes from './routes/patient.router.js'; 
+import appointmentRoutes from './routes/appointment.router.js';
+import patientRoutes from './routes/patient.router.js'; 
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from'morgan';
@@ -18,7 +18,7 @@ app.get('/', (req, res) => res.send('Backend running'));
 
 app.use('/v1/appointments', appointmentRoutes);
 
-app.use('/v1/patient', registerPatientRoutes); 
+app.use('/v1/patient', patientRoutes); 
 
 process.on('SIGINT', async () => {
     console.log('Gracefully shutting down...');
