@@ -124,7 +124,7 @@ export default {
 
           if (response.status === 'success') {
             alert('Patient registered successfully');
-            this.resetForm();
+            this.$router.push('/');
           } else {
             alert('Failed to register patient: ' + response.message);
           }
