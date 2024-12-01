@@ -1,6 +1,6 @@
 # Contributing to Dentist Direct
 
-We’re excited you’re interested in contributing to Dentist Direct! Whether it’s fixing a bug, proposing new features, or improving documentation, your contributions are welcome and valued.
+We’re excited that you’re interested in contributing to Dentist Direct! Whether it’s fixing a bug, proposing new features, or improving documentation, your contributions are welcome and valued.
 
 ## Table of Contents
 1. [Getting Started](#getting-started)
@@ -40,9 +40,9 @@ In the very unlikely event that you find a bug, please remain calm and follow th
 If you have an idea for a feature follow these steps:
 - Search existing issues to avoid making duplicates.
 - Open a new issue.
-- &nbsp; Describe the feature in detail.
-- &nbsp; Describe why it would be beneficial to the project.
-- &nbsp; It is greatly appreciated if you include a diagram.
+- Describe the feature in detail.
+- Describe why it would be beneficial to the project.
+- It is greatly appreciated if you include a diagram.
 
 ## Contributing Code
 
