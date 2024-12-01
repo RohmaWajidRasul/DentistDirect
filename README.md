@@ -1,7 +1,7 @@
 # Dentist Direct
 ![DentistDirect logo image](assets/dentist-direct.png)
 
-Dentist Direct is a distributed system enabling residents and dentists of Gothenburg to book and manage dentist appointments conveniently. With a focus on flexibility and usability, the system is designed to handle dentist availability, cancellations, and user-friendly appointment management.
+Dentist Direct is a distributed system enabling residents and dentists of Gothenburg to conveniently book and manage dentist appointments. With a focus on flexibility and usability, the system is designed to handle dentist availability, cancellations, and user-friendly appointment management.
 
 ## Table of Contents
 1. [Overview](#overview)
