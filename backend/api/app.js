@@ -16,17 +16,6 @@ app.use(morgan('dev'));
 
 app.get('/', (req, res) => res.send('Backend running'));
 
-<<<<<<< HEAD
-=======
-app.use('/v1/slots/dentists/create', dentistRoute);
-
-app.use('/v1/slots/availability', availableSlotsRoutes);
-
-app.use('/v1/slots', slotRoutes);
-
-app.use('/v1/appointments/cancel', cancellationRoutes);
-
->>>>>>> e004800 (#8 Try to fix fetching slots in frontend)
 app.use('/v1/appointments', appointmentRoutes);
 
 app.use('/v1/patients', patientRoutes); 

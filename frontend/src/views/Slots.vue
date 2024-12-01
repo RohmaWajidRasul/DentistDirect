@@ -75,7 +75,7 @@ export default {
         console.log("Publishing payload:", payload);
 
         this.mqttClient.publish(
-          "request/availability/fetch",
+          "request/appointments/availability/fetch",
           JSON.stringify({ correlationId, payload }),
           (err) => {
             if (err) {
@@ -86,7 +86,7 @@ export default {
           }
         );
 
-        const responseTopic = `response/availability/fetched/${correlationId}`;
+        const responseTopic = `response/appointments/availability/fetched/${correlationId}`;
         this.mqttClient.subscribe(responseTopic, (err) => {
           if (err) {
             console.error("Failed to subscribe to response topic:", err);

@@ -52,7 +52,7 @@ export const getAvailableAppointments = async (topic, message) => {
             const noAppointmentsResponse = {
                 correlationId,
                 status: 'error',
-                message: 'No appointments found for the given dentist',
+                message: 'No appointments found.',
             };
             return publishAvailabilityResponse(correlationId, noAppointmentsResponse);
         }
