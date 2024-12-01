@@ -1,15 +1,17 @@
 <template>
- <div id="app">
+  <div id="app" class="d-flex flex-column min-vh-100">
+    <!-- Navbar -->
+    <Navbar />
 
-  <router-view></router-view>
- </div>
+    <!-- Main content -->
+    <div class="flex-grow-1">
+      <router-view/>
+    </div>
+
+    <!-- Footer -->
+    <MyFooter />
+  </div>
 </template>
-
-<script>
-export default {
-  name: 'App',
-};
-</script>
 
 <style scoped>
 .logo {
@@ -24,4 +26,4 @@ export default {
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
 }
-</style>
+</script>

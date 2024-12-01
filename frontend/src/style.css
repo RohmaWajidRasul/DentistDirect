@@ -1,79 +1,133 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
-
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-.card {
-  padding: 2em;
+  --navbar-bg-color: white; /* Warm pastel yellow */
+ --navbar-text-color: #51b2dd; /* Soft dark brown for good contrast */
+ --navbar-active-text-color: #51b2dd; /* Muted pastel coral for active text */
+ --button-color: #51b2dd; /* Warm pastel coral for buttons */
+ --button-hover-color: #6096BA; /* Slightly deeper coral for hover effect */
+ --background-color: white; /* Light warm peach for background */
+ --footer-bg-color: #51b2dd; /* Same as navbar for consistency */
+ --footer-text-color: #E7ECEF; /* Soft dark brown for footer text */
+ --text-color: #E7ECEF; /* Consistent soft dark brown for readability */
+ /* Gradient background for sections */
+ --section-gradient-bg: linear-gradient(135deg, #F4E1D2, #F2CC8F); /* Gradient from warm peach to pastel yellow */
+ --navbar-nav: #E7ECEF;
+ --b-nav-item: #E7ECEF;
 }
 
 #app {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+ font-family: 'Avenir', Helvetica, Arial, sans-serif;
+ -webkit-font-smoothing: antialiased;
+ -moz-osx-font-smoothing: grayscale;
+ text-align: center;
+ min-height: 100vh;
+ display: flex;
+ flex-direction: column;
+ background-color: var(--background-color);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.app-container {
+ background-color: var(--background-color);
 }
+
+/* Ensure content pushes footer to bottom */
+.flex-grow-1 {
+ flex-grow: 1;
+}
+
+.active-tab {
+ color: var(--navbar-active-text-color) !important;
+ font-weight: bold; /* Optional: Make active tab bold */
+}
+
+.ml-auto {
+ margin-left: auto !important;
+ color: #E7ECEF;
+}
+
+/* Navbar Color */
+.navbar-custom {
+ background-color: var(--navbar-bg-color) !important;
+ color: var(--navbar-text-color);
+}
+
+.navbar-custom a:hover,
+.router-link-exact-active {
+ color: var(--navbar-active-text-color) !important;
+}
+
+/* Background and Button Colors */
+body {
+ background-color: var(--background-color);
+ color: #2C3E50;
+}
+
+.btn_message,
+.btn-primary {
+ background-color: var(--button-color);
+ border-color: var(--button-color);
+}
+
+.btn_message:hover,
+.btn-primary:hover {
+ background-color: var(--button-hover-color);
+ border-color: var(--button-hover-color);
+}
+
+/* Footer styles */
+.footer {
+ background-color: var(--footer-bg-color);
+ color: var(--footer-text-color);
+ padding: 0.2em 0; /* Reduce the padding to decrease height */
+ text-align: center;
+ width: 100%;
+}
+
+.footer a {
+ color: var(--footer-text-color);
+ margin: 0 10px;
+ font-size: 1.0em;
+}
+
+/* Adjust icon spacing */
+.footer-icon {
+ margin: 0 10px;
+}
+
+.footer a:hover {
+ color: var(--navbar-active-text-color);
+}
+
+.card {
+  width: 180px;
+  height: 170px;
+  margin-top: 50px;
+  margin-bottom: 60px;
+  padding-left: 0px;
+  padding-right: 0px;
+  background-color: #51b2dd;
+  border-radius: 0px;
+  border: solid #A3CEF1
+}
+
+.left-card {
+  margin-left: 20%;
+}
+
+.card:hover {
+  background-color: #6096BA;
+  color: #E7ECEF;
+  cursor: pointer 
+}
+
+.card-link {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  }
+
+  .navbar {
+    border-bottom: 2.5px solid #51b2dd;
+
+  }
