@@ -136,13 +136,20 @@ export default {
 </script>
 
 <style scoped>
+:root {
+  --background-color: #f4f4f9; /* Light background */
+  --button-color: #007bff; /* Blue button color */
+  --button-hover-color: #0056b3; /* Darker blue when hovered */
+  --text-color: #2C3E50; /* Darker text color */
+}
 .form-container {
-  max-width: 500px;
-  margin: 30px auto;
-  padding: 20px;
-  background: #f9f9f9;
+  background-color: #f4f4f9;
+  padding: 30px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .form-title {
