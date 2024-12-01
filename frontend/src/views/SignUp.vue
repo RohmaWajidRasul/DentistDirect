@@ -39,6 +39,18 @@
       </div>
 
       <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          v-model="user.password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      <div class="form-group">
         <label for="phoneNumber">Phone Number</label>
         <input
           type="tel"
@@ -84,8 +96,8 @@ export default {
   methods: {
     async handleSubmit() {
       const correlationId = Date.now().toString();
-      const requestTopic = 'request/patient/create';  
-      const responseTopic = `response/patient/created/${correlationId}`; 
+      const requestTopic = 'request/patients/create';  
+      const responseTopic = `response/patients/created/${correlationId}`; 
 
       const payload = {
         correlationId,
