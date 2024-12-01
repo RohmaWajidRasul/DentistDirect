@@ -6,7 +6,7 @@
       <h1 class ="welcome-text">
         Your dentist finder in Gothenburg!
       </h1>
-      <div v-if="globalState.isLoggedIn()" class ="row">
+      <div v-if="globalState.isLoggedIn" class ="row">
         <!-- If the user is logged in, show personalized home page -->
           <card text="My Appointments" link="my-appointments" class="left-card"></card>
           <card text="Book Appointment" link="slots" imgsrc="booking"></card>
@@ -14,7 +14,6 @@
       <div v-else>
         <!-- If the user is not logged in, show generic home page -->
         <b-container fluid>
-          <h1 class="display-5 fw-bold">Welcome to DentistDirect</h1>
           <p class="fs-4">Check available slots at your dentist, book and cancel appointments easily.</p>
         </b-container>
       </div>
