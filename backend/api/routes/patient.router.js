@@ -2,13 +2,53 @@ import express from 'express';
 import mqttClient from '../../shared/mqtt-client.js';
 const router = express.Router();
 
-router.post('/create', (req, res) => {
+router.post('/login', (req, res) => {
+    const payload = req.body;
+    const correlationId = Date.now().toString();
+
+    const requestTopic = 'request/patients/login';
+    const responseTopic = `response/patients/loggedIn/${correlationId}`;
+
+    mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
+        if (err) {
+            return res.status(500).json({ message: 'Failed to publish login request to MQTT', error: err.message });
+        }
+        console.log(`Published login request to topic: ${requestTopic}`);
+    });
+
+    const timeout = setTimeout(() => {
+        mqttClient.unsubscribe(responseTopic);
+        return res.status(504).json({ message: 'Login request timeout. No response from server.' });
+    }, 5000);
+
+    mqttClient.subscribe(responseTopic, (err) => {
+        if (err) {
+            clearTimeout(timeout);
+            console.error(`Failed to subscribe to response topic: ${responseTopic}`, err);
+            return res.status(500).json({ message: 'Failed to subscribe to MQTT response topic', error: err.message });
+        }
+        console.log(`Subscribed to response topic: ${responseTopic}`);
+    });
+
+    mqttClient.on('message', (topic, message) => {
+        if (topic === responseTopic) {
+            clearTimeout(timeout);
+            mqttClient.unsubscribe(responseTopic);
+            console.log(`Unsubscribed from response topic: ${responseTopic}`);
+
+            const response = JSON.parse(message.toString());
+            return res.status(response.status === 'success' ? 200 : 401).json(response);
+        }
+    });
+});
+
+router.post('/', (req, res) => {
     const payload = req.body;
     const correlationId = Date.now().toString();
 
 
-    const requestTopic = 'request/patient/create';
-    const responseTopic = `response/patient/created/${correlationId}`;
+    const requestTopic = 'request/patients/create';
+    const responseTopic = `response/patients/created/${correlationId}`;
 
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
         if (err) {

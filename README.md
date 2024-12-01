@@ -1,93 +1,114 @@
-# DentistDirect
+# Dentist Direct
+![DentistDirect logo image](assets/dentist-direct.png)
 
+Dentist Direct is a distributed system enabling residents and dentists of Gothenburg to conveniently book and manage dentist appointments. With a focus on flexibility and usability, the system is designed to handle dentist availability, cancellations, and user-friendly appointment management.
 
+## Table of Contents
+1. [Overview](#overview)
+2. [Purpose and Benefit](#purpose-and-benefit)
+3. [Features](#features)
+4. [Dependencies and Requirements](#dependencies-and-requirements)
+5. [How to Deploy](#how-to-deploy)
+6. [Tech Stack](#tech-stack)
+7. [System Design](#system-design)
+    - [Software Diagram](#software-diagram)
+8. [Setup and Get Started](#setup-and-get-started)
+9. [Git Rules](#git-rules)
+    - [Issues](#issues)
+    - [Commits](#commits)
+    - [Merge and Reviewing](#merge-and-reviewing)
+10. [Contribute](#contribute)
+11. [Acknowledgements](#acknowledgements)
+12. [License](#license)
 
-## Getting started
+## Overview
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+Dentist Direct is a microservices-based system that simplifies the process of booking dentist appointments in Gothenburg. It features:
+- A web interface for patients to browse and book appointments.
+- An admin panel for dentists to manage their availability.
+- MQTT middleware for efficient communication between services.
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Purpose and Benefit
+Dentist Direct solves the problem of time-consuming manual searches for dentist appointments by:
+ - Automating appointment scheduling.
+ - Allowing dentists to manage their availability in a flexible way.
+ - Providing real-time updates to users about slot changes.
 
-## Add your files
+## Features
+Patients can view, filter, and book dentist appointments. Dentists can create, cancel, or update available slots. Patients or dentists can cancel appointments, with real-time updates across the system. The system uses MQTT middleware for fast and scalable message exchange between services.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+## Dependencies and Requirements
 
+**Dependencies**:
+- **Node.js**
+- **MongoDB**
+- **Node MQTT.js**
+- **Vue.js**
+- **Express.js**
+- **Bootstrap**
+
+**Requirements**:
+- A working MQTT broker (`mqtt://localhost:1883`)
+- MongoDB running on `localhost:27017`
+- Installed NPM package manager
+
+## How to Deploy
+Full deployment instructions will be added in future milestones.
+
+## Tech Stack
+- **Frontend:** Built with Vue.js and styled using Bootstrap for responsiveness, to achieve a user-friendly interface.
+- **Backend**: Node.js with Express.js for API endpoints and business logic.
+- **Database**: MongoDB for storing data.
+- **Middleware**: Node MQTT broker for publish/subscribe messaging between services.
+
+## System Design
+#### Software Diagram
+The diagram illustrates the system architecture, highlighting interactions between components:
+![Component diagram](assets/Milestone2-Component-Diagram.drawio.png)
+
+## Setup and Get Started
+- **Clone the Repository with SSH**
+```sh
+git clone git@git.chalmers.se:courses/dit355/2024/student_teams/dit356_2024_05/dentistdirect.git
+cd dentistdirect
 ```
-cd existing_repo
-git remote add origin https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_05/dentistdirect.git
-git branch -M main
-git push -uf origin main
+- **Install Dependencies**
+```sh
+npm install
 ```
 
-## Integrate with your tools
+## Git Rules
+#### **Issues**
+In this project, we use feature branches. Therefore, an issue must be created for all new features:
+- The issue name must reflect the feature and be written as a noun.
+- All issues need to be accompanied by a user story and acceptance criterias.
+- All issues must be assigned to a team member
+- The issue must be labeled with a priority level.
+- The issue must be added to a milestone.
 
-- [ ] [Set up project integrations](https://git.chalmers.se/courses/dit355/2024/student_teams/dit356_2024_05/dentistdirect/-/settings/integrations)
+#### **Commits**
+- Commit messages must be written in imperative form.  
+```sh
+#<Issue No.> <Commit message in imperative form (e.g. implement instead of implemented)>
+```
 
-## Collaborate with your team
+#### **Merge and Reviewing**
+- Merge conflicts should be solved locally.
+- The code must be reviewed by another team member.
+- The code must be tested before it is merged.
+- The merge must me marked "approved" before the branch is merged to main.
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## Contribute
+We encourage you to contribute to DentistDirect! Please follow the guidelines in [CONTRIBUTING.md](CONTRIBUTING.md)  
+for details on submitting pull requests, reporting issues, and proposing new features.
 
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+## Acknowledgements
+**Team members**  
+Rohma Wajid Rasul  
+Fatemeh Akbarifar  
+Fatma Ogoti Gichaba  
+Karl Byland  
+Anna Rebecca Skeppstedt
 
 ## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is licensed under the MIT License. See [LICENSE.md](LICENSE.md) for more information.
