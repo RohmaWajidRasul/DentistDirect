@@ -1,9 +1,8 @@
 <template>
-  <div class="container mt-5">
-    <h2>Sign Up to Dentist Direct</h2>
-    <form @submit.prevent="handleSubmit">
-
-      <div class="form-group col-md-6">
+  <div class="form-container">
+    <h2 class="form-title">Sign Up to Dentist Direct</h2>
+    <form @submit.prevent="handleSubmit" class="signup-form">
+      <div class="form-group">
         <label for="firstName">First Name</label>
         <input
           type="text"
@@ -15,7 +14,7 @@
         />
       </div>
 
-      <div class="form-group col-md-6">
+      <div class="form-group">
         <label for="lastName">Last Name</label>
         <input
           type="text"
@@ -27,7 +26,7 @@
         />
       </div>
 
-      <div class="form-group col-md-6">
+      <div class="form-group">
         <label for="email">Email</label>
         <input
           type="email"
@@ -39,7 +38,7 @@
         />
       </div>
 
-      <div class="form-group col-md-6">
+      <div class="form-group">
         <label for="phoneNumber">Phone Number</label>
         <input
           type="tel"
@@ -51,7 +50,7 @@
         />
       </div>
 
-      <div class="form-group col-md-6">
+      <div class="form-group">
         <label for="dateOfBirth">Date of Birth</label>
         <input
           type="date"
@@ -125,10 +124,69 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  max-width: 600px;
-  margin: 0 auto;
+.form-container {
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 20px;
+  background: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #555;
+}
+
+
+/* Submit Button */
+.btn-primary {
+  width: 100%;
+  padding: 10px 15px;
+  font-size: 16px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 700px) {
+  .form-container {
+    padding: 15px;
+  }
+
+  .form-title {
+    font-size: 20px;
+  }
+
+  .form-control {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .btn-primary {
+    font-size: 14px;
+    padding: 8px;
+  }
 }
 </style>
-
-  
