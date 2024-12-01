@@ -3,42 +3,42 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from '../database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
-import { bookAppointment } from './bookAppointment.controller.js';
-import morgan from'morgan';
+import morgan from 'morgan';
 import mongoose from 'mongoose';
-
+import { manageAppointment } from './manageAppointment.controller.js';
 
 dotenv.config();
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-
 connectDB();
+
+const requestTopic = 'request/appointments/manage/#'
+
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Book Appointment Service');
-    mqttClient.subscribe('request/appointments/book', (err) => {
+    console.log('MQTT connected for Appointment Management Service');
+    mqttClient.subscribe( requestTopic, (err) => {
         if (err) {
-            console.error('Failed to subscribe to request/appointments/book:', err);
+            console.error(`Failed to subscribe to ${requestTopic}`, err);
         } else {
-            console.log('Subscribed to request/appointments/book');
+            console.log(`Subscribed to ${requestTopic}`);
         }
     });
 });
 
-mqttClient.on('message', bookAppointment);
+mqttClient.on('message', manageAppointment);
 
 const shutdown = async () => {
     console.log('Shutting down service...');
 
-    mqttClient.unsubscribe('request/appointments/book', (err) => {
+    mqttClient.unsubscribe(requestTopic, (err) => {
         if (err) {
             console.error('Failed to unsubscribe:', err);
         } else {
-            console.log('Unsubscribed from request/appointments/book');
+            console.log(`Unsubscribed from ${requestTopic}`);
         }
     });
 
@@ -56,8 +56,6 @@ const shutdown = async () => {
     process.exit(0);
 };
 
-process.on('SIGINT', shutdown); 
-process.on('SIGTERM', shutdown); 
 
-
-
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
