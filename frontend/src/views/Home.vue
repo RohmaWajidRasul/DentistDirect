@@ -21,7 +21,6 @@
   </template>
   
   <script>
-  import axios from 'axios'
   import { inject } from 'vue'  
   import Card from '../components/Card.vue'
 
