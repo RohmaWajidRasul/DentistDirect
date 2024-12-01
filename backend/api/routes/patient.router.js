@@ -2,13 +2,13 @@ import express from 'express';
 import mqttClient from '../../shared/mqtt-client.js';
 const router = express.Router();
 
-router.post('/create', (req, res) => {
+router.post('/', (req, res) => {
     const payload = req.body;
     const correlationId = Date.now().toString();
 
 
-    const requestTopic = 'request/patient/create';
-    const responseTopic = `response/patient/created/${correlationId}`;
+    const requestTopic = 'request/patients/create';
+    const responseTopic = `response/patients/created/${correlationId}`;
 
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
         if (err) {
