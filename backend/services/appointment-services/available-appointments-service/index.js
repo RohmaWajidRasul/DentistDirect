@@ -43,9 +43,7 @@ const publishHeartbeat = () => {
     mqttClient.publish('heartbeat/available-appointment', JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
-        } else {
-            console.log('Heartbeat published for Availabel Appointments Service');
-        }
+        } 
     });
 };
 

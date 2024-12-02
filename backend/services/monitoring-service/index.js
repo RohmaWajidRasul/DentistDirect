@@ -4,7 +4,7 @@ const servicesStatus = {};
 
 const HEARTBEAT_TIMEOUT = 10000; 
 
-const subscriptionTopic = 'heartbeat/+'
+const subscriptionTopic = 'heartbeat/+';
 
 mqttClient.on('connect', () => {
     mqttClient.subscribe( subscriptionTopic, (err) => {

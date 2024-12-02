@@ -1,5 +1,5 @@
-import Dentist from '../models/dentist.js';
-import mqttClient from '../../../shared/mqtt-client.js';
+import Dentist from './models/dentist.js';
+import mqttClient from '../../shared/mqtt-client.js';
 import bcrypt from 'bcrypt';
 
 

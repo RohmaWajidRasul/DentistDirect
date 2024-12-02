@@ -39,7 +39,7 @@ export default {
   components: { Filters, MonthNavigation, SlotsCalendar  },
   data() {
     return {
-      slots: [],
+      appointments: [],
       groupedSlotsByMonth: {},
       dentists: [],
       locations: [],
@@ -65,7 +65,6 @@ export default {
         const correlationId = Date.now().toString();
 
         const payload = {
-          correlationId,
           dentistId: this.filters.dentistId || null,
           location: this.filters.location || null,
         };
@@ -122,35 +121,36 @@ export default {
         alert("An error occurred while fetching slots. Please try again later.");
       }
     },
-    processSlots(slots) {
-      this.slots = slots.map((slot) => ({
-        id: slot._id,
-        date: slot.date,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        dentistName: `${slot.dentistId?.firstName || "Unknown"} ${slot.dentistId?.lastName || ""}`,
-        location: slot.dentistId?.location || "Unknown Location",
+    processSlots(appointments) {
+      this.appointments = appointments.map((appointment) => ({
+        id: appointment._id,
+        date: appointment.date,
+        startTime: appointment.startTime,
+        endTime: appointment.endTime,
+        dentistId: appointment.dentistId,
+        dentistName: `${appointment.dentist?.firstName || "Unknown"} ${appointment.dentist?.lastName || ""}`,
+        location: appointment.dentist?.location || "Unknown Location",
       }));
 
-      console.log("Formatted slots:", this.slots);
+      console.log("Formatted slots:", this.appointments);
 
       this.groupSlots();
-      this.extractFilters(slots);
+      this.extractFilters(appointments);
     },
-    extractFilters(slots) {
+    extractFilters(appointments) {
       const uniqueDentists = new Map();
       const uniqueLocations = new Set();
 
-      slots.forEach((slot) => {
-        if (slot.dentistId) {
-          uniqueDentists.set(slot.dentistId._id, {
-            id: slot.dentistId._id,
-            name: `${slot.dentistId.firstName} ${slot.dentistId.lastName}`,
+      appointments.forEach((appointment) => {
+        if (appointment.dentistId) {
+          uniqueDentists.set(appointment.dentistId._id, {
+            id: appointment.dentistId._id,
+            name: `${appointment.dentistId.firstName} ${appointment.dentistId.lastName}`,
           });
         }
 
-        if (slot.dentistId?.location) {
-          uniqueLocations.add(slot.dentistId.location);
+        if (appointment.dentistId?.location) {
+          uniqueLocations.add(appointment.dentistId.location);
         }
       });
 
@@ -163,10 +163,10 @@ export default {
     groupSlots() {
       const groupedByMonth = {};
 
-      this.slots.forEach((slot) => {
-        const month = format(new Date(slot.date), "MMMM yyyy");
-        const week = getWeek(new Date(slot.date));
-        const day = format(new Date(slot.date), "EEEE, MMM d");
+      this.appointments.forEach((appointment) => {
+        const month = format(new Date(appointment.date), "MMMM yyyy");
+        const week = getWeek(new Date(appointment.date));
+        const day = format(new Date(appointment.date), "EEEE, MMM d");
 
         if (!groupedByMonth[month]) {
           groupedByMonth[month] = {};
@@ -180,7 +180,7 @@ export default {
           groupedByMonth[month][week][day] = [];
         }
 
-        groupedByMonth[month][week][day].push(slot);
+        groupedByMonth[month][week][day].push(appointment);
       });
 
       this.groupedSlotsByMonth = groupedByMonth;
