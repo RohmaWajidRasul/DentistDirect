@@ -67,11 +67,11 @@ router.patch("/:appointmentId", (req, res) => {
     let responseTopic;
 
     if (status === "canceled") {
-        requestTopic = "request/appointments/cancel";
-        responseTopic = `response/appointments/canceled/${correlationId}`;
+        requestTopic = "request/appointments/manage/cancel";
+        responseTopic = `response/appointments/manage/canceled/${correlationId}`;
     } else {
-        requestTopic = "request/appointments/book";
-        responseTopic = `response/appointments/booked/${correlationId}`;
+        requestTopic = "request/appointments/manage/book";
+        responseTopic = `response/appointments/manage/booked/${correlationId}`;
     }
   
     const payload = { appointmentId, ...req.body };

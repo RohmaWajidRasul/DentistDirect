@@ -45,13 +45,13 @@ router.patch("/:appointmentId", (req, res) => {
     let responseTopic;
 
     if (status === "canceled") {
-        requestTopic = "request/appointments/cancel";
-        responseTopic = `response/appointments/canceled/${correlationId}`;
+        requestTopic = "request/appointments/manage/cancel";
+        responseTopic = `response/appointments/manage/canceled/${correlationId}`;
     } else if (status === "deleted") {
-        requestTopic = "request/appointments/delete";
-        responseTopic = `response/appointments/deleted/${correlationId}`;
+        requestTopic = "request/appointments/manage/delete";
+        responseTopic = `response/appointments/manage/deleted/${correlationId}`;
     }
-    
+
     const payload = { appointmentId, ...req.body };
   
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
