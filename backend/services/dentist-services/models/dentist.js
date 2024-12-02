@@ -31,10 +31,6 @@ const dentistSchema = new Schema({
         type: String,
         required: true
     },
-    availableSlotsId: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Slot',
-    }],
     createdAt: {
         type: Date,
         default: Date.now,
