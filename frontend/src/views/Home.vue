@@ -1,28 +1,28 @@
 <template>
+  <div>
     <div>
-      <div>
-        <img src = /image.png class="banner-image" alt="View from Stenpiren">
-      </div>
-      <h1 class ="welcome-text">
-        Your dentist finder in Gothenburg!
-      </h1>
-      <div v-if="globalState.isLoggedIn" class ="row">
-        <!-- If the user is logged in, show personalized home page -->
-          <card text="My Appointments" link="my-appointments" class="left-card"></card>
-          <card text="Book Appointment" link="slots" imgsrc="booking"></card>
-      </div>
-      <div v-else>
-        <!-- If the user is not logged in, show generic home page -->
-        <b-container fluid>
-          <p class="fs-4">Check available slots at your dentist, book and cancel appointments easily.</p>
-        </b-container>
-      </div>
+      <img src = /image.png class="banner-image" alt="View from Stenpiren">
     </div>
-  </template>
-  
-  <script>
-  import { inject } from 'vue'  
-  import Card from '../components/Card.vue'
+    <h1 class ="welcome-text">
+      Your dentist finder in Gothenburg!
+    </h1>
+    <div v-if="globalState.isLoggedIn" class ="row">
+      <!-- If the user is logged in, show personalized home page -->
+        <card text="My Appointments" link="my-appointments" class="left-card"></card>
+        <card text="Book Appointment" link="slots" imgsrc="booking"></card>
+    </div>
+    <div v-else>
+      <!-- If the user is not logged in, show generic home page -->
+      <b-container fluid>
+        <p class="fs-4">Check available slots at your dentist, book and cancel appointments easily.</p>
+      </b-container>
+    </div>
+  </div>
+</template>
+
+<script>
+import { inject } from 'vue'  
+import Card from '../components/Card.vue'
 
   
   export default {
@@ -124,27 +124,26 @@
     cursor: pointer;
   }
 
-  .banner-image {
-    width : 100%;
+.banner-image {
+  width : 100%;
+}
+.Welcome-text {
+  font-size: 40;
+}
+
+@media (width <= 700px) {
+  .left-card {
+    margin-left: 30px;
   }
-  .Welcome-text {
-    font-size: 40;
+}
+
+@media (width <= 305px) {
+  .left-card {
+    margin-left: 0px;
   }
 
-  @media (width <= 700px) {
-    .left-card {
-      margin-left: 30px;
-    }
+  .card {
+    margin-top: 10px;
   }
-
-  @media (width <= 305px) {
-    .left-card {
-      margin-left: 0px;
-    }
-
-    .card {
-      margin-top: 10px;
-    }
-  }
-  </style>
-  
+}
+</style>
