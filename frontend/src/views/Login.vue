@@ -1,7 +1,7 @@
 <template>
     <div class="form-container">
       <h2 class="form-title">Login to Dentist Direct</h2>
-      <form @submit.prevent="handleSubmit" class="login-form">
+      <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="email">Email</label>
           <input
@@ -76,7 +76,7 @@
               alert('Login successful');
 
               // Store user info in localStorage to keep user in "logged in" state
-              localStorage.setItem('userId', response.userId);
+              //localStorage.setItem('userId', response.userId);
   
               // Redirect to home page
               this.$router.push('/');
