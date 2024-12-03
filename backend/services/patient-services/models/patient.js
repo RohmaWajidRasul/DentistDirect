@@ -11,6 +11,11 @@ const patientSchema = new Schema({
         type: String,
         required: true,
     },
+    SSN : {
+        type: String, 
+        required: true, 
+        unique: true,
+    },
     email: {
         type: String,
         required: true,

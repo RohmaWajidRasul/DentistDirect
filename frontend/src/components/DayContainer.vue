@@ -14,19 +14,35 @@
           <div class="slot-box">
             <span class="slot-time">{{ slot.startTime }} - {{ slot.endTime }}</span>
             <span class="slot-location">{{ slot.location }}</span>
+            <span class="slot-dentist">Dentist: {{ slot.dentistName }}</span>
           </div>
         </li>
       </ul>
+
+      <!-- SlotCard component -->
+      <SlotCard
+        v-if="selectedSlot"
+        :slot="selectedSlot"
+        @close="selectedSlot = null"
+      />
     </div>
   </template>
   
   <script>
+  import SlotCard from './SlotCard.vue';
+
   export default {
     name: "DayContainer",
+    components: { SlotCard },
     props: {
       day: String,
       date: String,
       daySlots: Array,
+    },
+    data() {
+      return {
+        selectedSlot: null, // Holds the currently selected slot
+      };
     },
     computed: {
       sortedSlots() {
@@ -37,7 +53,8 @@
     },
     methods: {
       showSlotDetails(slot) {
-        this.$emit("show-slot-details", slot);
+        //this.$emit("show-slot-details", slot);
+        this.selectedSlot = slot; // Open the SlotCard with the clicked slot
       },
     },
   };
@@ -89,8 +106,15 @@
   
   .slot-box {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .slot-time,
+  .slot-location,
+  .slot-dentist {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
   }
   </style>
   
