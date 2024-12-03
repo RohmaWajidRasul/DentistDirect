@@ -1,7 +1,8 @@
 <template>
   <div class="form-container">
-    <h2 class="form-title">Sign Up to Dentist Direct</h2>
+    <h2 class="form-title">Sign Up here</h2>
     <form @submit.prevent="handleSubmit" class="signup-form">
+     
       <div class="form-group">
         <label for="firstName">First Name</label>
         <input
@@ -22,6 +23,18 @@
           id="lastName"
           v-model="user.lastName"
           placeholder="Enter your last name"
+          required
+        />
+      </div>
+      
+      <div class = "form-group">
+        <label for="SSN">Social Security Number</label>
+        <input
+          type="text"
+          class="form-control"
+          id="SSN"
+          v-model="user.SSN"
+          placeholder="Enter your social security number"
           required
         />
       </div>
@@ -87,6 +100,7 @@ export default {
       user: {
         firstName: '',
         lastName: '',
+        SSN: '',
         email: '',
         phoneNumber: '',
         dateOfBirth: ''
