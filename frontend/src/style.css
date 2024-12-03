@@ -130,3 +130,7 @@ body {
     border-bottom: 2.5px solid #51b2dd;
 
   }
+  .row {
+    margin: 0px;
+    padding: 0px;
+  }
