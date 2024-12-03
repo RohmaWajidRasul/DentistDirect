@@ -77,7 +77,6 @@ body {
 .footer {
  background-color: var(--footer-bg-color);
  color: var(--footer-text-color);
- padding: 0.2em 0; /* Reduce the padding to decrease height */
  text-align: center;
  width: 100%;
 }
