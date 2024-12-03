@@ -69,7 +69,8 @@
     align-items: center;
     justify-content: flex-start; /* Added for responsiveness*/
     box-sizing: border-box; /* Added for responsiveness*/
-    overflow-x: auto; /* Added for responsiveness*/
+    white-space: normal; /* Allow wrapping of text */
+    word-wrap: break-word; /* Break long words if necessary */
   }
   
   .day-date {
@@ -118,6 +119,7 @@
     font-size: 0.9rem;
     text-align: center;
     word-wrap: break-word; /* Ensure long words break properly */
+    width: 100%;
   }
   
   .available-slot:hover {
