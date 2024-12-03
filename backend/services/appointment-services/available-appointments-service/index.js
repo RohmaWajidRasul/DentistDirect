@@ -40,7 +40,7 @@ const publishHeartbeat = () => {
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/available-appointment', JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish('heartbeat/available-appointments', JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
         } 

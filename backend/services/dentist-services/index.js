@@ -26,15 +26,21 @@ const topicHandlers = {
 mqttClient.on('connect', () => {
     console.log('MQTT connected for Dentist Service');
     
-    Object.keys(topicHandlers).forEach((topic) => {
-        mqttClient.subscribe(topic, (err) => {
-            if (err) {
-                console.error(`Failed to subscribe to ${topic}`, err);
-            } else {
-                console.log(`Subscribed to ${topic}`);
-            }
+    if (mqttClient.connected) {
+        Object.keys(topicHandlers).forEach((topic) => {
+            mqttClient.subscribe(topic, (err) => {
+                if (err) {
+                    console.error(`Failed to subscribe to ${topic}`, err);
+                } else {
+                    console.log(`Subscribed to ${topic}`);
+                }
+            });
         });
-    });
+    }
+});
+
+mqttClient.on('error', (err) => {
+    console.error('MQTT client error:', err);
 });
 
 mqttClient.on('message', (topic, message) => {
@@ -56,11 +62,15 @@ const publishHeartbeat = () => {
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/dentist-service', JSON.stringify(heartbeat), (err) => {
-        if (err) {
-            console.error('Failed to publish heartbeat:', err);
-        }
-    });
+    if (mqttClient.connected) {
+        mqttClient.publish('heartbeat/dentist-service', JSON.stringify(heartbeat), (err) => {
+            if (err) {
+                console.error('Failed to publish heartbeat:', err);
+            }
+        });
+    } else {
+        console.log('MQTT client not connected, unable to publish heartbeat.');
+    }
 };
 
 setInterval(publishHeartbeat, 5000);
