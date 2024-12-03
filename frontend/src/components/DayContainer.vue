@@ -166,6 +166,7 @@
     .slot-dentist {
       font-size: 0.3rem;
       margin-bottom: 3px;
+      text-align: center;
     }
   }
 
