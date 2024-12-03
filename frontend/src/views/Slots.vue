@@ -31,6 +31,7 @@
 import Filters from "../components/Filters.vue";
 import MonthNavigation from "../components/MonthNavigation.vue";
 import SlotsCalendar from "../components/SlotsCalendar.vue";
+import SlotCard from "../components/SlotCard.vue";
 import mqttClient from "../mqttClient.js";
 import { format, getWeek, addMonths, subMonths } from "date-fns";
 

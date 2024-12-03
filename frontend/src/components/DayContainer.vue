@@ -14,6 +14,7 @@
           <div class="slot-box">
             <span class="slot-time">{{ slot.startTime }} - {{ slot.endTime }}</span>
             <span class="slot-location">{{ slot.location }}</span>
+            <span class="slot-dentist">Dentist: {{ slot.dentistName }}</span>
           </div>
         </li>
       </ul>
@@ -89,8 +90,15 @@
   
   .slot-box {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .slot-time,
+  .slot-location,
+  .slot-dentist {
+    margin-bottom: 5px;
+    font-size: 0.9rem;
   }
   </style>
   
