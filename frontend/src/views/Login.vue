@@ -1,6 +1,6 @@
 <template>
     <div class="form-container">
-      <h2 class="form-title">Login to Dentist Direct</h2>
+      <h2 class="form-title">Login here</h2>
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="email">Email</label>
@@ -76,10 +76,12 @@
               alert('Login successful');
 
               // Store user info in localStorage to keep user in "logged in" state
-              //localStorage.setItem('userId', response.userId);
-  
+              localStorage.setItem('user', JSON.stringify({ userId: response.userId, email: this.user.email }));
+             // Store user data in localStorage, to stay in "logged in" state
+              window.dispatchEvent(new Event('authChange')) 
               // Redirect to home page
               this.$router.push('/');
+
             } else {
               alert('Login failed: ' + response.message);
             }
@@ -131,7 +133,7 @@
     padding: 10px 15px;
     font-size: 16px;
     color: white;
-    background-color: #007bff;
+    background-color: #51b2dd;
     border: none;
     border-radius: 5px;
     cursor: pointer;
