@@ -204,13 +204,19 @@ export default {
 </script>
 
 <style scoped>
+
+/* General styles */
 .slots-page {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
 }
 
+/* Filters container */
 .filters-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   margin-bottom: 20px;
 }
 
@@ -253,11 +259,72 @@ export default {
   border: 1px solid #dee2e6;
   border-radius: 8px;
   padding: 10px;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .slot-item {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
+}
+
+
+/* Responsive styles for different screen sizes */
+@media (max-width: 1024px) { /* Laptop */
+  .slots-page {
+    max-width: 100%;
+    padding: 15px;
+  }
+
+  .day-container {
+    flex: 1 0 45%; /* Adjust day container to take up more space */
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 768px) { /* Tablet */
+  .month-navigation h2 {
+    font-size: 1.2rem;
+  }
+
+  .days-row {
+    flex-direction: column; /* Stack days vertically */
+    gap: 10px;
+  }
+
+  .day-container {
+    flex: 1 0 100%; /* Full width for day container */
+  }
+}
+
+@media (max-width: 480px) { /* Mobile L */
+  .month-navigation h2 {
+    font-size: 1rem;
+  }
+
+  .day-container {
+    padding: 8px;
+  }
+
+  .available-slot {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 320px) { /* Mobile S */
+  .month-navigation h2 {
+    font-size: 0.9rem;
+  }
+
+  .day-container {
+    padding: 5px;
+  }
+
+  .available-slot {
+    font-size: 0.7rem;
+  }
 }
 </style>
