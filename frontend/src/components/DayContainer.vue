@@ -18,6 +18,13 @@
           </div>
         </li>
       </ul>
+
+      <!-- SlotCard component -->
+      <SlotCard
+        v-if="selectedSlot"
+        :slot="selectedSlot"
+        @close="selectedSlot = null"
+      />
     </div>
   </template>
   
@@ -32,6 +39,11 @@
       date: String,
       daySlots: Array,
     },
+    data() {
+      return {
+        selectedSlot: null, // Holds the currently selected slot
+      };
+    },
     computed: {
       sortedSlots() {
         return [...this.daySlots].sort(
@@ -41,7 +53,8 @@
     },
     methods: {
       showSlotDetails(slot) {
-        this.$emit("show-slot-details", slot);
+        //this.$emit("show-slot-details", slot);
+        this.selectedSlot = slot; // Open the SlotCard with the clicked slot
       },
     },
   };
