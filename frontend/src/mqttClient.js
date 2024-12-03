@@ -1,5 +1,6 @@
 import mqtt from 'mqtt';
 
+// Use the WebSocket URL for the MQTT broker
 const mqttURL = 'wss://test.mosquitto.org:8081';
 const mqttClient = mqtt.connect(mqttURL);
 

@@ -7,6 +7,7 @@ import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 import './style.css'
 import '@fortawesome/fontawesome-free/css/all.css';
 import '@fortawesome/fontawesome-free/js/all.js';
+import "vue-cal/dist/vuecal.css";
 
 const app = createApp(App);
 const globalState = reactive({

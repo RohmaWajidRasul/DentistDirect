@@ -15,6 +15,7 @@
     "bootstrap-vue-next": "^0.25.15",
     "dotenv": "^16.4.5",
     "mqtt": "^5.10.3",
+    "date-fns": "^4.1.0",
     "vue": "^3.5.13",
     "vue-router": "^4.4.5"
   },
