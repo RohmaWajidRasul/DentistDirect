@@ -94,7 +94,26 @@
   
   .day-cell {
     background-color: #f8f9fa;
-    overflow: hidden; /* Prevents overflowing content */
+    overflow: auto; /* Prevents overflowing content */
   }
+
+  /* Responsive scaling */
+  @media (max-width: 480px) { /* Mobile L */
+    .week-table th {
+      font-size: 0.8rem;
+      white-space: normal; /* Allow wrapping of text */
+      word-wrap: break-word; /* Break long words if necessary */
+    }
+  }
+
+  @media (max-width: 320px) { /* Mobile S */
+    .week-table th {
+      font-size: 0.7rem;
+      white-space: normal; /* Allow wrapping of text */
+      word-wrap: break-word; /* Break long words if necessary */
+      padding: 5px; /* Reduce padding to maximize space */
+    }
+  }
+
   </style>
   

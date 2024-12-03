@@ -67,6 +67,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start; /* Added for responsiveness*/
+    box-sizing: border-box; /* Added for responsiveness*/
+    overflow-x: auto; /* Added for responsiveness*/
   }
   
   .day-date {
@@ -84,12 +87,33 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Add spacing between slot items */
+    width: 100%;
+    height: 100%;
+    overflow-y: auto; /* Allow scrolling for overflow */
+    box-sizing: border-box;
   }
   
   .slot-item {
     margin-bottom: 10px;
     cursor: pointer;
-  }
+    flex: 1 1 auto; /* Allow items to grow or shrink */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px; /* Ensure a minimum height */
+    max-height: 50px; /* Restrict maximum height */
+    padding: 5px;
+    background-color: #d4edda; /* Green shade */
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    word-wrap: break-word; /* Ensure long words break properly */
+    transition: transform 0.2s ease;
+    }
   
   .available-slot {
     background-color: #d4edda; /* Green shade */
@@ -116,5 +140,24 @@
     margin-bottom: 5px;
     font-size: 0.9rem;
   }
+
+  /* Responsive scaling */
+  @media (max-width: 480px) { /* Mobile L */
+    .slot-item,
+    .no-slots {
+      font-size: 0.8rem;
+      min-height: 25px;
+    }
+  }
+
+  @media (max-width: 320px) { /* Mobile S */
+    .slot-item,
+    .no-slots {
+      font-size: 0.7rem;
+      padding: 3px;
+      min-height: 20px;
+    }
+  }
+
   </style>
   
