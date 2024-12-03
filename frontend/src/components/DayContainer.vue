@@ -153,6 +153,7 @@
     .available-slot {
       flex-direction: column;
       padding: 15px;
+      text-align: center;
     }
 
     .slot-box,
