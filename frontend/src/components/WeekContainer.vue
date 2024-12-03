@@ -100,7 +100,7 @@
   /* Responsive scaling */
   @media (max-width: 480px) { /* Mobile L */
     .week-table th {
-      font-size: 0.8rem;
+      font-size: 0.6rem;
       white-space: normal; /* Allow wrapping of text */
       word-wrap: break-word; /* Break long words if necessary */
     }
@@ -108,7 +108,7 @@
 
   @media (max-width: 320px) { /* Mobile S */
     .week-table th {
-      font-size: 0.7rem;
+      font-size: 0.4rem;
       white-space: normal; /* Allow wrapping of text */
       word-wrap: break-word; /* Break long words if necessary */
       padding: 5px; /* Reduce padding to maximize space */

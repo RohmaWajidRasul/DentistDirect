@@ -99,20 +99,6 @@
   .slot-item {
     margin-bottom: 10px;
     cursor: pointer;
-    flex: 1 1 auto; /* Allow items to grow or shrink */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 30px; /* Ensure a minimum height */
-    max-height: 50px; /* Restrict maximum height */
-    padding: 5px;
-    background-color: #d4edda; /* Green shade */
-    border: 1px solid #c3e6cb;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    text-align: center;
-    word-wrap: break-word; /* Ensure long words break properly */
-    transition: transform 0.2s ease;
     }
   
   .available-slot {
@@ -122,6 +108,18 @@
     padding: 10px;
     transition: transform 0.2s ease;
     width: 100%;
+    flex: 1 1 auto; /* Allow items to grow or shrink */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 30px; /* Ensure a minimum height */
+    max-height: 50px; /* Restrict maximum height */
+    background-color: #d4edda; /* Green shade */
+    border: 1px solid #c3e6cb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    text-align: center;
+    word-wrap: break-word; /* Ensure long words break properly */
   }
   
   .available-slot:hover {
@@ -139,21 +137,25 @@
   .slot-dentist {
     margin-bottom: 5px;
     font-size: 0.9rem;
+    white-space: normal; /* Allow wrapping of text */
+    word-wrap: break-word; /* Break long words if necessary */
   }
 
   /* Responsive scaling */
   @media (max-width: 480px) { /* Mobile L */
     .slot-item,
     .no-slots {
-      font-size: 0.8rem;
+      font-size: 0.6rem;
       min-height: 25px;
+      white-space: normal; /* Allow wrapping of text */
+      word-wrap: break-word; /* Break long words if necessary */
     }
   }
 
   @media (max-width: 320px) { /* Mobile S */
     .slot-item,
     .no-slots {
-      font-size: 0.7rem;
+      font-size: 0.4rem;
       padding: 3px;
       min-height: 20px;
     }
