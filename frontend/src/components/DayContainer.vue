@@ -107,13 +107,11 @@
     border-radius: 8px;
     padding: 10px;
     transition: transform 0.2s ease;
-    width: 100%;
     flex: 1 1 auto; /* Allow items to grow or shrink */
     display: flex;
     align-items: center;
     justify-content: center;
     min-height: 30px; /* Ensure a minimum height */
-    max-height: 50px; /* Restrict maximum height */
     background-color: #d4edda; /* Green shade */
     border: 1px solid #c3e6cb;
     border-radius: 8px;
@@ -144,8 +142,9 @@
   /* Responsive scaling */
   @media (max-width: 480px) { /* Mobile L */
     .slot-item,
+    .available-slot
     .no-slots {
-      font-size: 0.6rem;
+      font-size: 0.5rem;
       min-height: 25px;
       white-space: normal; /* Allow wrapping of text */
       word-wrap: break-word; /* Break long words if necessary */
@@ -154,8 +153,9 @@
 
   @media (max-width: 320px) { /* Mobile S */
     .slot-item,
+    .available-slot,
     .no-slots {
-      font-size: 0.4rem;
+      font-size: 0.3rem;
       padding: 3px;
       min-height: 20px;
     }
