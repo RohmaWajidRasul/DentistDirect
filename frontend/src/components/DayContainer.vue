@@ -143,6 +143,7 @@
 
   /* Responsive scaling */
   @media (max-width: 480px) { /* Mobile L */
+    .day-container,
     .slot-item,
     .available-slot
     .no-slots {
@@ -154,6 +155,7 @@
   }
 
   @media (max-width: 320px) { /* Mobile S */
+    .day-container,
     .slot-item,
     .available-slot,
     .no-slots {
