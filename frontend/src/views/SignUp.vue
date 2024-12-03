@@ -75,17 +75,6 @@
         />
       </div>
 
-      <div class="form-group">
-        <label for="dateOfBirth">Date of Birth</label>
-        <input
-          type="date"
-          class="form-control"
-          id="dateOfBirth"
-          v-model="user.dateOfBirth"
-          required
-        />
-      </div>
-
       <button type="submit" class="btn btn-primary">Sign Up</button>
     </form>
   </div>
@@ -102,8 +91,7 @@ export default {
         lastName: '',
         SSN: '',
         email: '',
-        phoneNumber: '',
-        dateOfBirth: ''
+        phoneNumber: ''
       },
     };
   },
@@ -117,6 +105,8 @@ export default {
         correlationId,
         payload: this.user
       };
+
+      console.log('Payload:', payload);  // Log the payload to check if all fields are present
 
       mqttClient.subscribe(responseTopic, (err) => {
         if (err) {
@@ -164,6 +154,7 @@ export default {
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  
 }
 
 .form-title {
@@ -185,13 +176,13 @@ label {
 }
 
 
-/* Submit Button */
+/* Sign Up Button */
 .btn-primary {
   width: 100%;
   padding: 10px 15px;
   font-size: 16px;
   color: white;
-  background-color: #007bff;
+  background-color: #51b2dd;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -201,6 +192,7 @@ label {
 .btn-primary:hover {
   background-color: #0056b3;
 }
+
 
 /* Responsive Design */
 @media (max-width: 700px) {
