@@ -22,8 +22,11 @@
   </template>
   
   <script>
+  import SlotCard from './SlotCard.vue';
+
   export default {
     name: "DayContainer",
+    components: { SlotCard },
     props: {
       day: String,
       date: String,
