@@ -92,9 +92,6 @@
     flex-direction: column;
     gap: 5px; /* Add spacing between slot items */
     width: 100%;
-    height: 100%;
-    overflow-y: auto; /* Allow scrolling for overflow */
-    box-sizing: border-box;
   }
   
   .slot-item {
@@ -103,23 +100,16 @@
     }
   
   .available-slot {
-    background-color: #d4edda; /* Green shade */
-    border: 1px solid #c3e6cb;
-    border-radius: 8px;
-    padding: 10px;
-    transition: transform 0.2s ease;
-    flex: 1 1 auto; /* Allow items to grow or shrink */
     display: flex;
-    align-items: center;
     justify-content: center;
-    min-height: 30px; /* Ensure a minimum height */
-    background-color: #d4edda; /* Green shade */
-    border: 1px solid #c3e6cb;
+    align-items: center;
+    padding: 10px;
     border-radius: 8px;
-    font-size: 0.9rem;
-    text-align: center;
-    word-wrap: break-word; /* Ensure long words break properly */
-    width: 100%;
+    border: 1px solid #c3e6cb;
+    background-color: #d4edda; /* Green shade */
+    transition: transform 0.2s ease;
+    overflow: hidden;
+      width: 100%;
   }
   
   .available-slot:hover {
@@ -130,38 +120,52 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    text-align: center;
+    font-size: 0.9rem;
+    width: 100%;
+    overflow-wrap: break-word;
   }
 
   .slot-time,
   .slot-location,
   .slot-dentist {
     margin-bottom: 5px;
-    font-size: 0.9rem;
     white-space: normal; /* Allow wrapping of text */
     word-wrap: break-word; /* Break long words if necessary */
   }
 
   /* Responsive scaling */
   @media (max-width: 480px) { /* Mobile L */
-    .day-container,
-    .slot-item,
-    .available-slot
+    .available-slot {
+      flex-direction: column;
+      padding: 10px;
+    }
+
+    .slot-box,
     .no-slots {
       font-size: 0.5rem;
-      min-height: 25px;
-      white-space: normal; /* Allow wrapping of text */
-      word-wrap: break-word; /* Break long words if necessary */
+      text-align: center;
     }
   }
 
   @media (max-width: 320px) { /* Mobile S */
-    .day-container,
-    .slot-item,
-    .available-slot,
+
+    .available-slot {
+      flex-direction: column;
+      padding: 15px;
+    }
+
+    .slot-box,
     .no-slots {
       font-size: 0.3rem;
-      padding: 3px;
-      min-height: 20px;
+      text-align: center;
+    }
+
+    .slot-time,
+    .slot-location,
+    .slot-dentist {
+      font-size: 0.3rem;
+      margin-bottom: 3px;
     }
   }
 
