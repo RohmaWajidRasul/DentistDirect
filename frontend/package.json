@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.1",
-    "axios": "^1.7.7",
+    "axios": "^1.7.8",
     "bootstrap": "^5.3.3",
-    "bootstrap-vue-next": "^0.25.14",
+    "bootstrap-vue-next": "^0.25.15",
+    "dotenv": "^16.4.5",
+    "mqtt": "^5.10.3",
     "date-fns": "^4.1.0",
-    "vue": "^3.5.12",
+    "vue": "^3.5.13",
     "vue-router": "^4.4.5"
   },
   "devDependencies": {

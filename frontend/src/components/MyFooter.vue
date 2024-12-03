@@ -32,7 +32,6 @@ export default {
 .footer {
   background-color: var(--footer-bg-color);
   color: var(--footer-text-color);
-  padding: 0.5em 0;
   text-align: center;
 }
 

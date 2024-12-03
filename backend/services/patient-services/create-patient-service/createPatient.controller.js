@@ -20,9 +20,9 @@ export const createPatient = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { firstName, lastName, email, password, phoneNumber, dateOfBirth } = parsedMessage.payload;
+        const { firstName, lastName, SSN, email, password, phoneNumber, dateOfBirth } = parsedMessage.payload;
 
-        if (!firstName || !lastName || !email || !phoneNumber || !dateOfBirth ) {
+        if (!firstName || !lastName || !SSN || !email || !phoneNumber || !dateOfBirth ) {
             const errorResponse ={
                 correlationId, 
                 status: 'error', 
@@ -32,12 +32,12 @@ export const createPatient = async (topic, message) => {
             return publishResponse(correlationId, errorResponse);
         }
 
-        const patient = await Patient.findOne({ email });
-        if ( patient ) {
+        const existingPatient = await Patient.findOne({ SSN });
+        if ( existingPatient ) {
             const errorResponse ={
                 correlationId, 
                 status: 'error', 
-                message : 'Email already in use.', 
+                message : 'Patient already registred.', 
             }; 
 
             return publishResponse(correlationId, errorResponse);
@@ -45,7 +45,16 @@ export const createPatient = async (topic, message) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newPatient = new Patient({ firstName, lastName, email, password: hashedPassword, phoneNumber, dateOfBirth });
+        const newPatient = new Patient({ 
+            firstName, 
+            lastName,
+            SSN, 
+            email, 
+            password: hashedPassword, 
+            phoneNumber, 
+            dateOfBirth 
+        });
+
         await newPatient.save();
 
         const successResponse = {
