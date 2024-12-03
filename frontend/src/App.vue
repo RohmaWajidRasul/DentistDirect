@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
-    <Navbar />
+    <Navbar :loggedIn="loggedIn" @handleAuthAction="handleAuthAction" />
 
     <!-- Main content -->
     <div class="flex-grow-1">
@@ -35,14 +35,14 @@ export default {
   },
   methods: {
     isLoggedIn() {
-      const loggedIn = !!localStorage.getItem('userId') // Converts the value into a boolean
+      const loggedIn = !!localStorage.getItem('user') // Converts the value into a boolean
       console.log('Is user logged in? ', loggedIn)
       return loggedIn
     },
     handleAuthAction() {
       if (this.isLoggedIn()) {
         console.log('Signing out')
-        localStorage.removeItem('userId') // removes the localStorage key & value
+        localStorage.removeItem('user') // removes the localStorage key & value
         localStorage.removeItem('calendarId') // removes the localStorage key & value
         this.loggedIn = false // Update loggedIn status
         this.globalState.isLoggedIn = false

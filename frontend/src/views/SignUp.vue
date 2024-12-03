@@ -1,7 +1,7 @@
 <template>
   <div class="form-container">
     <h2 class="form-title">Sign Up here</h2>
-    <form @submit.prevent="handleSubmit" class="signup-form">
+    <form @submit.prevent="handleSignup" class="signup-form">
      
       <div class="form-group">
         <label for="firstName">First Name</label>
@@ -96,7 +96,7 @@ export default {
     };
   },
   methods: {
-    async handleSubmit() {
+    async handleSignup() {
       const correlationId = Date.now().toString();
       const requestTopic = 'request/patients/create';  
       const responseTopic = `response/patients/created/${correlationId}`; 
@@ -128,7 +128,10 @@ export default {
 
           if (response.status === 'success') {
             alert('Patient registered successfully');
-            this.$router.push('/');
+            localStorage.setItem('user', JSON.stringify(this.user))  // Store user data in localStorage, to stay in "logged in" state
+            window.dispatchEvent(new Event('authChange')) 
+            this.$router.push('/')  // Redirect to home page after sign-up
+
           } else {
             alert('Failed to register patient: ' + response.message);
           }
