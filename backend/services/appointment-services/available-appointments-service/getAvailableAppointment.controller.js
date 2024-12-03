@@ -2,6 +2,10 @@ import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
 export const getAvailableAppointments = async (topic, message) => {
+    if (topic !== 'request/appointments/availability/fetch') {
+        return;
+    }
+    
     console.log(`Request received on topic: ${topic}`);
     console.log("Raw message:", message.toString());
 
@@ -44,6 +48,8 @@ export const getAvailableAppointments = async (topic, message) => {
         }
 
         const dentistIds = [...new Set(appointments.map(app => app.dentistId.toString()))];
+        console.log ("in getAvailableAppointments")
+        console.log( dentistIds );
 
         const dentistDetails = await fetchDentistsInfo(dentistIds);
 
@@ -77,7 +83,12 @@ export const getAvailableAppointments = async (topic, message) => {
 const fetchDentistsInfo = (dentistIds) => {
     return new Promise((resolve, reject) => {
         const correlationId = generateCorrelationId();
+        console.log(correlationId)
+
         const payload = { dentistIds };
+        console.log("in fetchDentistInfo")
+        console.log(payload);
+
         const requestTopic = 'request/dentists/info';
 
         const responseTopic = `response/dentists/info/${correlationId}`;
@@ -107,7 +118,6 @@ const fetchDentistsInfo = (dentistIds) => {
         };
 
         mqttClient.subscribe(responseTopic, (err) => {
-
             if (err) {
                 console.error('Failed to subscribe to response topic:', err);
                 clearTimeout(timeout);
@@ -115,7 +125,11 @@ const fetchDentistsInfo = (dentistIds) => {
             }
         });
         
-        mqttClient.on('message', handleResponse);
+        mqttClient.once('message', (topic, message) => {
+            if (topic === responseTopic) {
+                handleResponse(topic,message);
+            }
+        });
 
         mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
             if (err) {

@@ -16,6 +16,7 @@ export const fetchDentistInfo = async (topic, message) => {
     }
 
     const { dentistIds } = parsedMessage.payload;
+    console.log(dentistIds);
 
     if (!dentistIds || !Array.isArray(dentistIds) || dentistIds.length === 0) {
       const errorResponse = {
@@ -58,6 +59,7 @@ export const fetchDentistInfo = async (topic, message) => {
 
 const publishResponse = (correlationId, response) => {
   const responseTopic = `response/dentists/info/${correlationId}`;
+  console.log(response)
   mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
     if (err) {
       console.error(`Failed to publish to ${responseTopic}:`, err);
