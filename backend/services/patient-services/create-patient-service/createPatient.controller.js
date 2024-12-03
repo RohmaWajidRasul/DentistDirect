@@ -20,9 +20,9 @@ export const createPatient = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { firstName, lastName, SSN, email, password, phoneNumber, dateOfBirth } = parsedMessage.payload;
+        const { firstName, lastName, SSN, email, password, phoneNumber} = parsedMessage.payload;
 
-        if (!firstName || !lastName || !SSN || !email || !phoneNumber || !dateOfBirth ) {
+        if (!firstName || !lastName || !SSN || !email || !phoneNumber ) {
             const errorResponse ={
                 correlationId, 
                 status: 'error', 
@@ -51,8 +51,7 @@ export const createPatient = async (topic, message) => {
             SSN, 
             email, 
             password: hashedPassword, 
-            phoneNumber, 
-            dateOfBirth 
+            phoneNumber 
         });
 
         await newPatient.save();

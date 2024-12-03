@@ -53,7 +53,6 @@ In this project, we use feature branches. Therefore, an issue must be created fo
 - The issue name must reflect the feature and be written as a noun.
 - All issues need to be accompanied by:
   - A user story.
-  - Acceptance criteria.
 - All issues must:
   - Be assigned to a team member.
   - Be labeled with a priority level.

@@ -1,7 +1,7 @@
 <template>
   <div class="form-container">
     <h2 class="form-title">Sign Up here</h2>
-    <form @submit.prevent="handleSubmit" class="signup-form">
+    <form @submit.prevent="handleSignup" class="signup-form">
      
       <div class="form-group">
         <label for="firstName">First Name</label>
@@ -75,17 +75,6 @@
         />
       </div>
 
-      <div class="form-group">
-        <label for="dateOfBirth">Date of Birth</label>
-        <input
-          type="date"
-          class="form-control"
-          id="dateOfBirth"
-          v-model="user.dateOfBirth"
-          required
-        />
-      </div>
-
       <button type="submit" class="btn btn-primary">Sign Up</button>
     </form>
   </div>
@@ -102,13 +91,12 @@ export default {
         lastName: '',
         SSN: '',
         email: '',
-        phoneNumber: '',
-        dateOfBirth: ''
+        phoneNumber: ''
       },
     };
   },
   methods: {
-    async handleSubmit() {
+    async handleSignup() {
       const correlationId = Date.now().toString();
       const requestTopic = 'request/patients/create';  
       const responseTopic = `response/patients/created/${correlationId}`; 
@@ -117,6 +105,8 @@ export default {
         correlationId,
         payload: this.user
       };
+
+      console.log('Payload:', payload);  // Log the payload to check if all fields are present
 
       mqttClient.subscribe(responseTopic, (err) => {
         if (err) {
@@ -138,7 +128,10 @@ export default {
 
           if (response.status === 'success') {
             alert('Patient registered successfully');
-            this.$router.push('/');
+            localStorage.setItem('user', JSON.stringify(this.user))  // Store user data in localStorage, to stay in "logged in" state
+            window.dispatchEvent(new Event('authChange')) 
+            this.$router.push('/')  // Redirect to home page after sign-up
+
           } else {
             alert('Failed to register patient: ' + response.message);
           }
@@ -163,7 +156,8 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 100px auto ;
+  
 }
 
 .form-title {
@@ -185,13 +179,13 @@ label {
 }
 
 
-/* Submit Button */
+/* Sign Up Button */
 .btn-primary {
   width: 100%;
   padding: 10px 15px;
   font-size: 16px;
   color: white;
-  background-color: #007bff;
+  background-color: #51b2dd;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -201,6 +195,7 @@ label {
 .btn-primary:hover {
   background-color: #0056b3;
 }
+
 
 /* Responsive Design */
 @media (max-width: 700px) {
