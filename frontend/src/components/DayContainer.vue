@@ -153,7 +153,6 @@
     .available-slot {
       flex-direction: column;
       padding: 15px;
-      text-align: center;
     }
 
     .slot-box,
@@ -167,7 +166,6 @@
     .slot-dentist {
       font-size: 0.3rem;
       margin-bottom: 3px;
-      text-align: center;
     }
   }
 
