@@ -139,6 +139,8 @@
     .available-slot {
       flex-direction: column;
       padding: 10px;
+      overflow-y: auto; /* Enable vertical scrolling */
+      overflow-x: auto;
     }
 
     .slot-box,
@@ -153,6 +155,8 @@
     .available-slot {
       flex-direction: column;
       padding: 15px;
+      overflow-y: auto; /* Enable vertical scrolling */
+      overflow-x: auto;
     }
 
     .slot-box,
