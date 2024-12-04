@@ -22,7 +22,7 @@ export const createPatient = async (topic, message) => {
 
         const { firstName, lastName, SSN, email, password, phoneNumber} = parsedMessage.payload;
 
-        if (!firstName || !lastName || !SSN || !email || !phoneNumber ) {
+        if (!firstName || !lastName || !SSN || !email || !phoneNumber || !password) {
             const errorResponse ={
                 correlationId, 
                 status: 'error', 

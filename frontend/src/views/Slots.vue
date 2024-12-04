@@ -6,7 +6,9 @@
         :dentists="dentists || []"
         :locations="locations || []"
         v-model:filters="filters"
+        @update:filters="(value) => console.log('Filters updated:', value)"
       />
+
       <button class="btn btn-primary apply-filters-button" @click="applyFilters">
         Apply Filters
       </button>
@@ -39,7 +41,7 @@ export default {
   components: { Filters, MonthNavigation, SlotsCalendar  },
   data() {
     return {
-      slots: [],
+      appointments: [],
       groupedSlotsByMonth: {},
       dentists: [],
       locations: [],
@@ -65,7 +67,6 @@ export default {
         const correlationId = Date.now().toString();
 
         const payload = {
-          correlationId,
           dentistId: this.filters.dentistId || null,
           location: this.filters.location || null,
         };
@@ -122,51 +123,55 @@ export default {
         alert("An error occurred while fetching slots. Please try again later.");
       }
     },
-    processSlots(slots) {
-      this.slots = slots.map((slot) => ({
-        id: slot._id,
-        date: slot.date,
-        startTime: slot.startTime,
-        endTime: slot.endTime,
-        dentistName: `${slot.dentistId?.firstName || "Unknown"} ${slot.dentistId?.lastName || ""}`,
-        location: slot.dentistId?.location || "Unknown Location",
+    processSlots(appointments) {
+      this.appointments = appointments.map((appointment) => ({
+        id: appointment._id,
+        date: appointment.date,
+        startTime: appointment.startTime,
+        endTime: appointment.endTime,
+        dentistId: appointment.dentistId,
+        dentistName: `${appointment.dentist?.firstName || "Unknown"} ${appointment.dentist?.lastName || ""}`,
+        location: appointment.dentist?.location || "Unknown Location",
       }));
 
-      console.log("Formatted slots:", this.slots);
+      console.log("Formatted slots:", this.appointments);
 
       this.groupSlots();
-      this.extractFilters(slots);
+      this.extractFilters(appointments);
     },
-    extractFilters(slots) {
+    extractFilters(appointments) {
       const uniqueDentists = new Map();
       const uniqueLocations = new Set();
 
-      slots.forEach((slot) => {
-        if (slot.dentistId) {
-          uniqueDentists.set(slot.dentistId._id, {
-            id: slot.dentistId._id,
-            name: `${slot.dentistId.firstName} ${slot.dentistId.lastName}`,
+      appointments.forEach((appointment) => {
+        if (appointment.dentist) {
+          const dentist = appointment.dentist;
+          uniqueDentists.set(dentist._id, {
+            id: dentist._id,
+            name: `${dentist.firstName || "Unknown"} ${dentist.lastName || ""}`,
           });
         }
 
-        if (slot.dentistId?.location) {
-          uniqueLocations.add(slot.dentistId.location);
+        if (appointment.dentist?.location) {
+          uniqueLocations.add(appointment.dentist.location);
         }
       });
 
       this.dentists = Array.from(uniqueDentists.values());
       this.locations = Array.from(uniqueLocations);
 
-      console.log("Dentists for filter:", this.dentists);
-      console.log("Locations for filter:", this.locations);
+      console.log("Dentists for filter:", this.dentists)
+      console.log("Locations for filter:", this.locations)
     },
+
+
     groupSlots() {
       const groupedByMonth = {};
 
-      this.slots.forEach((slot) => {
-        const month = format(new Date(slot.date), "MMMM yyyy");
-        const week = getWeek(new Date(slot.date));
-        const day = format(new Date(slot.date), "EEEE, MMM d");
+      this.appointments.forEach((appointment) => {
+        const month = format(new Date(appointment.date), "MMMM yyyy");
+        const week = getWeek(new Date(appointment.date));
+        const day = format(new Date(appointment.date), "EEEE, MMM d");
 
         if (!groupedByMonth[month]) {
           groupedByMonth[month] = {};
@@ -180,7 +185,7 @@ export default {
           groupedByMonth[month][week][day] = [];
         }
 
-        groupedByMonth[month][week][day].push(slot);
+        groupedByMonth[month][week][day].push(appointment);
       });
 
       this.groupedSlotsByMonth = groupedByMonth;
@@ -204,13 +209,19 @@ export default {
 </script>
 
 <style scoped>
+
+/* General styles */
 .slots-page {
   max-width: 1200px;
   margin: auto;
   padding: 20px;
 }
 
+/* Filters container */
 .filters-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
   margin-bottom: 20px;
 }
 
@@ -253,11 +264,72 @@ export default {
   border: 1px solid #dee2e6;
   border-radius: 8px;
   padding: 10px;
+  min-width: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .slot-item {
   display: flex;
   justify-content: space-between;
   margin-bottom: 8px;
+}
+
+
+/* Responsive styles for different screen sizes */
+@media (max-width: 1024px) { /* Laptop */
+  .slots-page {
+    max-width: 100%;
+    padding: 15px;
+  }
+
+  .day-container {
+    flex: 1 0 45%; /* Adjust day container to take up more space */
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 768px) { /* Tablet */
+  .month-navigation h2 {
+    font-size: 1.2rem;
+  }
+
+  .days-row {
+    flex-direction: column; /* Stack days vertically */
+    gap: 10px;
+  }
+
+  .day-container {
+    flex: 1 0 100%; /* Full width for day container */
+  }
+}
+
+@media (max-width: 480px) { /* Mobile L */
+  .month-navigation h2 {
+    font-size: 1rem;
+  }
+
+  .day-container {
+    padding: 8px;
+  }
+
+  .available-slot {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 320px) { /* Mobile S */
+  .month-navigation h2 {
+    font-size: 0.9rem;
+  }
+
+  .day-container {
+    padding: 5px;
+  }
+
+  .available-slot {
+    font-size: 0.7rem;
+  }
 }
 </style>

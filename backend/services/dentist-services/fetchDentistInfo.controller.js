@@ -1,0 +1,70 @@
+import Dentist from './models/dentist.js';
+import mqttClient from '../../shared/mqtt-client.js';
+
+export const fetchDentistInfo = async (topic, message) => {
+
+  console.log(`Handling message on topic: ${topic}`);
+
+  let correlationId;
+
+  try {
+    const parsedMessage = JSON.parse(message.toString());
+    correlationId = parsedMessage.correlationId;
+
+    if (!correlationId) {
+      throw new Error('Correlation ID is missing in the request');
+    }
+
+    const { dentistIds } = parsedMessage.payload;
+    console.log(dentistIds);
+
+    if (!dentistIds || !Array.isArray(dentistIds) || dentistIds.length === 0) {
+      const errorResponse = {
+        correlationId,
+        status: 'error',
+        message: 'A list of Dentist IDs is required',
+      };
+      return publishResponse(correlationId, errorResponse);
+    }
+
+    const dentists = await Dentist.find({ _id: { $in: dentistIds } }).select('firstName lastName location specialization');
+
+    if (!dentists || dentists.length === 0) {
+      const errorResponse = {
+        correlationId,
+        status: 'error',
+        message: 'No dentists found for the provided IDs',
+      };
+      return publishResponse(correlationId, errorResponse);
+    }
+
+    const successResponse = {
+      correlationId,
+      status: 'success',
+      message: 'Dentist info retrieved successfully',
+      dentists,
+    };
+    return publishResponse(correlationId, successResponse);
+  } catch (error) {
+    console.error(`Error fetching dentist info: ${error.message}`);
+    const errorResponse = {
+      correlationId,
+      status: 'error',
+      message: 'Error fetching dentist info',
+      error: error.message,
+    };
+    return publishResponse(correlationId, errorResponse);
+  }
+};
+
+const publishResponse = (correlationId, response) => {
+  const responseTopic = `response/dentists/info/${correlationId}`;
+  console.log(response)
+  mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
+    if (err) {
+      console.error(`Failed to publish to ${responseTopic}:`, err);
+    } else {
+      console.log(`Response sent to ${responseTopic}`);
+    }
+  });
+};

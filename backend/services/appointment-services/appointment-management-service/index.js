@@ -42,9 +42,7 @@ const publishHeartbeat = () => {
     mqttClient.publish('heartbeat/appointment-management', JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
-        } else {
-            console.log('Heartbeat published for Appointment Management Service');
-        }
+        } 
     });
 };
 

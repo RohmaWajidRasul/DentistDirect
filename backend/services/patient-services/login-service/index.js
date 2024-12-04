@@ -43,8 +43,6 @@ const publishHeartbeat = () => {
     mqttClient.publish('heartbeat/patient-login', JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
-        } else {
-            console.log('Heartbeat published for Patient Login Service');
         }
     });
 };

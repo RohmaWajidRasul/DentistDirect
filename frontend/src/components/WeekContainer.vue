@@ -72,18 +72,50 @@
   .week-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed; /* Ensures equal-width columns */
   }
   
-  .week-table th,
+  .week-table th {
+    height: 50px; /* Set specific height for the day names row */
+    background-color: #e9ecef; /* Optional: Slightly different background color */
+    font-weight: bold;
+    text-align: center;
+    vertical-align: middle; /* Vertically centers the text */
+    border: 1px solid #dee2e6;
+  }
+
   .week-table td {
     border: 1px solid #dee2e6;
     text-align: center;
     vertical-align: top;
     padding: 10px;
+    height: 150px; /* Ensures equal height */
   }
   
   .day-cell {
     background-color: #f8f9fa;
+    overflow: auto; /* Prevents overflowing content */
+    white-space: normal; /* Allow wrapping of text */
+    word-wrap: break-word; /* Break long words if necessary */
   }
+
+  /* Responsive scaling */
+  @media (max-width: 480px) { /* Mobile L */
+    .week-table th {
+      font-size: 0.6rem;
+      white-space: normal; /* Allow wrapping of text */
+      word-wrap: break-word; /* Break long words if necessary */
+    }
+  }
+
+  @media (max-width: 320px) { /* Mobile S */
+    .week-table th {
+      font-size: 0.4rem;
+      white-space: normal; /* Allow wrapping of text */
+      word-wrap: break-word; /* Break long words if necessary */
+      padding: 5px; /* Reduce padding to maximize space */
+    }
+  }
+
   </style>
   

@@ -14,19 +14,35 @@
           <div class="slot-box">
             <span class="slot-time">{{ slot.startTime }} - {{ slot.endTime }}</span>
             <span class="slot-location">{{ slot.location }}</span>
+            <span class="slot-dentist">Dentist: {{ slot.dentistName }}</span>
           </div>
         </li>
       </ul>
+
+      <!-- SlotCard component -->
+      <SlotCard
+        v-if="selectedSlot"
+        :slot="selectedSlot"
+        @close="selectedSlot = null"
+      />
     </div>
   </template>
   
   <script>
+  import SlotCard from './SlotCard.vue';
+
   export default {
     name: "DayContainer",
+    components: { SlotCard },
     props: {
       day: String,
       date: String,
       daySlots: Array,
+    },
+    data() {
+      return {
+        selectedSlot: null, // Holds the currently selected slot
+      };
     },
     computed: {
       sortedSlots() {
@@ -37,7 +53,8 @@
     },
     methods: {
       showSlotDetails(slot) {
-        this.$emit("show-slot-details", slot);
+        //this.$emit("show-slot-details", slot);
+        this.selectedSlot = slot; // Open the SlotCard with the clicked slot
       },
     },
   };
@@ -50,6 +67,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start; /* Added for responsiveness*/
+    box-sizing: border-box; /* Added for responsiveness*/
+    white-space: normal; /* Allow wrapping of text */
+    word-wrap: break-word; /* Break long words if necessary */
   }
   
   .day-date {
@@ -67,20 +88,28 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px; /* Add spacing between slot items */
+    width: 100%;
   }
   
   .slot-item {
     margin-bottom: 10px;
     cursor: pointer;
-  }
+    }
   
   .available-slot {
-    background-color: #d4edda; /* Green shade */
-    border: 1px solid #c3e6cb;
-    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #c3e6cb;
+    background-color: #d4edda; /* Green shade */
     transition: transform 0.2s ease;
-    width: 100%;
+    overflow: hidden;
+      width: 100%;
   }
   
   .available-slot:hover {
@@ -89,8 +118,60 @@
   
   .slot-box {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: center;
+    font-size: 0.9rem;
+    width: 100%;
+    overflow-wrap: break-word;
   }
+
+  .slot-time,
+  .slot-location,
+  .slot-dentist {
+    margin-bottom: 5px;
+    white-space: normal; /* Allow wrapping of text */
+    word-wrap: break-word; /* Break long words if necessary */
+  }
+
+  /* Responsive scaling */
+  @media (max-width: 480px) { /* Mobile L */
+    .available-slot {
+      flex-direction: column;
+      padding: 10px;
+      overflow-y: auto; /* Enable vertical scrolling */
+      overflow-x: auto;
+    }
+
+    .slot-box,
+    .no-slots {
+      font-size: 0.5rem;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 320px) { /* Mobile S */
+
+    .available-slot {
+      flex-direction: column;
+      padding: 15px;
+      overflow-y: auto; /* Enable vertical scrolling */
+      overflow-x: auto;
+    }
+
+    .slot-box,
+    .no-slots {
+      font-size: 0.3rem;
+      text-align: center;
+    }
+
+    .slot-time,
+    .slot-location,
+    .slot-dentist {
+      font-size: 0.3rem;
+      margin-bottom: 3px;
+    }
+  }
+
   </style>
   
