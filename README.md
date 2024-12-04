@@ -81,10 +81,11 @@ npm install
 #### **Issues**
 In this project, we use feature branches. Therefore, an issue must be created for all new features:
 - The issue name must reflect the feature and be written as a noun.
-- All issues need to be accompanied by a user story and acceptance criterias.
+- All issues need to be accompanied by a user story.
 - All issues must be assigned to a team member
 - The issue must be labeled with a priority level.
 - The issue must be added to a milestone.
+- Acceptance criterias are encouraged but not mandatory.
 
 #### **Commits**
 - Commit messages must be written in imperative form.  
