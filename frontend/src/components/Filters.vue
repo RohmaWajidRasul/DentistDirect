@@ -14,7 +14,7 @@
         label="name"
         track-by="id"
         placeholder="Search and select a dentist"
-        @input="updateFilters"
+        @select="updateFilters"
       />
     </div>
 
@@ -30,7 +30,7 @@
         :clear-on-select="true"
         :allow-empty="true"
         placeholder="Search and select a location"
-        @input="updateFilters"
+        @select="updateFilters"
       />
     </div>
   </div>
@@ -62,7 +62,14 @@ export default {
   emits: ["filter-change"],
   methods: {
     updateFilters() {
-      this.$emit("filter-change", {
+
+      
+      console.log("Emitting filter change", {
+        dentistId: this.selectedDentist?.id || null,
+        location: this.selectedLocation || null,
+      });
+
+      this.$emit("update:filters", {
         dentistId: this.selectedDentist?.id || null,
         location: this.selectedLocation || null,
       });

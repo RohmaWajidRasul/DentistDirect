@@ -6,7 +6,9 @@
         :dentists="dentists || []"
         :locations="locations || []"
         v-model:filters="filters"
+        @update:filters="(value) => console.log('Filters updated:', value)"
       />
+
       <button class="btn btn-primary apply-filters-button" @click="applyFilters">
         Apply Filters
       </button>
@@ -142,24 +144,27 @@ export default {
       const uniqueLocations = new Set();
 
       appointments.forEach((appointment) => {
-        if (appointment.dentistId) {
-          uniqueDentists.set(appointment.dentistId._id, {
-            id: appointment.dentistId._id,
-            name: `${appointment.dentistId.firstName} ${appointment.dentistId.lastName}`,
+        if (appointment.dentist) {
+          const dentist = appointment.dentist;
+          uniqueDentists.set(dentist._id, {
+            id: dentist._id,
+            name: `${dentist.firstName || "Unknown"} ${dentist.lastName || ""}`,
           });
         }
 
-        if (appointment.dentistId?.location) {
-          uniqueLocations.add(appointment.dentistId.location);
+        if (appointment.dentist?.location) {
+          uniqueLocations.add(appointment.dentist.location);
         }
       });
 
       this.dentists = Array.from(uniqueDentists.values());
       this.locations = Array.from(uniqueLocations);
 
-      console.log("Dentists for filter:", this.dentists);
-      console.log("Locations for filter:", this.locations);
+      console.log("Dentists for filter:", this.dentists)
+      console.log("Locations for filter:", this.locations)
     },
+
+
     groupSlots() {
       const groupedByMonth = {};
 
