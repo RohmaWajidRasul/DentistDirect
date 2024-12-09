@@ -2,6 +2,29 @@ import mqttClient from '../../shared/mqtt-client.js';
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { checkDBHealth } from '../../shared/checkDBHealth.js';
+
+const dbURIs = {
+    primaryDentists: 'mongodb://localhost:27017/dentists',
+    fallbackDentists: 'mongodb://localhost:27018/dentists',
+};
+
+const dbStatus = {
+    primary: { status: 'unknown' },
+    fallback: { status: 'unknown' },
+};
+
+const checkDatabases = async () => {
+    for (const [key, uri] of Object.entries(dbURIs)) {
+        const result = await checkDBHealth(uri);
+        dbStatus[key] = result;
+    }
+
+    console.log('Database statuses:', dbStatus);
+};
+
+setInterval(checkDatabases, 10000); // Check every 10 seconds
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
