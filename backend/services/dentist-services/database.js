@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { checkDBHealth } from '../../shared/checkDBHealth.js';
 import cron from 'node-cron'; // Use for periodic tasks
-import { syncDatabases, backupDatabase } from './syncUtils.js'; // Utility functions for sync and backup
+import { syncDatabases, backupDatabase } from '../../shared/syncUtils.js'; // Utility functions for sync and backup
 
 dotenv.config();
 
@@ -57,7 +57,7 @@ function startSyncAndBackup() {
     // Backup every day at midnight
     cron.schedule('0 0 * * *', async () => {
         console.log('Starting database backup...');
-        await backupDatabase(primaryURI, './backups/dentists_backup.json');
+        await backupDatabase(primaryURI, '../backups/dentists_backup.json');
     });
 }
 
