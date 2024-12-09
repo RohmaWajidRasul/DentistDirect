@@ -6,8 +6,8 @@ import { syncDatabases, backupDatabase } from '../../shared/syncUtils.js'; // Ut
 
 dotenv.config();
 
-const primaryURI = process.env.MONGODB_PRIMARY_URI || 'mongodb://localhost:27017/dentists';
-const fallbackURI = process.env.MONGODB_FALLBACK_URI || 'mongodb://localhost:27018/dentists';
+const primaryURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/dentists';
+const fallbackURI = process.env.MONGODB_URI || 'mongodb://localhost:27018/dentists';
 
 const MAX_RETRIES = 5; // Maximum retry attempts
 const RETRY_DELAY = 5000; // Delay between retries in milliseconds
