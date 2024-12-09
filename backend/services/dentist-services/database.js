@@ -21,10 +21,7 @@ async function connectDB() {
 
         try {
             console.log(`Attempting to connect to MongoDB: ${selectedURI}`);
-            await mongoose.connect(selectedURI, {
-                useNewUrlParser: true,
-                useUnifiedTopology: true,
-            });
+            await mongoose.connect(selectedURI);
             console.log(`Connected to MongoDB with URI: ${selectedURI}`);
             // Start periodic synchronization and backup
             if (selectedURI === primaryURI) {
