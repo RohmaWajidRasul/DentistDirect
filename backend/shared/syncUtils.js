@@ -8,45 +8,63 @@ import fs from 'fs';
  * @param {string} fallbackURI - MongoDB URI of the fallback database.
  */
 export async function syncDatabases(primaryURI, fallbackURI) {
+    console.log("syncDatabases called with URIs:", primaryURI, fallbackURI);
     try {
-        // Connect to both databases
-        const primaryConnection = await mongoose.createConnection(primaryURI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        // Connect to primary database
+        const primaryConnection = await mongoose.createConnection(primaryURI).asPromise();
+        console.log(`Primary database connected: ${primaryURI}`);
 
-        const fallbackConnection = await mongoose.createConnection(fallbackURI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        // Connect to fallback database
+        const fallbackConnection = await mongoose.createConnection(fallbackURI).asPromise();
+        console.log(`Fallback database connected: ${fallbackURI}`);
 
+        // Fetch collections from the primary database
         const primaryCollections = await primaryConnection.db.collections();
-        const fallbackCollections = await fallbackConnection.db.collections();
+        if (!primaryCollections || primaryCollections.length === 0) {
+            console.log("No collections found in the primary database.");
+            await primaryConnection.close();
+            await fallbackConnection.close();
+            return;
+        }
 
+        const fallbackCollections = await fallbackConnection.db.collections();
+        const fallbackCollectionNames = fallbackCollections.map(c => c.collectionName);
+
+        console.log(`Primary collections:`, primaryCollections.map(c => c.collectionName));
+        console.log(`Fallback collections:`, fallbackCollectionNames);
+
+        // Sync collections
         for (const primaryCollection of primaryCollections) {
             const collectionName = primaryCollection.collectionName;
+            console.log(`Processing collection: ${collectionName}`);
+
+            // Create missing collection in the fallback database
+            if (!fallbackCollectionNames.includes(collectionName)) {
+                console.log(`Creating collection '${collectionName}' in the fallback database.`);
+                await fallbackConnection.createCollection(collectionName);
+            }
+
             const primaryData = await primaryCollection.find({}).toArray();
+            const fallbackCollection = fallbackConnection.db.collection(collectionName);
 
-            // Get the corresponding collection in the fallback database
-            const fallbackCollection = fallbackCollections.find(
-                (col) => col.collectionName === collectionName
-            );
-
-            if (fallbackCollection) {
-                for (const record of primaryData) {
-                    const exists = await fallbackCollection.findOne({ _id: record._id });
-                    if (!exists) {
-                        await fallbackCollection.insertOne(record);
-                    }
-                }
+            // Upsert documents into fallback database
+            for (const doc of primaryData) {
+                await fallbackCollection.updateOne(
+                    { _id: doc._id },
+                    { $set: doc },
+                    { upsert: true }
+                );
             }
         }
 
-        console.log('Database synchronization complete.');
+        console.log("Database synchronization completed successfully.");
+        await primaryConnection.close();
+        await fallbackConnection.close();
     } catch (err) {
-        console.error('Error during database synchronization:', err.message);
+        console.error("Error synchronizing databases:", err.message);
     }
 }
+
 
 /**
  * Creates a backup of the database.
@@ -54,6 +72,7 @@ export async function syncDatabases(primaryURI, fallbackURI) {
  * @param {string} backupPath - Path to save the backup file.
  */
 export async function backupDatabase(dbURI, backupPath) {
+    console.log("backupDatabase called for URI:", dbURI);
     try {
         const connection = await mongoose.createConnection(dbURI, {
             useNewUrlParser: true,

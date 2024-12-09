@@ -1,16 +1,18 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { checkDBHealth } from '../../shared/checkDBHealth.js';
-import cron from 'node-cron'; // Use for periodic tasks
 import { syncDatabases, backupDatabase } from '../../shared/syncUtils.js';
 
 dotenv.config();
 
-const primaryURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/appointments';
-const fallbackURI = process.env.MONGODB_URI || 'mongodb://localhost:27018/appointments';
+const primaryURI = process.env.MONGODB_PRIMARY_URI || 'mongodb://localhost:27017/appointments';
+const fallbackURI = process.env.MONGODB_FALLBACK_URI || 'mongodb://localhost:27017/appointments_fallback';
 
 const MAX_RETRIES = 5; // Maximum retry attempts
 const RETRY_DELAY = 5000; // Delay between retries in milliseconds
+
+const SYNC_INTERVAL = 5 * 60 * 1000; // Sync every 5 minutes
+const BACKUP_INTERVAL = 24 * 60 * 60 * 1000; // Backup every 24 hours
 
 async function connectDB() {
     let retryCount = 0;
@@ -45,17 +47,41 @@ async function connectDB() {
 }
 
 function startSyncAndBackup() {
-    // Sync every 5 minutes
-    cron.schedule('*/5 * * * *', async () => {
-        console.log('Starting database synchronization...');
-        await syncDatabases(primaryURI, fallbackURI);
-    });
+    console.log("startSyncAndBackup function called.");
+    let syncIntervalId = null;
+    let backupIntervalId = null;
 
-    // Backup every day at midnight
-    cron.schedule('0 0 * * *', async () => {
+    // Clear existing intervals to prevent duplicates
+    if (syncIntervalId) {
+        console.log("Clearing existing sync interval...");
+        clearInterval(syncIntervalId);
+    }
+    if (backupIntervalId) {
+        console.log("Clearing existing backup interval...");
+        clearInterval(backupIntervalId);
+    }
+
+    // Set interval for synchronization
+    syncIntervalId = setInterval(async () => {
+        console.log('Starting database synchronization...');
+        try {
+            await syncDatabases(primaryURI, fallbackURI);
+            console.log('Database synchronization completed successfully.');
+        } catch (err) {
+            console.error('Error during database synchronization:', err.message);
+        }
+    }, SYNC_INTERVAL);
+
+    // Set interval for backup
+    backupIntervalId = setInterval(async () => {
         console.log('Starting database backup...');
-        await backupDatabase(primaryURI, '../backups/dentists_backup.json');
-    });
+        try {
+            await backupDatabase(primaryURI, '../backups/appointments_backup.json');
+            console.log('Database backup completed successfully.');
+        } catch (err) {
+            console.error('Error during database backup:', err.message);
+        }
+    }, BACKUP_INTERVAL);
 }
 
 export default connectDB;
