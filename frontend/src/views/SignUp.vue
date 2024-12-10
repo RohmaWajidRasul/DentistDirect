@@ -93,10 +93,50 @@ export default {
         email: '',
         phoneNumber: ''
       },
+      errorMessages: [],
     };
   },
   methods: {
+    validateInfo(){
+      this.errorMeesages = []; 
+      
+      const requiredFields = ['firstName', 'lastName', 'SSN', 'email', 'phoneNumber', 'password'];
+      requiredFields.forEach(field => {
+        if (!this.user[field]) {
+          this.errorMessages.push(`${field} is required.`);
+        }
+      });
+      // Validate phone number length
+      if (this.user.phoneNumber && (this.user.phoneNumber.length < 10 || this.user.phoneNumber.length > 15)) {
+        this.errorMessages.push('Phone number must be between 10 and 15 characters.');
+      }
+
+      // Validate password length
+      if (this.user.password && this.user.password.length < 8) {
+        this.errorMessages.push('Password must be at least 8 characters long.');
+      }
+
+      // Validate SSN length (10 or 12 characters)
+      if (this.user.SSN && this.user.SSN.length !== 10 && this.user.SSN.length !== 12) {
+        this.errorMessages.push('SSN must be in YYMMDDXXXX format or YYYYMMDDXXXX format.');
+      }
+
+      // Validate email format
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (this.user.email && !emailPattern.test(this.user.email)) {
+        this.errorMessages.push('Invalid email format.');
+      }
+
+      // If there are errors, return false, otherwise true
+      return this.errorMessages.length === 0;
+    },
+
     async handleSignup() {
+      if (!this.validateInfo()) {
+        alert(this.errorMessages.join('\n')); // Display all error messages
+        return;
+      }
+
       const correlationId = Date.now().toString();
       const requestTopic = 'request/patients/create';  
       const responseTopic = `response/patients/created/${correlationId}`; 
@@ -106,7 +146,7 @@ export default {
         payload: this.user
       };
 
-      console.log('Payload:', payload);  // Log the payload to check if all fields are present
+      console.log('Payload:', payload);
 
       mqttClient.subscribe(responseTopic, (err) => {
         if (err) {
