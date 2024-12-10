@@ -16,7 +16,16 @@ export const getAvailableAppointments = async (topic, message) => {
     let correlationId;
 
     try {
-        const parsedMessage = JSON.parse(message.toString());
+        try {
+            const parsedMessage = JSON.parse(message.toString());
+        } catch (error) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Invalid JSON format in request',
+            };
+            return publishAvailabilityResponse(correlationId, errorResponse);
+        }
         correlationId = parsedMessage.correlationId;
 
         if (!parsedMessage.payload || typeof parsedMessage.payload !== 'object') {
@@ -92,6 +101,7 @@ const fetchDentistsInfo = (dentistIds) => {
         const requestTopic = 'request/dentists/info';
 
         const responseTopic = `response/dentists/info/${correlationId}`;
+       
         const timeout = setTimeout(() => {
             mqttClient.unsubscribe(responseTopic); 
             reject(new Error('Timeout waiting for dentist info response'));
