@@ -13,8 +13,20 @@ export const manageAppointment = async (topic, message) => {
     }
 
     let correlationId;
+   
     try {
-        const parsedMessage = JSON.parse(message.toString());
+        let parsedMessage;
+        try {
+            parsedMessage = JSON.parse(message.toString());
+        } catch (error) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Invalid JSON format in request',
+            };
+            return publishResponse(action, correlationId, errorResponse);
+        }
+
         correlationId = parsedMessage.correlationId;
 
         if (!correlationId) {

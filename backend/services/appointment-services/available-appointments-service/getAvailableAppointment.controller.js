@@ -16,8 +16,9 @@ export const getAvailableAppointments = async (topic, message) => {
     let correlationId;
 
     try {
+        let parsedMessage; 
         try {
-            const parsedMessage = JSON.parse(message.toString());
+            parsedMessage = JSON.parse(message.toString());
         } catch (error) {
             const errorResponse = {
                 correlationId,
