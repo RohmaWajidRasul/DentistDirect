@@ -24,6 +24,16 @@
           </tr>
         </tbody>
       </table>
+      <div v-for="day in daysOfWeek"
+              :key="day"
+              class="day-cell day-stack">
+        <DayContainer
+                :day="day"
+                :date="weekDates[day]"
+                :daySlots="weekSlots[weekDates[day]] || []"
+                @show-slot-details="showSlotDetails"
+              />
+      </div>
     </div>
   </template>
   
@@ -99,8 +109,20 @@
     word-wrap: break-word; /* Break long words if necessary */
   }
 
+  .day-stack {
+    display:none;
+  }
+
   /* Responsive scaling */
-  @media (max-width: 480px) { /* Mobile L */
+  @media (max-width: 1000px) { /* Mobile L */
+    .week-table {
+      display: none;
+    }
+
+    .day-stack {
+      display: grid;
+    }
+
     .week-table th {
       font-size: 0.6rem;
       white-space: normal; /* Allow wrapping of text */
