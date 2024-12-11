@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import fs from 'fs';
+import mqttClient from './mqtt-client.js';
 
 /**
  * Synchronizes data between the primary and fallback databases.
@@ -60,10 +61,28 @@ export async function syncDatabases(primaryURI, fallbackURI) {
         }
 
         console.log("Database synchronization completed successfully.");
+
+        // Publish status of sync to monitoring and logging services
+        mqttClient.publish('sync/status', JSON.stringify({
+            primaryURI,
+            fallbackURI,
+            status: 'synchronized',
+            timestamp: new Date().toISOString(),
+        }));
+
         await primaryConnection.close();
         await fallbackConnection.close();
     } catch (err) {
         console.error("Error synchronizing databases:", err.message);
+
+        // Publish status of sync to monitoring and logging services
+        mqttClient.publish('sync/status', JSON.stringify({
+            primaryURI,
+            fallbackURI,
+            status: 'sync-error',
+            error: err.message,
+            timestamp: new Date().toISOString(),
+        }));
     }
 }
 
@@ -92,7 +111,24 @@ export async function backupDatabase(dbURI, backupPath) {
 
         fs.writeFileSync(backupPath, JSON.stringify(backupData, null, 2));
         console.log(`Database backup saved at ${backupPath}`);
+
+        // Publish backup status to monitoring and logging services
+        mqttClient.publish('backup/status', JSON.stringify({
+            dbURI,
+            status: 'backup-completed',
+            backupPath,
+            timestamp: new Date().toISOString(),
+        }));
+
     } catch (err) {
         console.error('Error during database backup:', err.message);
+
+        // Publish backup status to monitoring and logging services
+        mqttClient.publish('backup/status', JSON.stringify({
+            dbURI,
+            status: 'backup-error',
+            error: err.message,
+            timestamp: new Date().toISOString(),
+        }));
     }
 }

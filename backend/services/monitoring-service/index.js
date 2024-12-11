@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { checkDBHealth } from '../../shared/checkDBHealth.js';
 
+//-----Monitoring the health status of databases----------------------
+
 const dbURIs = {
     primaryDentists: 'mongodb://localhost:27017/dentists',
     fallbackDentists: 'mongodb://localhost:27019/dentists',
@@ -29,7 +31,25 @@ const checkDatabases = async () => {
 
 setInterval(checkDatabases, 10000); // Check every 10 seconds
 
+//------------Subscribing to the sync and backup status--------------------
+mqttClient.on('connect', () => {
+    mqttClient.subscribe('sync/status', (err) => {
+        if (err) console.error('Failed to subscribe to sync/status:', err);
+    });
+    mqttClient.subscribe('backup/status', (err) => {
+        if (err) console.error('Failed to subscribe to backup/status:', err);
+    });
+});
 
+mqttClient.on('message', (topic, message) => {
+    const payload = JSON.parse(message.toString());
+    if (topic === 'sync/status') {
+        console.log(`Sync Status:`, payload);
+    } else if (topic === 'backup/status') {
+        console.log(`Backup Status:`, payload);
+    }
+});
+//-------------------------------------------------------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
