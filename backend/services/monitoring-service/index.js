@@ -35,9 +35,11 @@ setInterval(checkDatabases, 10000); // Check every 10 seconds
 mqttClient.on('connect', () => {
     mqttClient.subscribe('sync/status', (err) => {
         if (err) console.error('Failed to subscribe to sync/status:', err);
+        else console.log('Subscribed to sync/status topic.');
     });
     mqttClient.subscribe('backup/status', (err) => {
         if (err) console.error('Failed to subscribe to backup/status:', err);
+        else console.log('Subscribed to backup/status topic.');
     });
 });
 
