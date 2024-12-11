@@ -45,6 +45,7 @@ export async function syncDatabases(primaryURI, fallbackURI) {
             }
 
             const primaryData = await primaryCollection.find({}).toArray();
+            console.log(`Found ${primaryData.length} records in collection '${collectionName}'`);
             const fallbackCollection = fallbackConnection.db.collection(collectionName);
 
             // Upsert documents into fallback database
@@ -55,6 +56,7 @@ export async function syncDatabases(primaryURI, fallbackURI) {
                     { upsert: true }
                 );
             }
+            console.log(`Synchronized collection '${collectionName}' successfully.`);
         }
 
         console.log("Database synchronization completed successfully.");

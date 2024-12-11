@@ -6,11 +6,11 @@ import { checkDBHealth } from '../../shared/checkDBHealth.js';
 
 const dbURIs = {
     primaryDentists: 'mongodb://localhost:27017/dentists',
-    fallbackDentists: 'mongodb://localhost:27017/dentists_fallback',
+    fallbackDentists: 'mongodb://localhost:27019/dentists',
     primaryPatients: 'mongodb://localhost:27017/patients',
-    fallbackPatients: 'mongodb://localhost:27017/patients_fallback',
+    fallbackPatients: 'mongodb://localhost:27019/patients',
     primaryAppointments: 'mongodb://localhost:27017/appointments',
-    fallbackAppointments: 'mongodb://localhost:27017/appointments_fallback',
+    fallbackAppointments: 'mongodb://localhost:27019/appointments',
 };
 
 const dbStatus = {
