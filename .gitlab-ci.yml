@@ -21,7 +21,15 @@ lint-backend:
   script:
     - cd backend
     - npm ci
-    - npx eslint . # Run ESLint on the backend
+    - npx eslint . 
+
+
+lint-frontend:
+  stage: lint
+  script:
+    - cd frontend
+    - npm ci
+    - npx eslint . 
 
 # Build stage for the frontend
 build-frontend:
@@ -31,10 +39,10 @@ build-frontend:
   script:
     - cd frontend
     - npm ci
-    - npm run build # Build the frontend using Vite
+    - npm run build 
   artifacts:
     paths:
-      - frontend/dist # Save the built frontend files as artifacts
+      - frontend/dist
 
 # Backend tests
 test-backend:
@@ -61,4 +69,4 @@ test-frontend:
   script:
     - cd frontend
     - npm ci
-    - npm run test || echo "Frontend tests not configured yet" # Replace with actual test script if applicable
+    - npm run test || echo "Frontend tests not configured yet"
