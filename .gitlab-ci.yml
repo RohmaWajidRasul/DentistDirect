@@ -26,6 +26,8 @@ lint-backend:
 
 lint-frontend:
   stage: lint
+  tags: 
+    - docker
   script:
     - cd frontend
     - npm ci
