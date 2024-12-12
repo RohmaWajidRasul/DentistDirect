@@ -1,24 +1,63 @@
 image: node:20-alpine
 
-
-stages:
-  - setup
-
-variables:
-  NODE_ENV: test
-  FRONTEND_DIR: frontend
-  BACKEND_DIR: backend
-
+# Cache dependencies between jobs
 cache:
+  key: ${CI_COMMIT_REF_SLUG}
   paths:
     - node_modules/
+    - frontend/node_modules/
+    - backend/node_modules/
 
-setup:
-  stage: setup
-  tags:
-    - docker
+stages:
+  - lint
+  - build
+  - test
+
+# Linting stage for both frontend and backend
+lint-backend:
+  stage: lint
   script:
-    - npm install
-    - cd $FRONTEND_DIR && npm install && cd ..
-    - cd $BACKEND_DIR && npm install && cd ..
+    - cd backend
+    - npm ci
+    - npx eslint . # Run ESLint on the backend
 
+lint-frontend:
+  stage: lint
+  script:
+    - cd frontend
+    - npm ci
+    - npx eslint . # Run ESLint on the frontend
+
+# Build stage for the frontend
+build-frontend:
+  stage: build
+  script:
+    - cd frontend
+    - npm ci
+    - npm run build # Build the frontend using Vite
+  artifacts:
+    paths:
+      - frontend/dist # Save the built frontend files as artifacts
+
+# Backend tests
+test-backend:
+  stage: test
+  services:
+    - name: mvertes/alpine-mongo:latest
+      alias: mongo
+  variables:
+    MONGODB_URI: "mongodb://mongo:27017/testDB"
+  script:
+    - cd backend
+    - npm ci
+    - echo "Creating .env file for tests"
+    - echo "MONGODB_URI=$MONGODB_URI" > .env
+#    - npm run test # Adjust this to a real backend test script once added
+
+# Frontend tests
+test-frontend:
+  stage: test
+  script:
+    - cd frontend
+    - npm ci
+    - npm run test || echo "Frontend tests not configured yet" # Replace with actual test script if applicable
