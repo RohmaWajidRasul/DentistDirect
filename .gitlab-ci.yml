@@ -15,6 +15,8 @@ stages:
 # Linting stage for both frontend and backend
 lint-backend:
   stage: lint
+  tags: 
+    - docker
   script:
     - cd backend
     - node -v  # Ensure node is installed
@@ -24,6 +26,8 @@ lint-backend:
 
 lint-frontend:
   stage: lint
+  tags:
+    - docker
   script:
     - cd frontend
     - node -v  # Ensure node is installed
@@ -34,6 +38,8 @@ lint-frontend:
 # Build stage for the frontend
 build-frontend:
   stage: build
+  tags:
+    - docker
   script:
     - cd frontend
     - npm ci
@@ -45,6 +51,8 @@ build-frontend:
 # Backend tests
 test-backend:
   stage: test
+  tags:
+    - docker
   services:
     - name: mvertes/alpine-mongo:latest
       alias: mongo
@@ -60,6 +68,8 @@ test-backend:
 # Frontend tests
 test-frontend:
   stage: test
+  tags: 
+    - docker
   script:
     - cd frontend
     - npm ci
