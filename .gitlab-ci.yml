@@ -19,8 +19,8 @@ lint-backend:
     - docker
   script:
     - cd backend
-    - rm -rf node_modules
     - npm install
+    - npm ls eslint text-table
     - npx eslint . # Run ESLint on the backend
 
 # Build stage for the frontend
