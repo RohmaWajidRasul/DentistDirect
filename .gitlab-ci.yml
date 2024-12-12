@@ -1,11 +1,11 @@
 image: node:20-alpine
 
 # Cache dependencies between jobs
-cache:
-  key: ${CI_COMMIT_REF_SLUG}
-  paths:
-    - frontend/node_modules/
-    - backend/node_modules/
+#cache:
+#  key: ${CI_COMMIT_REF_SLUG}
+#  paths:
+#    - frontend/node_modules/
+#    - backend/node_modules/
 
 stages:
   - lint
@@ -19,8 +19,7 @@ lint-backend:
     - docker
   script:
     - cd backend
-    - node -v  # Ensure node is installed
-    - npm -v   # Ensure npm is installed
+    - rm -rf node_modules
     - npm install
     - npx eslint . # Run ESLint on the backend
 
