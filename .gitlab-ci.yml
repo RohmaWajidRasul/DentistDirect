@@ -19,7 +19,7 @@ lint-backend:
     - docker
   script:
     - cd backend
-    - npm install
+    - npm ci --legacy-peer-deps
     - npm ls eslint text-table
     - npx eslint . # Run ESLint on the backend
 
