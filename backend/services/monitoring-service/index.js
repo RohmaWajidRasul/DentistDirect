@@ -15,10 +15,7 @@ const dbURIs = {
     fallbackAppointments: 'mongodb://localhost:27019/appointments',
 };
 
-const dbStatus = {
-    primary: { status: 'unknown' },
-    fallback: { status: 'unknown' },
-};
+const dbStatus = {};
 
 const checkDatabases = async () => {
     for (const [key, uri] of Object.entries(dbURIs)) {
@@ -70,6 +67,50 @@ const servicePaths = {
 };
 
 const spawnedProcesses = {};
+
+const spawnService = (serviceName) => {
+    const scriptPath = servicePaths[serviceName];
+    if (!scriptPath) {
+        console.error(`No script path found for service ${serviceName}`);
+        return null;
+    }
+
+    const serviceDir = path.dirname(scriptPath);
+
+    console.log(`Starting ${serviceName} from ${scriptPath}`);
+    const process = spawn('node', [scriptPath], {
+        stdio: ['ignore', 'pipe', 'pipe'], 
+        cwd: serviceDir,
+    });
+    
+    process.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+
+    process.stderr.on('data', (data) => {
+        console.error(`Error from ${serviceName}:`, data.toString());
+    });
+
+    process.on('error', (err) => {
+        console.error(`Failed to spawn ${serviceName}:`, err);
+    });
+
+    process.on('exit', (code) => {
+        console.log(`Service ${serviceName} exited with code ${code}`);
+        delete spawnedProcesses[serviceName];
+    });
+
+    return process;
+};
+
+const spawnAllServices = () => {
+    for (const [serviceName] of Object.entries(servicePaths)) {
+        console.log(`Initializing ${serviceName} on startup.`);
+        spawnedProcesses[serviceName] = spawnService(serviceName);
+    }
+};
+
+spawnAllServices();
 
 mqttClient.on('connect', () => {
     mqttClient.subscribe(subscriptionTopic, (err) => {
@@ -137,41 +178,6 @@ const publishAlert = (serviceName) => {
             console.log(`Alert published for ${serviceName}`);
         }
     });
-};
-
-const spawnService = (serviceName) => {
-    const scriptPath = servicePaths[serviceName];
-    if (!scriptPath) {
-        console.error(`No script path found for service ${serviceName}`);
-        return null;
-    }
-
-    const serviceDir = path.dirname(scriptPath);
-
-    console.log(`Starting ${serviceName} from ${scriptPath}`);
-    const process = spawn('node', [scriptPath], {
-        stdio: ['ignore', 'pipe', 'pipe'], 
-        cwd: serviceDir,
-    });
-    
-    process.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
-    });
-
-    process.stderr.on('data', (data) => {
-        console.error(`Error from ${serviceName}:`, data.toString());
-    });
-
-    process.on('error', (err) => {
-        console.error(`Failed to spawn ${serviceName}:`, err);
-    });
-
-    process.on('exit', (code) => {
-        console.log(`Service ${serviceName} exited with code ${code}`);
-        delete spawnedProcesses[serviceName];
-    });
-
-    return process;
 };
 
 const shutdown = async () => {
