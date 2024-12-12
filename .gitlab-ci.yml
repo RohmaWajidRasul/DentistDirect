@@ -8,8 +8,21 @@ cache:
     - backend/node_modules/
 
 stages:
+  - lint
   - build
   - test
+
+# Linting stage for both frontend and backend
+lint-backend:
+  stage: lint
+  tags: 
+    - docker
+  script:
+    - cd backend
+    - node -v  # Ensure node is installed
+    - npm -v   # Ensure npm is installed
+    - npm install
+    - npx eslint . # Run ESLint on the backend
 
 # Build stage for the frontend
 build-frontend:
