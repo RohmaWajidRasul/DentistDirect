@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from './database.js';
+import connectDB from '../../shared/database.js';
 import mqttClient from '../../shared/mqtt-client.js';
 import { registerDentist } from './registerDentist.controller.js';
 import { fetchDentistInfo } from './fetchDentistInfo.controller.js';
@@ -16,7 +16,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-connectDB();
+const primaryURI = process.env.DENTISTDB_PRIMARY_URI || 'mongodb://localhost:27017/dentists';
+const fallbackURI = process.env.DENTISTDB_FALLBACK_URI || 'mongodb://localhost:27019/dentists';
+
+connectDB(primaryURI, fallbackURI, "dentistDB");
 
 const topicHandlers = {
     'request/dentists/register': registerDentist,

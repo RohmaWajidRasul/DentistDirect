@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from '../database.js';
+import connectDB from '../../../shared/database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 import { createPatient } from './createPatient.controller.js';
 import morgan from'morgan';
@@ -16,8 +16,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+const primaryURI = process.env.PATIENTDB_PRIMARY_URI || 'mongodb://localhost:27017/patients';
+const fallbackURI = process.env.PATIENTDB_FALLBACK_URI || 'mongodb://localhost:27019/patients';
 
-connectDB();
+connectDB(primaryURI, fallbackURI, "patientDB");
 
 const requestTopic = 'request/patients/create';
 

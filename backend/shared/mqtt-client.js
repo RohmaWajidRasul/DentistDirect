@@ -3,7 +3,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-var mqttURL = process.env.MQTT_BROKER_URL || 'tcp://test.mosquitto.org'
+var mqttURL = process.env.MQTT_BROKER_URL_BACKEND || 'tcp://test.mosquitto.org';
+
 
 const mqttClient = mqtt.connect(mqttURL);
 

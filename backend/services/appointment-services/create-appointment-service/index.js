@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from '../database.js';
+import connectDB from '../../../shared/database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 import mongoose from 'mongoose';
 import { createAppointment } from './createAppointment.controller.js';
@@ -16,8 +16,11 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
+const primaryURI = process.env.APPOINTMENTDB_PRIMARY_URI || 'mongodb://localhost:27017/appointments';
+const fallbackURI = process.env.APPOINTMENTDB_FALLBACK_URI || 'mongodb://localhost:27019/appointments';
 
-connectDB();
+connectDB(primaryURI, fallbackURI, "appointmentDB");
+
 mqttClient.on('connect', () => {
     console.log('MQTT connected for Create Appointment Service');
     mqttClient.subscribe('request/appointments/create', (err) => {
