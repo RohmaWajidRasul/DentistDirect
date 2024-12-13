@@ -1,5 +1,12 @@
 <template>
     <div class="form-container">
+      <!-- Alert Messages -->
+      <Alert
+        v-if="alertMessage"
+        :type="alertType"
+        :message="alertMessage"
+        @close="alertMessage = null"
+      />
       <h2 class="form-title">Login here</h2>
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
@@ -35,8 +42,10 @@
   
   <script>
   import mqttClient from '../mqttClient.js';
+  import Alert from '../components/Alerts.vue';
   
   export default {
+    components : { Alert },
     data() {
       return {
         user: {
@@ -44,6 +53,8 @@
           password: ''
         },
         isLoading: false,
+        alertMessage: null, 
+        alertType: 'success'
       };
     },
     methods: {
@@ -66,7 +77,7 @@
         mqttClient.subscribe(responseTopic, (err) => {
           if (err) {
             this.isLoading = false;
-            alert('Server is unavailable. Please try again later.');
+            this.showAlert('Server is unavailable. Please try again later.', 'error');
             console.error('Failed to subscribe to response topic:', err);
             return;
           }
@@ -75,7 +86,7 @@
         mqttClient.publish(requestTopic, JSON.stringify(payload), (err) => {
           if (err) {
             this.isLoading = false;
-            alert('Failed to send request to server. Please try again later.');
+            this.showAlert('Failed to send request to server. Please try again later.', 'error');
             console.error('Failed to publish request to MQTT:', err);
             return;
           }
@@ -84,7 +95,7 @@
         const timeout = setTimeout(() => {
           this.isLoading = false;
           mqttClient.unsubscribe(responseTopic);
-          alert('Server did not respond. Please try again later.');
+          this.showAlert('Server did not respond. Please try again later.');
         }, 5000);
   
         mqttClient.on('message', (topic, message) => {
@@ -95,21 +106,27 @@
             this.isLoading = false;
   
             if (response.status === 'success') {
-              alert('Login successful');
               // Store user info in localStorage to keep user in "logged in" state
               localStorage.setItem('user', JSON.stringify({ userId: response.userId, email: this.user.email }));
              // Store user data in localStorage, to stay in "logged in" state
               window.dispatchEvent(new Event('authChange')) 
               // Redirect to home page
               this.$router.push('/');
+              this.showAlert('Login successful', 'success');
+
             } else {
-              alert('Login failed: ' + response.message);
+              this.showAlert('Login failed: ' + response.message, 'error');
             }
           }
         });
       },
+      showAlert(message, type) {
+      this.alertMessage = message;
+      this.alertType = type;
     }
-  };
+
+  }
+};
   </script>
   
   <style scoped>
