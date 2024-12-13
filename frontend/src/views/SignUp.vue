@@ -101,7 +101,7 @@ export default {
   },
   methods: {
     validateInfo(){
-      this.errorMeesages = []; 
+      this.errorMessages = []; 
       
       const requiredFields = ['firstName', 'lastName', 'SSN', 'email', 'phoneNumber', 'password'];
       requiredFields.forEach(field => {

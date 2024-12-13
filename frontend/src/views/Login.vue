@@ -27,6 +27,8 @@
         </div>
   
         <button type="submit" class="btn btn-primary">Login</button>
+        <span v-if="isLoading">Logging in...</span>
+
       </form>
     </div>
   </template>
@@ -41,10 +43,17 @@
           email: '',
           password: ''
         },
+        isLoading: false,
       };
     },
     methods: {
       async handleLogin() {
+        if (!this.user.email || !this.user.password) {
+          alert('Email and password are required.');
+          return;
+        }
+
+        this.isLoading = true; 
         const correlationId = Date.now().toString();
         const requestTopic = 'request/patients/login';  
         const responseTopic = `response/patients/loggedIn/${correlationId}`; 
@@ -56,6 +65,8 @@
   
         mqttClient.subscribe(responseTopic, (err) => {
           if (err) {
+            this.isLoading = false;
+            alert('Server is unavailable. Please try again later.');
             console.error('Failed to subscribe to response topic:', err);
             return;
           }
@@ -63,25 +74,34 @@
   
         mqttClient.publish(requestTopic, JSON.stringify(payload), (err) => {
           if (err) {
+            this.isLoading = false;
+            alert('Failed to send request to server. Please try again later.');
             console.error('Failed to publish request to MQTT:', err);
+            return;
           }
         });
+
+        const timeout = setTimeout(() => {
+          this.isLoading = false;
+          mqttClient.unsubscribe(responseTopic);
+          alert('Server did not respond. Please try again later.');
+        }, 5000);
   
         mqttClient.on('message', (topic, message) => {
           if (topic === responseTopic) {
+            clearTimeout(timeout);
             const response = JSON.parse(message.toString());
-            mqttClient.unsubscribe(responseTopic); 
+            mqttClient.unsubscribe(responseTopic);
+            this.isLoading = false;
   
             if (response.status === 'success') {
               alert('Login successful');
-
               // Store user info in localStorage to keep user in "logged in" state
               localStorage.setItem('user', JSON.stringify({ userId: response.userId, email: this.user.email }));
              // Store user data in localStorage, to stay in "logged in" state
               window.dispatchEvent(new Event('authChange')) 
               // Redirect to home page
               this.$router.push('/');
-
             } else {
               alert('Login failed: ' + response.message);
             }
