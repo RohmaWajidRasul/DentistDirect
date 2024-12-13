@@ -2,7 +2,53 @@ import mqttClient from '../../shared/mqtt-client.js';
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { checkDBHealth } from '../../shared/checkDBHealth.js';
 
+//-----Monitoring the health status of databases----------------------
+
+const dbURIs = {
+    primaryDentists: 'mongodb://localhost:27017/dentists',
+    fallbackDentists: 'mongodb://localhost:27019/dentists',
+    primaryPatients: 'mongodb://localhost:27017/patients',
+    fallbackPatients: 'mongodb://localhost:27019/patients',
+    primaryAppointments: 'mongodb://localhost:27017/appointments',
+    fallbackAppointments: 'mongodb://localhost:27019/appointments',
+};
+
+const dbStatus = {};
+
+const checkDatabases = async () => {
+    for (const [key, uri] of Object.entries(dbURIs)) {
+        const result = await checkDBHealth(uri);
+        dbStatus[key] = result;
+    }
+
+    console.log('Database statuses:', dbStatus);
+};
+
+setInterval(checkDatabases, 10000); // Check every 10 seconds
+
+//------------Subscribing to the sync and backup status--------------------
+mqttClient.on('connect', () => {
+    mqttClient.subscribe('sync/status', (err) => {
+        if (err) console.error('Failed to subscribe to sync/status:', err);
+        else console.log('Subscribed to sync/status topic.');
+    });
+    mqttClient.subscribe('backup/status', (err) => {
+        if (err) console.error('Failed to subscribe to backup/status:', err);
+        else console.log('Subscribed to backup/status topic.');
+    });
+});
+
+mqttClient.on('message', (topic, message) => {
+    const payload = JSON.parse(message.toString());
+    if (topic === 'sync/status') {
+        console.log(`Sync Status:`, payload);
+    } else if (topic === 'backup/status') {
+        console.log(`Backup Status:`, payload);
+    }
+});
+//-------------------------------------------------------------------
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -21,6 +67,50 @@ const servicePaths = {
 };
 
 const spawnedProcesses = {};
+
+const spawnService = (serviceName) => {
+    const scriptPath = servicePaths[serviceName];
+    if (!scriptPath) {
+        console.error(`No script path found for service ${serviceName}`);
+        return null;
+    }
+
+    const serviceDir = path.dirname(scriptPath);
+
+    console.log(`Starting ${serviceName} from ${scriptPath}`);
+    const process = spawn('node', [scriptPath], {
+        stdio: ['ignore', 'pipe', 'pipe'], 
+        cwd: serviceDir,
+    });
+    
+    process.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+
+    process.stderr.on('data', (data) => {
+        console.error(`Error from ${serviceName}:`, data.toString());
+    });
+
+    process.on('error', (err) => {
+        console.error(`Failed to spawn ${serviceName}:`, err);
+    });
+
+    process.on('exit', (code) => {
+        console.log(`Service ${serviceName} exited with code ${code}`);
+        delete spawnedProcesses[serviceName];
+    });
+
+    return process;
+};
+
+const spawnAllServices = () => {
+    for (const [serviceName] of Object.entries(servicePaths)) {
+        console.log(`Initializing ${serviceName} on startup.`);
+        spawnedProcesses[serviceName] = spawnService(serviceName);
+    }
+};
+
+spawnAllServices();
 
 mqttClient.on('connect', () => {
     mqttClient.subscribe(subscriptionTopic, (err) => {
@@ -88,41 +178,6 @@ const publishAlert = (serviceName) => {
             console.log(`Alert published for ${serviceName}`);
         }
     });
-};
-
-const spawnService = (serviceName) => {
-    const scriptPath = servicePaths[serviceName];
-    if (!scriptPath) {
-        console.error(`No script path found for service ${serviceName}`);
-        return null;
-    }
-
-    const serviceDir = path.dirname(scriptPath);
-
-    console.log(`Starting ${serviceName} from ${scriptPath}`);
-    const process = spawn('node', [scriptPath], {
-        stdio: ['ignore', 'pipe', 'pipe'], 
-        cwd: serviceDir,
-    });
-    
-    process.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
-    });
-
-    process.stderr.on('data', (data) => {
-        console.error(`Error from ${serviceName}:`, data.toString());
-    });
-
-    process.on('error', (err) => {
-        console.error(`Failed to spawn ${serviceName}:`, err);
-    });
-
-    process.on('exit', (code) => {
-        console.log(`Service ${serviceName} exited with code ${code}`);
-        delete spawnedProcesses[serviceName];
-    });
-
-    return process;
 };
 
 const shutdown = async () => {

@@ -1,7 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import connectDB from '../database.js';
+import connectDB from '../../../shared/database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
@@ -10,11 +10,15 @@ import { manageAppointment } from './manageAppointment.controller.js';
 dotenv.config();
 
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-connectDB();
+const primaryURI = process.env.APPOINTMENTDB_PRIMARY_URI || 'mongodb://localhost:27017/appointments';
+const fallbackURI = process.env.APPOINTMENTDB_FALLBACK_URI || 'mongodb://localhost:27019/appointments';
+
+connectDB(primaryURI, fallbackURI, "appointmentDB");
 
 const requestTopic = 'request/appointments/manage/#'
 
