@@ -1,5 +1,15 @@
 <template>
   <div class="slots-page">
+    
+    <!-- Alert Messages -->
+     <Alert
+      v-if="alertMessage"
+      :type="alertType"
+      :message="alertMessage"
+      @close="alertMessage = null"
+    />
+    
+    
     <!-- Filters -->
     <div class="filters-container">
       <Filters
@@ -34,11 +44,12 @@ import Filters from "../components/Filters.vue";
 import MonthNavigation from "../components/MonthNavigation.vue";
 import SlotsCalendar from "../components/SlotsCalendar.vue";
 import mqttClient from "../mqttClient.js";
+import Alert from "../components/Alerts.vue";
 import { format, getWeek, addMonths, subMonths } from "date-fns";
 
 export default {
   name: "slots-page",
-  components: { Filters, MonthNavigation, SlotsCalendar  },
+  components: { Filters, MonthNavigation, SlotsCalendar, Alert },
   data() {
     return {
       appointments: [],
@@ -50,6 +61,9 @@ export default {
         location: null,
       },
       currentDate: new Date(),
+      alertMessage: null, 
+      alertType: "success", // alertType = success or error 
+
     };
   },
   computed: {
@@ -96,17 +110,24 @@ export default {
           console.log(`Subscribed to response topic: ${responseTopic}`);
         });
 
+        const timeout = setTimeout(() => {
+          mqttClient.unsubscribe(responseTopic);
+          this.showAlert('Server did not respond. Please try again later.', 'error');
+        }, 5000);
+
         this.mqttClient.on("message", (topic, message) => {
           if (topic === responseTopic) {
+            clearTimeout(timeout); 
             const response = JSON.parse(message.toString());
             console.log("Response received:", response);
             console.log("Filtered slots response:", response.appointments);
 
             if (response.status === "success") {
               this.processSlots(response.appointments);
+              this.showAlert('Slots fetched successfully!', 'success');
             } else {
               console.error("Error response:", response.message);
-              //alert(response.message);
+              this.showAlert(response.message, 'error');
             }
 
             this.mqttClient.unsubscribe(responseTopic, (err) => {
@@ -120,9 +141,15 @@ export default {
         });
       } catch (error) {
         console.error("Error in fetchSlotsAndDentists:", error.message);
-        alert("An error occurred while fetching slots. Please try again later.");
+        this.showAlert("An error occurred while fetching slots. Please try again later.", 'error');
       }
     },
+
+    showAlert(message, type) {
+      this.alertMessage = message;
+      this.alertType = type;
+    },
+
     processSlots(appointments) {
       this.appointments = appointments.map((appointment) => ({
         id: appointment._id,
