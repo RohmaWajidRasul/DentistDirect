@@ -1,5 +1,14 @@
 <template>
   <div class="form-container">
+
+    <!-- Alert Messages -->
+ <Alert
+      v-if="alertMessage"
+      :type="alertType"
+      :message="alertMessage"
+      @close="alertMessage = null"
+    />
+   
     <h2 class="form-title">Sign Up here</h2>
     <form @submit.prevent="handleSignup" class="signup-form">
      
@@ -83,8 +92,11 @@
 
 <script>
 import mqttClient from '../mqttClient.js';
+import Alert from '../components/Alerts.vue';
+
 
 export default {
+  components : { Alert }, 
   data() {
     return {
       user: {
@@ -92,10 +104,13 @@ export default {
         lastName: '',
         SSN: '',
         email: '',
-        phoneNumber: ''
+        phoneNumber: '', 
+        password: '', 
       },
       errorMessages: [],
-      isLoading: false, // To show loading spinner during request
+      alertMessage: null, 
+      alertType: "success", // alertType = success or error
+      isLoading: false, 
 
     };
   },
@@ -156,7 +171,7 @@ export default {
         if (err) {
           console.error('Failed to subscribe to response topic:', err);
           this.isLoading = false;
-          alert('Failed to connect to server. Please try again later.');
+          this.showAlert('Failed to connect to server. Please try again later.', 'error');
           return;
         }
       });
@@ -165,7 +180,7 @@ export default {
         if (err) {
           console.error('Failed to publish request to MQTT:', err);
           this.isLoading = false;
-          alert('Failed to send request to server. Please try again later.');
+          this.showAlert('Failed to send request to server. Please try again later.','error');
           return; 
         }
       });
@@ -173,7 +188,7 @@ export default {
       const timeout = setTimeout(() => {
         this.isLoading = false;
         mqttClient.unsubscribe(responseTopic);
-        alert('Server did not respond. Please try again later.');
+        this.showAlert('Server did not respond. Please try again later.', 'error');
       }, 5000);
 
       mqttClient.on('message', (topic, message) => {
@@ -185,17 +200,23 @@ export default {
 
 
           if (response.status === 'success') {
-            alert('Patient registered successfully');
             localStorage.setItem('user', JSON.stringify(this.user))  // Store user data in localStorage, to stay in "logged in" state
             window.dispatchEvent(new Event('authChange')) 
-            this.$router.push('/')  // Redirect to home page after sign-up
-
+            setTimeout(() => {
+              this.$router.push('/'); // Redirect to home page after sign-up
+            }, 3000);
+            this.showAlert('Patient registered successfully');
           } else {
             alert('Failed to register patient: ' + response.message);
           }
         }
       });
     },
+    showAlert(message, type) {
+      this.alertMessage = message;
+      this.alertType = type;
+    },
+
   }
 };
 </script>
