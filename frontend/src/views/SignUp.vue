@@ -76,6 +76,7 @@
       </div>
 
       <button type="submit" class="btn btn-primary">Sign Up</button>
+      <span v-if="isLoading">Signing Up...</span>
     </form>
   </div>
 </template>
@@ -94,6 +95,8 @@ export default {
         phoneNumber: ''
       },
       errorMessages: [],
+      isLoading: false, // To show loading spinner during request
+
     };
   },
   methods: {
@@ -117,7 +120,7 @@ export default {
       }
 
       // Validate SSN length (10 or 12 characters)
-      if (this.user.SSN && this.user.SSN.length !== 10 && this.user.SSN.length !== 12) {
+      if (this.user.SSN && (this.user.SSN.length !== 10 && this.user.SSN.length !== 12)) {
         this.errorMessages.push('SSN must be in YYMMDDXXXX format or YYYYMMDDXXXX format.');
       }
 
@@ -136,6 +139,7 @@ export default {
         alert(this.errorMessages.join('\n')); // Display all error messages
         return;
       }
+      this.isLoading = true; 
 
       const correlationId = Date.now().toString();
       const requestTopic = 'request/patients/create';  
@@ -151,6 +155,8 @@ export default {
       mqttClient.subscribe(responseTopic, (err) => {
         if (err) {
           console.error('Failed to subscribe to response topic:', err);
+          this.isLoading = false;
+          alert('Failed to connect to server. Please try again later.');
           return;
         }
       });
@@ -158,13 +164,25 @@ export default {
       mqttClient.publish(requestTopic, JSON.stringify(payload), (err) => {
         if (err) {
           console.error('Failed to publish request to MQTT:', err);
+          this.isLoading = false;
+          alert('Failed to send request to server. Please try again later.');
+          return; 
         }
       });
 
+      const timeout = setTimeout(() => {
+        this.isLoading = false;
+        mqttClient.unsubscribe(responseTopic);
+        alert('Server did not respond. Please try again later.');
+      }, 5000);
+
       mqttClient.on('message', (topic, message) => {
         if (topic === responseTopic) {
+          clearTimeout(timeout);
           const response = JSON.parse(message.toString());
           mqttClient.unsubscribe(responseTopic); 
+          this.isLoading = false;
+
 
           if (response.status === 'success') {
             alert('Patient registered successfully');
