@@ -199,7 +199,134 @@ class PatientServiceTasks(TaskSet):
                 exception=Exception("No response received"),
             )
 
+    @task(2)
+    def login_patient(self):
+        """Simulate patient login"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/patients/login"
+        response_topic = f"response/patients/loggedIn/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "email": f"jane.smith.{uuid.uuid4()}@example.com",
+                "password": "SecurePass123!",
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+         # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="login_patient",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="login_patient",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
+class AppointmentServiceTasks(TaskSet):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.environment = parent.environment  # Pass environment from User class
+
+    def on_start(self):
+        self.mqtt_client = MQTTClientWrapper("test.mosquitto.org", 1883)
+        self.mqtt_client.connect()
+
+    @task(1)
+    def fetch_appointment_availability(self):
+        """Simulate fetching appointment availability"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/appointments/availability/fetch"
+        response_topic = f"response/appointments/availability/fetched/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "location": "Main Street Clinic"
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="fetch_appointment_availability",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="fetch_appointment_availability",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
+    @task(2)
+    def create_appointment(self):
+        """Simulate creating an appointment"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/appointments/create"
+        response_topic = f"response/appointments/created/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "dentistId": "674f6b44df75ca6c80505206",
+                "date": "2024-12-14",
+                "startTime": "09:00",
+                "endTime": "10:00"
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="create_appointment",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="create_appointment",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
 
 class MixedServiceUser(User):
-    tasks = [DentistServiceTasks, PatientServiceTasks]
+    tasks = [DentistServiceTasks, PatientServiceTasks, AppointmentServiceTasks]
     wait_time = between(1, 5)  # Wait between 1 and 5 seconds between tasks
