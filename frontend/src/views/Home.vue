@@ -17,12 +17,15 @@
         <p class="fs-4">Check available slots at your dentist, book and cancel appointments easily.</p>
       </b-container>
     </div>
+    <!-- MapComponent -->
+    <MapComponent></MapComponent>
   </div>
 </template>
 
 <script>
-import { inject } from 'vue'  
-import Card from '../components/Card.vue'
+import { inject } from 'vue';
+import Card from '../components/Card.vue';
+import MapComponent from '../components/MapComponent.vue';
 
   
   export default {
@@ -56,8 +59,7 @@ import Card from '../components/Card.vue'
         showLoginPrompt: false,
       }
     },
-    components: {
-    }
+    components: { MapComponent },
   }
   </script>
   
