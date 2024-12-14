@@ -7,7 +7,7 @@
     "start": "node api/app.js",
     "dev": "nodemon api/app.js",
     "ci-test": "npm run newman-server",
-    "newman-server": "npm run dropdb && run-p --race start-dentistAPI start-APIGateway start-services newman-wait",
+    "newman-server": "npm run dropdb && run-p --race start-dentistAPI start-APIGateway newman-wait",
     "start-dentistAPI": "node dentistAPI/app.js",
     "start-APIGateway": "node api/app.js",
     "start-services": "node services/monitoring-service/index.js",
