@@ -58,6 +58,9 @@ test-backend:
     DENTISTDB_PRIMARY_URI: "mongodb://mongo:27017/dentists"
     APPOINTMENTDB_PRIMARY_URI: "mongodb://mongo:27017/appointments"
     MQTT_BROKER_URL_BACKEND: "mqtt://mqtt:1883"
+    PORT_DENTIST_API: 5007 
+    PORT_GATEWAY: 3000
+
   script:
     - cd backend
     - npm ci
@@ -66,5 +69,7 @@ test-backend:
     - echo "MONGODB_URI_DENTISTS=$MONGODB_URI_DENTISTS" >> ../.env
     - echo "MONGODB_URI_APPOINTMENTS=$MONGODB_URI_APPOINTMENTS" >> ../.env
     - echo "MQTT_BROKER_URL_BACKEND=$MQTT_BROKER_URL_BACKEND" >> ../.env
+    - echo "PORT_DENTIST_API=$PORT_DENTIST_API" >> ../.env
+    - echo "PORT_GATEWAY=$PORT_GATEWAY" >> ../.env
     - npm run ci-test
 
