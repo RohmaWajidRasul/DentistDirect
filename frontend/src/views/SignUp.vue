@@ -1,5 +1,14 @@
 <template>
   <div class="form-container">
+
+    <!-- Alert Messages -->
+ <Alert
+      v-if="alertMessage"
+      :type="alertType"
+      :message="alertMessage"
+      @close="alertMessage = null"
+    />
+   
     <h2 class="form-title">Sign Up here</h2>
     <form @submit.prevent="handleSignup" class="signup-form">
      
@@ -76,14 +85,18 @@
       </div>
 
       <button type="submit" class="btn btn-primary">Sign Up</button>
+      <span v-if="isLoading">Signing Up...</span>
     </form>
   </div>
 </template>
 
 <script>
 import mqttClient from '../mqttClient.js';
+import Alert from '../components/Alerts.vue';
+
 
 export default {
+  components : { Alert }, 
   data() {
     return {
       user: {
@@ -91,12 +104,58 @@ export default {
         lastName: '',
         SSN: '',
         email: '',
-        phoneNumber: ''
+        phoneNumber: '', 
+        password: '', 
       },
+      errorMessages: [],
+      alertMessage: null, 
+      alertType: "success", // alertType = success or error
+      isLoading: false, 
+
     };
   },
   methods: {
+    validateInfo(){
+      this.errorMessages = []; 
+      
+      const requiredFields = ['firstName', 'lastName', 'SSN', 'email', 'phoneNumber', 'password'];
+      requiredFields.forEach(field => {
+        if (!this.user[field]) {
+          this.errorMessages.push(`${field} is required.`);
+        }
+      });
+      // Validate phone number length
+      if (this.user.phoneNumber && (this.user.phoneNumber.length < 10 || this.user.phoneNumber.length > 15)) {
+        this.errorMessages.push('Phone number must be between 10 and 15 characters.');
+      }
+
+      // Validate password length
+      if (this.user.password && this.user.password.length < 8) {
+        this.errorMessages.push('Password must be at least 8 characters long.');
+      }
+
+      // Validate SSN length (10 or 12 characters)
+      if (this.user.SSN && (this.user.SSN.length !== 10 && this.user.SSN.length !== 12)) {
+        this.errorMessages.push('SSN must be in YYMMDDXXXX format or YYYYMMDDXXXX format.');
+      }
+
+      // Validate email format
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (this.user.email && !emailPattern.test(this.user.email)) {
+        this.errorMessages.push('Invalid email format.');
+      }
+
+      // If there are errors, return false, otherwise true
+      return this.errorMessages.length === 0;
+    },
+
     async handleSignup() {
+      if (!this.validateInfo()) {
+        alert(this.errorMessages.join('\n')); // Display all error messages
+        return;
+      }
+      this.isLoading = true; 
+
       const correlationId = Date.now().toString();
       const requestTopic = 'request/patients/create';  
       const responseTopic = `response/patients/created/${correlationId}`; 
@@ -106,11 +165,13 @@ export default {
         payload: this.user
       };
 
-      console.log('Payload:', payload);  // Log the payload to check if all fields are present
+      console.log('Payload:', payload);
 
       mqttClient.subscribe(responseTopic, (err) => {
         if (err) {
           console.error('Failed to subscribe to response topic:', err);
+          this.isLoading = false;
+          this.showAlert('Failed to connect to server. Please try again later.', 'error');
           return;
         }
       });
@@ -118,26 +179,44 @@ export default {
       mqttClient.publish(requestTopic, JSON.stringify(payload), (err) => {
         if (err) {
           console.error('Failed to publish request to MQTT:', err);
+          this.isLoading = false;
+          this.showAlert('Failed to send request to server. Please try again later.','error');
+          return; 
         }
       });
 
+      const timeout = setTimeout(() => {
+        this.isLoading = false;
+        mqttClient.unsubscribe(responseTopic);
+        this.showAlert('Server did not respond. Please try again later.', 'error');
+      }, 5000);
+
       mqttClient.on('message', (topic, message) => {
         if (topic === responseTopic) {
+          clearTimeout(timeout);
           const response = JSON.parse(message.toString());
           mqttClient.unsubscribe(responseTopic); 
+          this.isLoading = false;
+
 
           if (response.status === 'success') {
-            alert('Patient registered successfully');
             localStorage.setItem('user', JSON.stringify(this.user))  // Store user data in localStorage, to stay in "logged in" state
             window.dispatchEvent(new Event('authChange')) 
-            this.$router.push('/')  // Redirect to home page after sign-up
-
+            setTimeout(() => {
+              this.$router.push('/'); // Redirect to home page after sign-up
+            }, 3000);
+            this.showAlert('Patient registered successfully');
           } else {
             alert('Failed to register patient: ' + response.message);
           }
         }
       });
     },
+    showAlert(message, type) {
+      this.alertMessage = message;
+      this.alertType = type;
+    },
+
   }
 };
 </script>

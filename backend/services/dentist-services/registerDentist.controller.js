@@ -13,8 +13,17 @@ export const registerDentist = async (topic, message) => {
     let correlationId; 
 
     try {
-
-        const parsedMessage = JSON.parse(message.toString());
+        let parsedMessage;
+        try {
+            parsedMessage = JSON.parse(message.toString());
+        } catch (error) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Invalid JSON format in request',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
         correlationId = parsedMessage.correlationId;
 
         if (!correlationId) {
@@ -32,6 +41,27 @@ export const registerDentist = async (topic, message) => {
 
             return publishResponse(correlationId, errorResponse);
         }
+        
+        // Out of bounds validation for phone number
+        if (phoneNumber.length < 10 || phoneNumber.length > 15) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Phone number should be between 10 and 15 characters.',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
+        // Password validation
+        if (password.length < 8) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Password must be at least 8 characters long.',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
 
         const dentist = await Dentist.findOne({ email });
         if ( dentist ) {
