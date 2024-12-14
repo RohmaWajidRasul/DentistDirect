@@ -20,7 +20,7 @@
     "available-appointments-service": "node services/appointment-services/available-appointments-service/index.js",
     "create-appointment-service": "node services/appointment-services/create-appointment-service/index.js",
     "newman-wait": "sleep 60 && npm run newman",
-    "newman": "newman run ./tests/api.postman_collection",
+    "newman": "newman run ./tests/api.postman_collection.json",
     "dropdb": "node ./tests/dropdb.js"
   },
   "keywords": [],

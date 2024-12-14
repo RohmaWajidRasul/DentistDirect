@@ -301,8 +301,8 @@
 									"let appointmentId = jsonData.appointment._id;\r",
 									"pm.environment.set(\"appointmentId_1\", appointmentId);\r",
 									"\r",
-									"pm.test(\"Create an appointment\", function(){\r",
-									"    pm.response.to.have.status(201);\r",
+									"pm.test(\"Book an appointment\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
 									"});"
 								],
 								"type": "text/javascript",
