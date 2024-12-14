@@ -10,7 +10,7 @@
     "newman-server": "npm run dropdb && run-p --race start-dentistAPI start-APIGateway start-services newman-wait",
     "start-dentistAPI": "node dentistAPI/app.js",
     "start-APIGateway": "node api/app.js",
-    "start-services": "node services/monitoring-service/index.js",
+    "start-services": "node services/dentist-services/index.js && node services/patient-services/create-patient-service/index.js && node services/patient-services/login-service/index.js && node services/appointment-services/appointment-management-service/index.js && node services/appointment-services/available-appointments-service/index.js && node services/appointment-services/create-appointment-service/index.js",
     "newman-wait": "sleep 60 && npm run newman",
     "newman": "newman run ./tests/Dentist Direct API.postman_collection.json",
     "dropdb": "node ./tests/dropdb.js"
