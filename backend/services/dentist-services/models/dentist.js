@@ -34,12 +34,6 @@ const dentistSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-    },
-    latitude: {
-        type: Number
-    },
-    longitude: {
-        type: Number
     }
 });
 
