@@ -53,6 +53,7 @@ test-backend:
       alias: mongo
     - name: eclipse-mosquitto:latest
       alias: mqtt
+      command: /bin/sh -c "echo 'listener 1883\nallow_anonymous true' > /mosquitto/config/mosquitto.conf && mosquitto -c /mosquitto/config/mosquitto.conf"
   variables:
     PATIENTDB_PRIMARY_URI: "mongodb://mongo:27017/patients"
     DENTISTDB_PRIMARY_URI: "mongodb://mongo:27017/dentists"
