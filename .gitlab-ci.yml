@@ -54,21 +54,20 @@ test-backend:
   services:
     - name: mvertes/alpine-mongo:latest
       alias: mongo
+    - name: eclipse-mosquitto:latest
+      alias: mqtt
   variables:
-    MONGODB_URI: "mongodb://mongo:27017/testDB"
+    PATIENTDB_PRIMARY_URI: "mongodb://mongo:27017/patients"
+    DENTISTDB_PRIMARY_URI: "mongodb://mongo:27017/dentists"
+    APPOINTMENTDB_PRIMARY_URI: "mongodb://mongo:27017/appointments"
+    MQTT_BROKER_URL_BACKEND: "mqtt://mqtt:1883"
   script:
     - cd backend
     - npm ci
-    - echo "Creating .env file for tests"
-    - echo "MONGODB_URI=$MONGODB_URI" > .env
-#    - npm run test # Adjust this to a real backend test script once added
+    - echo "Creating .env file for tests'
+    - echo "MONGODB_URI_PATIENTS=$MONGODB_URI_PATIENTS" > ../.env
+    - echo "MONGODB_URI_DENTISTS=$MONGODB_URI_DENTISTS" >> ../.env
+    - echo "MONGODB_URI_APPOINTMENTS=$MONGODB_URI_APPOINTMENTS" >> ../.env
+    - echo "MQTT_BROKER_URL_BACKEND=$MQTT_BROKER_URL_BACKEND" >> ../.env
+    - npm run ci-test
 
-# Frontend tests
-test-frontend:
-  stage: test
-  tags: 
-    - docker
-  script:
-    - cd frontend
-    - npm ci
-    - npm run test || echo "Frontend tests not configured yet"
