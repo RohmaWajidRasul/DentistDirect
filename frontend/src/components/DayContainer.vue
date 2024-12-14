@@ -145,7 +145,7 @@
 
     .slot-box,
     .no-slots {
-      font-size: 0.5rem;
+      font-size: 1rem;
       text-align: center;
     }
   }
@@ -161,14 +161,14 @@
 
     .slot-box,
     .no-slots {
-      font-size: 0.3rem;
+      font-size: 1rem;
       text-align: center;
     }
 
     .slot-time,
     .slot-location,
     .slot-dentist {
-      font-size: 0.3rem;
+      font-size: 1rem;
       margin-bottom: 3px;
     }
   }
