@@ -40,11 +40,9 @@ build-frontend:
     - docker
   script:
     - cd frontend
+    - rm -rf node_modules package-lock.json 
     - npm ci
     - npm run build 
-  artifacts:
-    paths:
-      - frontend/dist
 
 # Backend tests
 test-backend:
