@@ -7,11 +7,11 @@
     "start": "node api/app.js",
     "dev": "nodemon api/app.js",
     "ci-test": "npm run newman-server",
-    "newman-server": "npm run dropdb && run-p --race start-dentistAPI start-APIGateway newman-wait",
+    "newman-server": "npm run dropdb && run-p --race start-dentistAPI start-APIGateway start-services newman-wait",
     "start-dentistAPI": "node dentistAPI/app.js",
     "start-APIGateway": "node api/app.js",
     "start-services": "node services/monitoring-service/index.js",
-    "newman-wait": "wait-on http://localhost:$PORT_DENTIST_API && wait-on http://localhost:$PORT_GATEWAY && sleep 60",
+    "newman-wait": "sleep 60 && npm run newman",
     "newman": "newman run ./tests/Dentist Direct API.postman_collection.json",
     "dropdb": "node ./tests/dropdb.js"
   },
