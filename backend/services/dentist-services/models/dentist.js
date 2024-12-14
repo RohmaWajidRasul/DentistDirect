@@ -35,6 +35,12 @@ const dentistSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    latitude: {
+        type: Number
+    },
+    longitude: {
+        type: Number
+    }
 });
 
 const Dentist = mongoose.model('Dentist', dentistSchema);

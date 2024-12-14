@@ -34,7 +34,7 @@
     <!-- Slots Calendar -->
     <SlotsCalendar
       :slots="groupedSlotsByMonth[currentMonth]"
-      @book-slot="bookSlot"
+      @book-slot="bookSlot" 
     />
   </div>
 </template>

@@ -42,6 +42,7 @@ export const loginPatient = async (topic, message) => {
         }
 
         const patient = await Patient.findOne({ email });
+        console.log(patient._id)
         if (!patient) {
             const errorResponse = {
                 correlationId,

@@ -200,12 +200,10 @@ export default {
 
 
           if (response.status === 'success') {
-            localStorage.setItem('user', JSON.stringify(this.user))  // Store user data in localStorage, to stay in "logged in" state
-            window.dispatchEvent(new Event('authChange')) 
-            setTimeout(() => {
-              this.$router.push('/'); // Redirect to home page after sign-up
-            }, 3000);
-            this.showAlert('Patient registered successfully');
+            alert('Patient registered successfully');
+
+            this.$router.push('/login')  // Redirect to home page after sign-up
+
           } else {
             alert('Failed to register patient: ' + response.message);
           }
