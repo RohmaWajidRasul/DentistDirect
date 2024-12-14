@@ -13,7 +13,18 @@ export const createPatient = async (topic, message) => {
 
 
     try {
-        const parsedMessage = JSON.parse(message.toString());
+        let parsedMessage;
+        try {
+            parsedMessage = JSON.parse(message.toString());
+        } catch (error) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Invalid JSON format in request',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
         correlationId = parsedMessage.correlationId;
 
         if (!correlationId) {
@@ -22,22 +33,53 @@ export const createPatient = async (topic, message) => {
 
         const { firstName, lastName, SSN, email, password, phoneNumber} = parsedMessage.payload;
 
+        // Check required fields
         if (!firstName || !lastName || !SSN || !email || !phoneNumber || !password) {
-            const errorResponse ={
-                correlationId, 
-                status: 'error', 
-                message : 'All fields are required', 
-            }; 
-
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'All fields are required',
+            };
             return publishResponse(correlationId, errorResponse);
         }
 
+        // Out of bounds validation for phone number
+        if (phoneNumber.length < 10 || phoneNumber.length > 15) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Phone number should be between 10 and 15 characters.',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
+        // Password validation
+        if (password.length < 8) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Password must be at least 8 characters long.',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
+        // SSN validation (length check)
+        if (SSN.length !== 10 && SSN.length !== 12) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'SSN must be in YYMMDDXXXX format or YYYYMMDDXXXX format',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
+        // Check if patient already exists
         const existingPatient = await Patient.findOne({ SSN });
         if ( existingPatient ) {
             const errorResponse ={
                 correlationId, 
                 status: 'error', 
-                message : 'Patient already registred.', 
+                message : 'Patient already registered.', 
             }; 
 
             return publishResponse(correlationId, errorResponse);
@@ -72,13 +114,12 @@ export const createPatient = async (topic, message) => {
 
         const errorResponse ={
             correlationId, 
-            status : 'error', 
+            status: 'error', 
             message: 'Error creating patient', 
             error: error.message, 
         }; 
         return publishResponse(correlationId, errorResponse);
     }
-    
 };
 
 const publishResponse = (correlationId, response) => {

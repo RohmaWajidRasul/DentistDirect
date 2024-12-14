@@ -11,8 +11,18 @@ export const createAppointment = async (topic, message) => {
     let correlationId;
 
     try {
+        let parsedMessage;
+        try {
+            parsedMessage = JSON.parse(message.toString());
+        } catch (error) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Invalid JSON format in request',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
 
-        const parsedMessage = JSON.parse(message.toString());
         correlationId = parsedMessage.correlationId;
 
         if (!correlationId) {
@@ -35,6 +45,16 @@ export const createAppointment = async (topic, message) => {
         const [endHour, endMinute] = endTime.split(':').map(Number);
         const duration = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
 
+        const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5]?[0-9])$/; // To make sure it is in the correct time format 
+        if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Invalid time format. Must be HH:MM.',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
         if (duration <= 0) {
             const errorResponse = {
                 correlationId,
@@ -43,6 +63,18 @@ export const createAppointment = async (topic, message) => {
             };
             return publishResponse(correlationId, errorResponse);
         }
+       
+        // Check if there already is an appointment created at the same time
+        const existingAppointment = await Appointment.findOne({ dentistId, date, startTime });
+        if (existingAppointment) {
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Appointment already exists at this time.',
+            };
+            return publishResponse(correlationId, errorResponse);
+        }
+
 
         const appointment = new Appointment({ dentistId, date, startTime, endTime, duration });
         await appointment.save();
