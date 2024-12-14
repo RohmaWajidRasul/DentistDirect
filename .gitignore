@@ -1,9 +1,8 @@
-# Node.js
-node_modules/
-
 # Dependency directories for both frontend and backend workspaces
 frontend/node_modules/
+frontend/package-lock.json
 backend/node_modules/
+backend/package-lock.json
 
 # npm logs
 npm-debug.log
@@ -49,3 +48,6 @@ Thumbs.db
 
 # Others
 *.tgz
+
+__pycache__/
+
