@@ -34,7 +34,7 @@ const dentistSchema = new Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-    },
+    }
 });
 
 const Dentist = mongoose.model('Dentist', dentistSchema);
