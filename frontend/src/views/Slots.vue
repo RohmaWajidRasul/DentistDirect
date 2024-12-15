@@ -74,8 +74,70 @@ export default {
   mounted() {
     this.mqttClient = mqttClient;
     this.fetchSlotsAndDentists();
+    this.subscribeToAppointmentUpdates();
   },
+  beforeUnmount() {
+    this.unsubscribeFromAppointmentUpdates();
+  },
+
   methods: {
+    subscribeToAppointmentUpdates() {
+      const topic = "response/appointments/manage/+"
+
+      try {
+        this.mqttClient.subscribe(topic, (err) => {
+          if (err) {
+            console.error(`Failed to subscribe to topic: ${topic}`, err)
+          } else {
+            console.log(`Subscribed to topic: ${topic}`)
+          }
+        })
+
+        this.mqttClient.on("message", (topic, message) => {
+          if (topic.startsWith("response/appointments/manage/")) {
+            this.handleAppointmentUpdates(topic, message);
+          }
+        });
+      } catch (error) {
+        console.error("Error subscribing to topic:", error.message);
+      }
+},
+    unsubscribeFromAppointmentUpdates() {
+      const topic = "response/appointments/manage/+"
+
+      try {
+        this.mqttClient.unsubscribe(topic, (err) => {
+          if (err) {
+            console.error(`Failed to unsubscribe from topic: ${topic}`, err)
+          } else {
+            console.log(`Unsubscribed from topic: ${topic}`)
+          }
+        })
+
+        this.mqttClient.off("message", this.handleAppointmentUpdates)
+      } catch (error) {
+        console.error("Error unsubscribing from topic:", error.message)
+      }
+    },
+    
+
+    handleAppointmentUpdates(topic, message) {
+      if (topic.startsWith("response/appointments/manage/")) {
+        try {
+          const response = JSON.parse(message.toString())
+
+          if (response.status === "success") {
+            console.log("Appointment updated successfully, refreshing slots.")
+            this.fetchSlotsAndDentists()
+          } else {
+            console.error("Error in appointment update:", response.message)
+          }
+        } catch (error) {
+          console.error("Error processing appointment update:", error.message)
+        }
+      }
+    },
+
     async fetchSlotsAndDentists() {
       try {
         const correlationId = Date.now().toString();
