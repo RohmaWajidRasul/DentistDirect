@@ -23,6 +23,7 @@ export const manageAppointment = async (topic, message) => {
                 correlationId,
                 status: 'error',
                 message: 'Invalid JSON format in request',
+                error
             };
             return publishResponse(action, correlationId, errorResponse);
         }
@@ -128,9 +129,9 @@ const publishResponse = (action, correlationId, response) => {
     let responseTopic;
 
     if (action === 'delete') {
-        responseTopic = `response/appointments/manage/deleted/${correlationId}`;
+        responseTopic = `response/appointment-management/deleted/${correlationId}`;
     } else {
-        responseTopic = `response/appointments/manage/${action}ed/${correlationId}`
+        responseTopic = `response/appointment-management/${action}ed/${correlationId}`
     }
 
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {

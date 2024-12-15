@@ -7,8 +7,8 @@ router.post('/', (req, res) => {
     const correlationId = Date.now().toString();
 
 
-    const requestTopic = 'request/dentists/register';
-    const responseTopic = `response/dentists/registered/${correlationId}`;
+    const requestTopic = 'request/register-dentist';
+    const responseTopic = `response/register-dentist/${correlationId}`;
 
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
         if (err) {

@@ -2,17 +2,9 @@ import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
 export const getAvailableAppointments = async (topic, message) => {
-    if (topic !== 'request/appointments/availability/fetch') {
-        return;
-    }
     
     console.log(`Request received on topic: ${topic}`);
-    console.log("Raw message:", message.toString());
-
-    if (topic !== 'request/appointments/availability/fetch') {
-        return;
-    }
-
+    //console.log("Raw message:", message.toString());
     let correlationId;
 
     try {
@@ -24,6 +16,7 @@ export const getAvailableAppointments = async (topic, message) => {
                 correlationId,
                 status: 'error',
                 message: 'Invalid JSON format in request',
+                error
             };
             return publishAvailabilityResponse(correlationId, errorResponse);
         }
@@ -99,9 +92,9 @@ const fetchDentistsInfo = (dentistIds) => {
         console.log("in fetchDentistInfo")
         console.log(payload);
 
-        const requestTopic = 'request/dentists/info';
+        const requestTopic = 'request/dentist-info';
 
-        const responseTopic = `response/dentists/info/${correlationId}`;
+        const responseTopic = `response/dentist-info/${correlationId}`;
        
         const timeout = setTimeout(() => {
             mqttClient.unsubscribe(responseTopic); 
@@ -155,7 +148,7 @@ const fetchDentistsInfo = (dentistIds) => {
 const generateCorrelationId = () => `corr-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
 const publishAvailabilityResponse = (correlationId, response) => {
-    const responseTopic = `response/appointments/availability/fetched/${correlationId}`;
+    const responseTopic = `response/available-appointments/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);

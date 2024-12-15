@@ -17,7 +17,8 @@ const servicePaths = {
     'appointment-management': path.resolve(__dirname, '../appointment-services/appointment-management-service/index.js'),
     'available-appointments': path.resolve(__dirname, '../appointment-services/available-appointments-service/index.js'),
     'create-appointment': path.resolve(__dirname, '../appointment-services/create-appointment-service/index.js'),
-    'dentist-service': path.resolve(__dirname, '../dentist-services/index.js'),
+    'register-dentist': path.resolve(__dirname, '../dentist-services/register-dentist-service/index.js'),
+    'dentist-info': path.resolve(__dirname, '../dentist-services/dentist-info-service/index.js'),
     'create-patient': path.resolve(__dirname,'../patient-services/create-patient-service/index.js'),
     'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js')
 
@@ -100,7 +101,15 @@ const handleRequest = (topic, message) => {
     const selectedInstance = instances[Math.floor(Math.random() * instances.length)];
     requestCount[selectedInstance.serviceId] = (requestCount[selectedInstance.serviceId] || 0) + 1;
 
-    const forwardTopic = `request/${serviceName}/${selectedInstance.serviceId}`;
+    let forwardTopic;
+
+    if(serviceName === 'appointment-management') {
+        const action = topic.split('/')[2];
+        forwardTopic = `request/${serviceName}/${selectedInstance.serviceId}/${action}`;
+    } else {
+        forwardTopic = `request/${serviceName}/${selectedInstance.serviceId}`;
+    }
+
     mqttClient.publish(forwardTopic, message, (err) => {
         if (err) {
             console.error(`Failed to forward request to ${selectedInstance.serviceId} ${requestCount[selectedInstance.serviceId]}:`, err);
@@ -181,14 +190,13 @@ mqttClient.on('message', (topic, message) => {
         if (serviceRegistry[serviceName][serviceId]) {
             console.log(`Service ID: ${serviceId} is already registered under ${serviceName}.`);
         } else {
-            // Add the new service registration
             serviceRegistry[serviceName][serviceId] = registration;
             console.log(`Registered service: ${serviceName}, ID: ${serviceId}`);
         }
 
     } else if (topic.startsWith('alerts/service')) {
         handleAlert(topic, message);
-    } else if (topic.startsWith('request/') && topic.split('/').length === 2) {
+    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || (topic.startsWith('request/appointment-management') && topic.split('/').length === 3)) {
         number = number + 1;
         console.log(`request on load balancer ${number} ${topic}`);
         handleRequest(topic, message);

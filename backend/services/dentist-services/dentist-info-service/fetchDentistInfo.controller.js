@@ -1,5 +1,5 @@
-import Dentist from './models/dentist.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Dentist from '../models/dentist.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 
 export const fetchDentistInfo = async (topic, message) => {
 
@@ -69,7 +69,7 @@ export const fetchDentistInfo = async (topic, message) => {
 };
 
 const publishResponse = (correlationId, response) => {
-  const responseTopic = `response/dentists/info/${correlationId}`;
+  const responseTopic = `response/dentist-info/${correlationId}`;
   console.log(response)
   mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
     if (err) {

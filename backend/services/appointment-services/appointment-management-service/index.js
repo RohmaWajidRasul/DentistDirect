@@ -3,9 +3,12 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from '../../../shared/database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
-import morgan from 'morgan';
-import mongoose from 'mongoose';
 import { manageAppointment } from './manageAppointment.controller.js';
+import morgan from'morgan';
+import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+
+
 
 dotenv.config();
 
@@ -20,10 +23,32 @@ const fallbackURI = process.env.APPOINTMENTDB_FALLBACK_URI || 'mongodb://localho
 
 connectDB(primaryURI, fallbackURI, "appointmentDB");
 
-const requestTopic = 'request/appointments/manage/#'
+
+const serviceId = uuidv4();
+const serviceName = "appointment-management";
+
+const publishRegistration = () => {
+    const registration = {
+        serviceId,
+        serviceName: serviceName,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+    };
+
+    mqttClient.publish('registry/register', JSON.stringify(registration), (err) => {
+        if (err) {
+            console.error('Failed to publish registration:', err);
+        } else {
+            console.log('Service registered successfully');
+        }
+    });
+};
+
+const requestTopic = `request/${serviceName}/${serviceId}/#`;
 
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Appointment Management Service');
+    console.log('MQTT connected for Dentist Info Service');
+    publishRegistration();
     mqttClient.subscribe( requestTopic, (err) => {
         if (err) {
             console.error(`Failed to subscribe to ${requestTopic}`, err);
@@ -33,20 +58,26 @@ mqttClient.on('connect', () => {
     });
 });
 
-mqttClient.on('message', manageAppointment);
+mqttClient.on('message', (topic, message) => {
+    const baseRequestTopic = `request/${serviceName}/${serviceId}/`;
+    if (topic.startsWith(baseRequestTopic)) {
+        manageAppointment(topic, message);
+    }
+
+});
 
 const publishHeartbeat = () => {
     const heartbeat = {
-        service: 'Appointment Management Service',
+        service: serviceName,
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/appointment-management', JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish(`heartbeat/${serviceName}/${serviceId}`, JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
-        } 
+        }
     });
 };
 
@@ -77,6 +108,7 @@ const shutdown = async () => {
     process.exit(0);
 };
 
+process.on('SIGINT', shutdown); 
+process.on('SIGTERM', shutdown); 
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+

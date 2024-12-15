@@ -4,10 +4,6 @@ import mqttClient from '../../../shared/mqtt-client.js';
 export const createAppointment = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
 
-    if (topic !== 'request/appointments/create') {
-        return;
-    }
-
     let correlationId;
 
     try {
@@ -19,6 +15,7 @@ export const createAppointment = async (topic, message) => {
                 correlationId,
                 status: 'error',
                 message: 'Invalid JSON format in request',
+                error
             };
             return publishResponse(correlationId, errorResponse);
         }
@@ -103,7 +100,7 @@ export const createAppointment = async (topic, message) => {
 };
 
 const publishResponse = (correlationId, response) => {
-    const responseTopic = `response/appointments/created/${correlationId}`;
+    const responseTopic = `response/create-appointment/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);
