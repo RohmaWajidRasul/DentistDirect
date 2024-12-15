@@ -60,7 +60,7 @@
     methods: {
       async handleLogin() {
         if (!this.user.email || !this.user.password) {
-          alert('Email and password are required.');
+          this.showAlert('Email and password are required.');
           return;
         }
 
@@ -107,7 +107,6 @@
   
             if (response.status === 'success') {
               // Store user info in localStorage to keep user in "logged in" state
-              alert(response.patient._id)
               localStorage.setItem('user', JSON.stringify({ userId: response.patient._id, email: this.user.email }));
              // Store user data in localStorage, to stay in "logged in" state
               window.dispatchEvent(new Event('authChange')) 

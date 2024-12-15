@@ -24,6 +24,7 @@
     mounted() {
       setTimeout(() => {
         this.show = false;
+        this.$emit('close')
       }, 5000);
     },
   };
