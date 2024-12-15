@@ -15,6 +15,9 @@
   </template>
   
   <script>
+  import mqttClient from '../mqttClient.js';
+
+
   export default {
     name: "SlotCard",
     props: {
@@ -23,8 +26,70 @@
     methods: {
       bookSlot() {
         alert(`Booking slot: ${this.slot.startTime} - ${this.slot.endTime}`);
+
+        this.$emit("book-slot");
         this.$emit("close");
+        this.book();
       },
+      async book() {
+      try {
+        const correlationId = Date.now().toString();
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        const payload = {
+          patientId: user.userId,
+          appointmentId: this.slot.id
+        };
+
+        console.log("Publishing payload:", payload);
+
+        mqttClient.publish(
+          "request/appointments/manage/book",
+          JSON.stringify({ correlationId, payload }),
+          (err) => {
+            if (err) {
+              console.error("Failed to publish request:", err);
+              throw new Error("Failed to publish request");
+            }
+            console.log(`Request published with correlationId: ${correlationId}`);
+          }
+        );
+
+        const responseTopic = `response/appointments/manage/booked/${correlationId}`;
+        mqttClient.subscribe(responseTopic, (err) => {
+          if (err) {
+            console.error("Failed to subscribe to response topic:", err);
+            throw new Error("Failed to subscribe to response topic");
+          }
+          console.log(`Subscribed to response topic: ${responseTopic}`);
+        });
+
+        mqttClient.on("message", (topic, message) => {
+          if (topic === responseTopic) {
+            const response = JSON.parse(message.toString());
+            console.log("Response received:", response);
+            console.log("Filtered slots response:", response.appointments);
+
+            if (response.status === "success") {
+              alert("succesfully booked")
+            } else {
+              console.error("Error response:", response.message);
+            }
+
+            mqttClient.unsubscribe(responseTopic, (err) => {
+              if (err) {
+                console.error("Failed to unsubscribe from response topic:", err);
+              } else {
+                console.log(`Unsubscribed from response topic: ${responseTopic}`);
+              }
+            });
+          }
+        });
+      } catch (error) {
+        console.error("Error in slotcard:", error.message);
+        alert("An error occurred while booking slots. Please try again later.");
+      }
+    },
     },
   };
   </script>

@@ -34,6 +34,7 @@ export const manageAppointment = async (topic, message) => {
         }
 
         const { appointmentId, patientId } = parsedMessage.payload;
+        console.log(parsedMessage.payload)
 
         if (!appointmentId) {
             const errorResponse = {
