@@ -6,6 +6,7 @@ import mqttClient from '../../../shared/mqtt-client.js';
 import { loginPatient } from './loginPatient.controller.js';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
 
 dotenv.config();
 
@@ -20,46 +21,71 @@ const fallbackURI = process.env.PATIENTDB_FALLBACK_URI || 'mongodb://localhost:2
 
 connectDB(primaryURI, fallbackURI, "patientDB");
 
-const loginTopic = 'request/patients/login';
+const serviceId = uuidv4();
 
-mqttClient.on('connect', () => {
-    console.log('MQTT connected for Patient Login Service');
-    mqttClient.subscribe(loginTopic, (err) => {
+const requestTopic = `request/patient-login/${serviceId}`;
+
+const publishRegistration = () => {
+    const registration = {
+        serviceId,
+        serviceName: 'patient-login',
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+    };
+
+    mqttClient.publish('registry/register', JSON.stringify(registration), (err) => {
         if (err) {
-            console.error(`Failed to subscribe to ${loginTopic}`, err);
+            console.error('Failed to publish registration:', err);
         } else {
-            console.log(`Subscribed to ${loginTopic}`);
+            console.log('Service registered successfully');
         }
     });
-});
-
-mqttClient.on('message', loginPatient);
+};
 
 const publishHeartbeat = () => {
     const heartbeat = {
-        service: 'Patient Login Service',
+        service: 'patient-login',
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/patient-login', JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish(`heartbeat/patient-login/${serviceId}`, JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
         }
     });
 };
 
+mqttClient.on('connect', () => {
+    console.log('MQTT connected for Patient Login Service');
+    publishRegistration();
+
+    mqttClient.subscribe(requestTopic, (err) => {
+        if (err) {
+            console.error(`Failed to subscribe to ${requestTopic}`, err);
+        } else {
+            console.log(`Subscribed to ${requestTopic}`);
+        }
+    });
+});
+
+mqttClient.on('message', (topic, message) => {
+    if (topic === requestTopic) {
+        loginPatient(topic, message);
+    }
+});
+
 setInterval(publishHeartbeat, 5000);
 
 const shutdown = async () => {
     console.log('Shutting down service...');
 
-    mqttClient.unsubscribe(loginTopic, (err) => {
+    mqttClient.unsubscribe(requestTopic, (err) => {
         if (err) {
             console.error('Failed to unsubscribe:', err);
         } else {
-            console.log(`Unsubscribed from ${loginTopic}`);
+            console.log(`Unsubscribed from ${requestTopic}`);
         }
     });
 

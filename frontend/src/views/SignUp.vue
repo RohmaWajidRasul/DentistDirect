@@ -157,8 +157,8 @@ export default {
       this.isLoading = true; 
 
       const correlationId = Date.now().toString();
-      const requestTopic = 'request/patients/create';  
-      const responseTopic = `response/patients/created/${correlationId}`; 
+      const requestTopic = 'request/create-patient';  
+      const responseTopic = `response/create-patient/${correlationId}`; 
 
       const payload = {
         correlationId,
