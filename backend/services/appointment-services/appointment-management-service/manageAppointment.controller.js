@@ -80,7 +80,7 @@ export const manageAppointment = async (topic, message) => {
                     };
                     return publishResponse(action, correlationId, errorResponse);
                 }
-
+                appointment.patientId = null;
                 appointment.status = 'canceled';
                 break;
 
