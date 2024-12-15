@@ -81,7 +81,7 @@ export default {
                     addMarker( {
                         lat: parseFloat(dentist.latitude), lng: parseFloat(dentist.longitude)
                     },
-                        `${dentist.firstName} ${dentist.lastName}` )
+                        `${dentist.location} <br> Dentist: ${dentist.firstName} ${dentist.lastName}` )
             })
         } catch (error) {
             console.error('Error handling dentist data:', error)
