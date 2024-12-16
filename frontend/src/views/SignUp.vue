@@ -151,7 +151,7 @@ export default {
 
     async handleSignup() {
       if (!this.validateInfo()) {
-        alert(this.errorMessages.join('\n')); // Display all error messages
+        this.showAlert(this.errorMessages.join('\n')); // Display all error messages
         return;
       }
       this.isLoading = true; 
@@ -200,14 +200,12 @@ export default {
 
 
           if (response.status === 'success') {
-            localStorage.setItem('user', JSON.stringify(this.user))  // Store user data in localStorage, to stay in "logged in" state
-            window.dispatchEvent(new Event('authChange')) 
-            setTimeout(() => {
-              this.$router.push('/'); // Redirect to home page after sign-up
-            }, 3000);
-            this.showAlert('Patient registered successfully');
+            this.ShowAlert('Patient registered successfully');
+
+            this.$router.push('/login')  // Redirect to home page after sign-up
+
           } else {
-            alert('Failed to register patient: ' + response.message);
+            this.showAlert('Failed to register patient: ' + response.message);
           }
         }
       });

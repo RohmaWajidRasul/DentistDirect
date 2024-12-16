@@ -15,8 +15,8 @@
       <Filters
         :dentists="dentists || []"
         :locations="locations || []"
-        v-model:filters="filters"
-        @update:filters="(value) => console.log('Filters updated:', value)"
+        :filters="filters"
+        @update:filters="(value) => { filters = value; console.log('Filters updated:', value); }"
       />
 
       <button class="btn btn-primary apply-filters-button" @click="applyFilters">
@@ -34,7 +34,7 @@
     <!-- Slots Calendar -->
     <SlotsCalendar
       :slots="groupedSlotsByMonth[currentMonth]"
-      @book-slot="bookSlot"
+      @book-slot="bookSlot" 
     />
   </div>
 </template>
