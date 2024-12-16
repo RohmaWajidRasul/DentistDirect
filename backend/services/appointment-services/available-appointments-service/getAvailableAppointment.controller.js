@@ -24,6 +24,7 @@ export const getAvailableAppointments = async (topic, message) => {
                 correlationId,
                 status: 'error',
                 message: 'Invalid JSON format in request',
+                error
             };
             return publishAvailabilityResponse(correlationId, errorResponse);
         }

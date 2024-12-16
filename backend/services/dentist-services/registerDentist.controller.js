@@ -21,6 +21,7 @@ export const registerDentist = async (topic, message) => {
                 correlationId,
                 status: 'error',
                 message: 'Invalid JSON format in request',
+                error
             };
             return publishResponse(correlationId, errorResponse);
         }

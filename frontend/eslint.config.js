@@ -9,4 +9,10 @@ export default [
   {languageOptions: { globals: globals.browser }},
   pluginJs.configs.recommended,
   ...pluginVue.configs["flat/essential"],
+  {
+    rules: {
+      'vue/multi-word-component-names': 'off', // Disable the multi-word component name rule
+    }
+  }
+  
 ];
