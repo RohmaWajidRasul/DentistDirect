@@ -231,7 +231,6 @@ export default {
 
 .slot-item {
     margin-bottom: 10px;
-    cursor: pointer;
 }
 
 .available-slot {
@@ -246,10 +245,6 @@ export default {
     transition: transform 0.2s ease;
     overflow: hidden;
     width: 100%;
-}
-
-.available-slot:hover {
-    transform: scale(1.02);
 }
 
 .slot-box {
