@@ -10,7 +10,7 @@ const serviceRegistry = {};
 const requestCount = {};
 const lowRequestDurations = {};
 const maxRequests = 50; 
-const minRequests = 5; 
+const minRequests = 0; 
 const lowLoadTimeLimit = 30000;
 
 const servicePaths = {
@@ -61,6 +61,10 @@ const spawnAllServices = () => {
     }
 };
 
+spawnAllServices();
+spawnAllServices();
+spawnAllServices();
+spawnAllServices();
 spawnAllServices();
 
 const scaleDownService = (serviceName, serviceId) => {

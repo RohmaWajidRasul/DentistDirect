@@ -5,7 +5,7 @@ import paho.mqtt.client as mqtt
 from locust import User, TaskSet, task, between
 
 class MQTTClientWrapper:
-    def __init__(self, host="test.mosquitto.org", port=1883):
+    def __init__(self, host="localhost", port=1883):
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
@@ -62,7 +62,7 @@ class DentistServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("test.mosquitto.org", 1883)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
@@ -153,7 +153,7 @@ class PatientServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("test.mosquitto.org", 1883)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
@@ -244,7 +244,7 @@ class AppointmentServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("test.mosquitto.org", 1883)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
