@@ -38,10 +38,10 @@ import MapComponent from '../components/MapComponent.vue';
         this.$router.go() // Reload the component to reflect the new state
       }
     },
-    async created() {
-      if (this.globalState.isLoggedIn) {
-      }
-    },
+    //async created() {
+    //  if (this.globalState.isLoggedIn) {
+    //  }
+    //},
     mounted() {
       window.addEventListener('authChange', this.checkLoginStatus)
     },

@@ -15,8 +15,11 @@
     "bootstrap-vue-next": "^0.25.15",
     "date-fns": "^4.1.0",
     "dotenv": "^16.4.5",
+<<<<<<< HEAD
     "leaflet": "^1.7.1",
     "leaflet.locatecontrol": "^0.82.0",
+=======
+>>>>>>> origin/main
     "mqtt": "^5.10.3",
     "vue": "^3.5.12",
     "vue-cal": "^4.10.0",
@@ -29,6 +32,7 @@
     "eslint": "^9.14.0",
     "eslint-plugin-vue": "^9.31.0",
     "globals": "^15.12.0",
+    "text-table": "^0.2.0",
     "unplugin-vue-components": "^0.27.5",
     "vite": "^5.4.10"
   }

@@ -13,8 +13,8 @@
       <Filters
         :dentists="dentists || []"
         :locations="locations || []"
-        v-model:filters="filters"
-        @update:filters="(value) => console.log('Filters updated:', value)"
+        :filters="filters"
+        @update:filters="(value) => { filters = value; console.log('Filters updated:', value); }"
       />
 
       <button
