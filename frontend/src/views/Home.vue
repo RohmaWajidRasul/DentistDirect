@@ -24,7 +24,7 @@
 
 <script>
 import { inject } from 'vue';
-import Card from '../components/Card.vue';
+//import Card from '../components/Card.vue';
 import MapComponent from '../components/MapComponent.vue';
 
   
