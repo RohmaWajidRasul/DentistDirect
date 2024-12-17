@@ -3,13 +3,9 @@ import mqttClient from '../../../shared/mqtt-client.js';
 import bcrypt from 'bcrypt';
 
 export const createPatient = async (topic, message) => {
-    const patientTopic = 'request/patients/create'; 
-
-    if (topic !== patientTopic){
-        return; 
-    }
-
     let correlationId; 
+
+    console.log(`Service reached ${topic}`);
 
 
     try {
@@ -124,7 +120,7 @@ export const createPatient = async (topic, message) => {
 };
 
 const publishResponse = (correlationId, response) => {
-    const responseTopic = `response/patients/created/${correlationId}`;
+    const responseTopic = `response/create-patient/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);

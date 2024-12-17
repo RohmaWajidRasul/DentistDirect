@@ -5,15 +5,15 @@ export const getAvailableAppointments = async (topic, message) => {
 
 
     const topicParts = topic.split('/');
-    const action = topicParts[2]; 
+    const action = topicParts[3]; 
 
-    if (!['booked', 'availability'].includes(action)) {
+    if (!['booked', 'available'].includes(action)) {
         console.error(`Invalid action in topic: ${topic}`);
         return;
     }
     
     console.log(`Request received on topic: ${topic}`);
-    console.log("Raw message:", message.toString());
+    //console.log("Raw message:", message.toString());
 
     let correlationId;
 
@@ -50,10 +50,10 @@ export const getAvailableAppointments = async (topic, message) => {
             const patientId = payload.patientId;
             query = { patientId: patientId }
         } else {
-        query = { status: { $in: ['available', 'canceled'] } };
-        if (dentistId) query.dentistId = dentistId;
-        if (date) query.date = date;
-        if (location) query.location = location;
+            query = { status: { $in: ['available', 'canceled'] } };
+            if (dentistId) query.dentistId = dentistId;
+            if (date) query.date = date;
+            if (location) query.location = location;
         }
 
         const appointments = await Appointment.find(query)
@@ -69,8 +69,8 @@ export const getAvailableAppointments = async (topic, message) => {
         }
 
         const dentistIds = [...new Set(appointments.map(app => app.dentistId.toString()))];
-        console.log ("in getAvailableAppointments")
-        console.log( dentistIds );
+        //console.log ("in getAvailableAppointments")
+        //console.log( dentistIds );
 
         const dentistDetails = await fetchDentistsInfo(dentistIds);
 
@@ -107,12 +107,12 @@ const fetchDentistsInfo = (dentistIds) => {
         console.log(correlationId)
 
         const payload = { dentistIds };
-        console.log("in fetchDentistInfo")
-        console.log(payload);
+        //console.log("in fetchDentistInfo")
+        //console.log(payload);
 
-        const requestTopic = 'request/dentists/info';
+        const requestTopic = 'request/dentist-info';
 
-        const responseTopic = `response/dentists/info/${correlationId}`;
+        const responseTopic = `response/dentist-info/${correlationId}`;
        
         const timeout = setTimeout(() => {
             mqttClient.unsubscribe(responseTopic); 
@@ -166,7 +166,7 @@ const fetchDentistsInfo = (dentistIds) => {
 const generateCorrelationId = () => `corr-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
 const publishAvailabilityResponse = (correlationId, response, action) => {
-    const responseTopic = `response/appointments/${action}/fetched/${correlationId}`;
+    const responseTopic = `response/available-appointments/${action}/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);

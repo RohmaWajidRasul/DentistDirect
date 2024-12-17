@@ -3,12 +3,6 @@ import Patient from '../models/patient.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
 export const loginPatient = async (topic, message) => {
-    const loginTopic = 'request/patients/login';
-
-    if (topic !== loginTopic) {
-        return;
-    }
-
     let correlationId;
 
     try {
@@ -87,7 +81,7 @@ export const loginPatient = async (topic, message) => {
 };
 
 const publishResponse = (correlationId, response) => {
-    const responseTopic = `response/patients/loggedIn/${correlationId}`;
+    const responseTopic = `response/patient-login/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);

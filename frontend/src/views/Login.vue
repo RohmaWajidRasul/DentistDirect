@@ -66,8 +66,8 @@
 
         this.isLoading = true; 
         const correlationId = Date.now().toString();
-        const requestTopic = 'request/patients/login';  
-        const responseTopic = `response/patients/loggedIn/${correlationId}`; 
+        const requestTopic = 'request/patient-login';  
+        const responseTopic = `response/patient-login/${correlationId}`; 
   
         const payload = {
           correlationId,

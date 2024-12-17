@@ -3,9 +3,11 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from '../../../shared/database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
-import mongoose from 'mongoose';
 import { createAppointment } from './createAppointment.controller.js';
 import morgan from'morgan';
+import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 dotenv.config();
@@ -21,28 +23,57 @@ const fallbackURI = process.env.APPOINTMENTDB_FALLBACK_URI || 'mongodb://localho
 
 connectDB(primaryURI, fallbackURI, "appointmentDB");
 
-mqttClient.on('connect', () => {
-    console.log('MQTT connected for Create Appointment Service');
-    mqttClient.subscribe('request/appointments/create', (err) => {
+
+const serviceId = uuidv4();
+const serviceName = "create-appointment";
+
+const publishRegistration = () => {
+    const registration = {
+        serviceId,
+        serviceName: serviceName,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+    };
+
+    mqttClient.publish('registry/register', JSON.stringify(registration), (err) => {
         if (err) {
-            console.error('Failed to subscribe to request/appointments/create:', err);
+            console.error('Failed to publish registration:', err);
         } else {
-            console.log('Subscribed to request/appointments/create');
+            console.log('Service registered successfully');
+        }
+    });
+};
+
+const requestTopic = `request/${serviceName}/${serviceId}`;
+
+mqttClient.on('connect', () => {
+    console.log('MQTT connected for Dentist Info Service');
+    publishRegistration();
+    mqttClient.subscribe( requestTopic, (err) => {
+        if (err) {
+            console.error(`Failed to subscribe to ${requestTopic}`, err);
+        } else {
+            console.log(`Subscribed to ${requestTopic}`);
         }
     });
 });
 
-mqttClient.on('message', createAppointment);
+mqttClient.on('message', (topic, message) => {
+    if(topic === requestTopic){
+        createAppointment(topic, message);
+    }
+
+});
 
 const publishHeartbeat = () => {
     const heartbeat = {
-        service: 'Create Appointment Service',
+        service: serviceName,
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/create-appointment', JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish(`heartbeat/${serviceName}/${serviceId}`, JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
         }
@@ -54,11 +85,11 @@ setInterval(publishHeartbeat, 5000);
 const shutdown = async () => {
     console.log('Shutting down service...');
 
-    mqttClient.unsubscribe('request/appointments/create', (err) => {
+    mqttClient.unsubscribe(requestTopic, (err) => {
         if (err) {
             console.error('Failed to unsubscribe:', err);
         } else {
-            console.log('Unsubscribed from request/appointments/create');
+            console.log(`Unsubscribed from ${requestTopic}`);
         }
     });
 
@@ -78,6 +109,5 @@ const shutdown = async () => {
 
 process.on('SIGINT', shutdown); 
 process.on('SIGTERM', shutdown); 
-
 
 

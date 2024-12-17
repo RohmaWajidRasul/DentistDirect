@@ -90,8 +90,8 @@ export default {
 
     const requestDentistData = () => {
         correlationId = Date.now().toString()
-        const requestTopic = 'request/dentists/info'
-        const responseTopic = `response/dentists/info/${correlationId}`
+        const requestTopic = 'request/dentist-info'
+        const responseTopic = `response/dentist-info/${correlationId}`
         try {
             mqttClient.subscribe(responseTopic, (err) => {
                 if (err) {
@@ -120,7 +120,7 @@ export default {
 
     mqttClient.on('message', (topic, message) => {
         try {
-            if (topic.startsWith('response/dentists/info/')) {
+            if (topic.startsWith('response/dentist-info/')) {
             console.log('Received response:', topic, message.toString());
             handleDentistData(topic, message);
             }
@@ -139,7 +139,7 @@ export default {
     onBeforeUnmount(() => {
         try {
             if (correlationId) {
-                mqttClient.unsubscribe(`response/dentists/info/${correlationId}`)
+                mqttClient.unsubscribe(`response/dentist-info/${correlationId}`)
             }
             mqttClient.off('message', handleDentistData)
         } catch (error) {

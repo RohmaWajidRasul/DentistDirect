@@ -6,8 +6,8 @@ router.post('/login', (req, res) => {
     const payload = req.body;
     const correlationId = Date.now().toString();
 
-    const requestTopic = 'request/patients/login';
-    const responseTopic = `response/patients/loggedIn/${correlationId}`;
+    const requestTopic = 'request/patient-login';
+    const responseTopic = `response/patient-login/${correlationId}`;
 
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
         if (err) {
@@ -49,8 +49,8 @@ router.post('/', (req, res) => {
     const correlationId = Date.now().toString();
 
 
-    const requestTopic = 'request/patients/create';
-    const responseTopic = `response/patients/created/${correlationId}`;
+    const requestTopic = 'request/create-patient';
+    const responseTopic = `response/create-patient/${correlationId}`;
 
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
         if (err) {

@@ -7,8 +7,8 @@ router.post('/', (req, res) => {
     const payload = req.body;
     const correlationId = Date.now().toString();
 
-    const requestTopic = 'request/appointments/create';
-    const responseTopic = `response/appointments/created/${correlationId}`;
+    const requestTopic = 'request/create-appointment';
+    const responseTopic = `response/create-appointment/${correlationId}`;
 
     let responded = false;
 
@@ -61,11 +61,11 @@ router.patch("/:appointmentId", (req, res) => {
     let responseTopic;
 
     if (status === "canceled") {
-        requestTopic = "request/appointments/manage/cancel";
-        responseTopic = `response/appointments/manage/canceled/${correlationId}`;
+        requestTopic = "request/appointment-management/cancel";
+        responseTopic = `response/appointment-management/canceled/${correlationId}`;
     } else if (status === "deleted") {
-        requestTopic = "request/appointments/manage/delete";
-        responseTopic = `response/appointments/manage/deleted/${correlationId}`;
+        requestTopic = "request/appointment-management/delete";
+        responseTopic = `response/appointment-management/deleted/${correlationId}`;
     }
 
     const payload = { appointmentId, ...req.body };

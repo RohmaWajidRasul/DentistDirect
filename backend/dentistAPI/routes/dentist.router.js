@@ -7,8 +7,8 @@ router.post('/', (req, res) => {
     const payload = req.body;
     const correlationId = Date.now().toString();
 
-    const requestTopic = 'request/dentists/register';
-    const responseTopic = `response/dentists/registered/${correlationId}`;
+    const requestTopic = 'request/register-dentist';
+    const responseTopic = `response/register-dentist/${correlationId}`;
 
     let responded = false;
     

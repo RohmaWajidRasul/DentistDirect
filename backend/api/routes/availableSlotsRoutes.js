@@ -7,8 +7,8 @@ router.get('/', (req, res) => {
     const { dentistId, date, location } = req.query;
     const correlationId = Date.now().toString();
 
-    const requestTopic = 'request/availability/fetch';
-    const responseTopic = `response/availability/fetched/${correlationId}`;
+    const requestTopic = 'request/available-appointments';
+    const responseTopic = `response/available-appointments/${correlationId}`;
 
     // Construct the payload for the availability request
     const payload = { dentistId, date, location };

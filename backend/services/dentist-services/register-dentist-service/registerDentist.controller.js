@@ -1,14 +1,9 @@
-import Dentist from './models/dentist.js';
-import mqttClient from '../../shared/mqtt-client.js';
+import Dentist from '../models/dentist.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 import bcrypt from 'bcrypt';
 
 
 export const registerDentist = async (topic, message) => {
-    const dentistTopic = 'request/dentists/register'; 
-
-    if (topic !== dentistTopic){
-        return; 
-    }
 
     let correlationId; 
 
@@ -106,7 +101,7 @@ export const registerDentist = async (topic, message) => {
 };
 
 const publishResponse = (correlationId, response) => {
-    const responseTopic = `response/dentists/registered/${correlationId}`;
+    const responseTopic = `response/register-dentist/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);

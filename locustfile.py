@@ -5,7 +5,7 @@ import paho.mqtt.client as mqtt
 from locust import User, TaskSet, task, between
 
 class MQTTClientWrapper:
-    def __init__(self, host="test.mosquitto.org", port=1883):
+    def __init__(self, host="localhost", port=1883):
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
@@ -62,7 +62,7 @@ class DentistServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("test.mosquitto.org", 1883)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
@@ -70,8 +70,8 @@ class DentistServiceTasks(TaskSet):
         """Simulate dentist registration"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/dentists/register"
-        response_topic = f"response/dentists/registered/{correlation_id}"
+        request_topic = "request/register-dentist"
+        response_topic = f"response/register-dentist/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
@@ -113,8 +113,8 @@ class DentistServiceTasks(TaskSet):
         """Simulate fetching dentist information"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/dentists/info"
-        response_topic = f"response/dentists/info/{correlation_id}"
+        request_topic = "request/dentist-info"
+        response_topic = f"response/dentist-info/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
@@ -153,7 +153,7 @@ class PatientServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("test.mosquitto.org", 1883)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
@@ -161,8 +161,8 @@ class PatientServiceTasks(TaskSet):
         """Simulate patient creation"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/patients/create"
-        response_topic = f"response/patients/created/{correlation_id}"
+        request_topic = "request/create-patient"
+        response_topic = f"response/create-patient/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
@@ -204,8 +204,8 @@ class PatientServiceTasks(TaskSet):
         """Simulate patient login"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/patients/login"
-        response_topic = f"response/patients/loggedIn/{correlation_id}"
+        request_topic = "request/patient-login"
+        response_topic = f"response/patient-login/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
@@ -244,7 +244,7 @@ class AppointmentServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("test.mosquitto.org", 1883)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
@@ -252,8 +252,8 @@ class AppointmentServiceTasks(TaskSet):
         """Simulate fetching appointment availability"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/appointments/availability/fetch"
-        response_topic = f"response/appointments/availability/fetched/{correlation_id}"
+        request_topic = "request/available-appointments"
+        response_topic = f"response/available-appointments/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
@@ -290,8 +290,8 @@ class AppointmentServiceTasks(TaskSet):
         """Simulate creating an appointment"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/appointments/create"
-        response_topic = f"response/appointments/created/{correlation_id}"
+        request_topic = "request/create-appointment"
+        response_topic = f"response/create-appointment/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {

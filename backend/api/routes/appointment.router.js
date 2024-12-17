@@ -8,8 +8,8 @@ router.get('/', (req, res) => {
     const date = req.query.date;
     const correlationId = Date.now().toString();
 
-    const requestTopic = 'request/appointments/availability/fetch';
-    const responseTopic = `response/appointments/availability/fetched/${correlationId}`;
+    const requestTopic = 'request/available-appointments/available';
+    const responseTopic = `response/available-appointments/available/${correlationId}`;
 
     const payload = { dentistId, date, location };
     console.log(payload);
@@ -80,11 +80,11 @@ router.patch("/:appointmentId", (req, res) => {
     let responseTopic;
 
     if (status === "canceled") {
-        requestTopic = "request/appointments/manage/cancel";
-        responseTopic = `response/appointments/manage/canceled/${correlationId}`;
+        requestTopic = "request/appointment-management/cancel";
+        responseTopic = `response/appointment-management/canceled/${correlationId}`;
     } else {
-        requestTopic = "request/appointments/manage/book";
-        responseTopic = `response/appointments/manage/booked/${correlationId}`;
+        requestTopic = "request/appointment-management/book";
+        responseTopic = `response/appointment-management/booked/${correlationId}`;
     }
   
     const payload = { appointmentId, ...req.body };

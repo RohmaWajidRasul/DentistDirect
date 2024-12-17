@@ -6,6 +6,8 @@ import mqttClient from '../../../shared/mqtt-client.js';
 import { createPatient } from './createPatient.controller.js';
 import morgan from'morgan';
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 dotenv.config();
@@ -21,10 +23,30 @@ const fallbackURI = process.env.PATIENTDB_FALLBACK_URI || 'mongodb://localhost:2
 
 connectDB(primaryURI, fallbackURI, "patientDB");
 
-const requestTopic = 'request/patients/create';
+const serviceId = uuidv4();
+
+const publishRegistration = () => {
+    const registration = {
+        serviceId,
+        serviceName: 'create-patient',
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+    };
+
+    mqttClient.publish('registry/register', JSON.stringify(registration), (err) => {
+        if (err) {
+            console.error('Failed to publish registration:', err);
+        } else {
+            console.log('Service registered successfully');
+        }
+    });
+};
+
+const requestTopic = `request/create-patient/${serviceId}`;
 
 mqttClient.on('connect', () => {
     console.log('MQTT connected for Create Patient Service');
+    publishRegistration();
     mqttClient.subscribe( requestTopic, (err) => {
         if (err) {
             console.error(`Failed to subscribe to ${requestTopic}`, err);
@@ -34,17 +56,22 @@ mqttClient.on('connect', () => {
     });
 });
 
-mqttClient.on('message', createPatient);
+mqttClient.on('message', (topic, message) => {
+    if(topic === requestTopic){
+        createPatient(topic, message);
+    }
+
+});
 
 const publishHeartbeat = () => {
     const heartbeat = {
-        service: 'Create Patient Service',
+        service: 'create-patient',
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/create-patient', JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish(`heartbeat/create-patient/${serviceId}`, JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
         }

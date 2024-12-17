@@ -49,7 +49,7 @@ export default {
                 console.log("Publishing payload:", payload);
 
                 mqttClient.publish(
-                    "request/appointments/booked/fetch",
+                    "request/available-appointments/booked",
                     JSON.stringify({ correlationId, payload }),
                     (err) => {
                         if (err) {
@@ -60,7 +60,7 @@ export default {
                     }
                 );
 
-                const responseTopic = `response/appointments/booked/fetched/${correlationId}`;
+                const responseTopic = `response/available-appointments/booked/${correlationId}`;
                 mqttClient.subscribe(responseTopic, (err) => {
                     if (err) {
                         console.error("Failed to subscribe to response topic:", err);
@@ -114,7 +114,7 @@ export default {
                 };
 
                 console.log("Publishing payload:", payload);
-                const requestTopic = "request/appointments/manage/cancel";
+                const requestTopic = "request/appointment-management/cancel";
 
                 mqttClient.publish(
                     requestTopic,
@@ -128,7 +128,7 @@ export default {
                     }
                 );
 
-                const responseTopic = `response/appointments/manage/canceled/${correlationId}`;
+                const responseTopic = `response/appointment-management/canceled/${correlationId}`;
                 mqttClient.subscribe(responseTopic, (err) => {
                     if (err) {
                         console.error("Failed to subscribe to response topic:", err);

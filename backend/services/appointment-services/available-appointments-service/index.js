@@ -6,6 +6,8 @@ import mqttClient from '../../../shared/mqtt-client.js';
 import { getAvailableAppointments } from './getAvailableAppointment.controller.js';
 import morgan from'morgan';
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 dotenv.config();
@@ -21,33 +23,60 @@ const fallbackURI = process.env.APPOINTMENTDB_FALLBACK_URI || 'mongodb://localho
 
 connectDB(primaryURI, fallbackURI, "appointmentDB");
 
-const requestTopic = 'request/appointments/+/fetch'
+
+const serviceId = uuidv4();
+const serviceName = "available-appointments";
+
+const publishRegistration = () => {
+    const registration = {
+        serviceId,
+        serviceName: serviceName,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+    };
+
+    mqttClient.publish('registry/register', JSON.stringify(registration), (err) => {
+        if (err) {
+            console.error('Failed to publish registration:', err);
+        } else {
+            console.log('Service registered successfully');
+        }
+    });
+};
+
+const requestTopic = `request/${serviceName}/${serviceId}/+`;
 
 mqttClient.on('connect', () => {
     console.log('MQTT connected for Available Appointments Service');
-    mqttClient.subscribe(requestTopic, (err) => {
+    publishRegistration();
+    mqttClient.subscribe( requestTopic, (err) => {
         if (err) {
-            console.error('Failed to subscribe to request/appointments/+/fetch:', err);
+            console.error(`Failed to subscribe to ${requestTopic}`, err);
         } else {
-            console.log('Subscribed to request/appointments/+/fetch');
+            console.log(`Subscribed to ${requestTopic}`);
         }
     });
 });
 
-mqttClient.on('message', getAvailableAppointments);
+mqttClient.on('message', (topic, message) => {
+    const baseTopic = `request/${serviceName}/${serviceId}/`;
+    if (topic.startsWith(baseTopic)) {
+        getAvailableAppointments(topic, message);
+    }
+});
 
 const publishHeartbeat = () => {
     const heartbeat = {
-        service: 'Available Appointments Service',
+        service: serviceName,
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/available-appointments', JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish(`heartbeat/${serviceName}/${serviceId}`, JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
-        } 
+        }
     });
 };
 
@@ -56,11 +85,11 @@ setInterval(publishHeartbeat, 5000);
 const shutdown = async () => {
     console.log('Shutting down service...');
 
-    mqttClient.unsubscribe('request/appointments/availability/fetch', (err) => {
+    mqttClient.unsubscribe(requestTopic, (err) => {
         if (err) {
             console.error('Failed to unsubscribe:', err);
         } else {
-            console.log('Unsubscribed from request/appointments/availability/fetch');
+            console.log(`Unsubscribed from ${requestTopic}`);
         }
     });
 
