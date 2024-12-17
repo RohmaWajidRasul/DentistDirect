@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
-const primaryURI = process.env.DENTISTTDB_PRIMARY_URI || 'mongodb://localhost:27017/dentists';
+const primaryURI = process.env.DENTISTDB_PRIMARY_URI || 'mongodb://localhost:27017/dentists';
 const fallbackURI = process.env.DENTISTDB_FALLBACK_URI || 'mongodb://localhost:27019/dentists';
 
 connectDB(primaryURI, fallbackURI, "dentistDB");
