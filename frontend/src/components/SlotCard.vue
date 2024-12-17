@@ -25,7 +25,7 @@
     },
     methods: {
       bookSlot() {
-        alert(`Booking slot: ${this.slot.startTime} - ${this.slot.endTime}`);
+        alert(`Dentist appointment ${this.slot.startTime} - ${this.slot.endTime} was successfully booked!`);
 
         this.$emit("book-slot");
         this.$emit("close");
@@ -70,9 +70,7 @@
             console.log("Response received:", response);
             console.log("Filtered slots response:", response.appointments);
 
-            if (response.status === "success") {
-              alert("succesfully booked")
-            } else {
+            if (response.status !== "success") {
               console.error("Error response:", response.message);
             }
 
