@@ -153,7 +153,7 @@ export default {
 <style scoped>
 #map {
     height: 400px;
-    width: 50vh;
+    width: 80vh;
 }
 
 .map-container {

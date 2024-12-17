@@ -21,13 +21,15 @@ const fallbackURI = process.env.APPOINTMENTDB_FALLBACK_URI || 'mongodb://localho
 
 connectDB(primaryURI, fallbackURI, "appointmentDB");
 
+const requestTopic = 'request/appointments/+/fetch'
+
 mqttClient.on('connect', () => {
     console.log('MQTT connected for Available Appointments Service');
-    mqttClient.subscribe('request/appointments/availability/fetch', (err) => {
+    mqttClient.subscribe(requestTopic, (err) => {
         if (err) {
-            console.error('Failed to subscribe to request/appointments/availability/fetch:', err);
+            console.error('Failed to subscribe to request/appointments/+/fetch:', err);
         } else {
-            console.log('Subscribed to request/appointments/availability/fetch');
+            console.log('Subscribed to request/appointments/+/fetch');
         }
     });
 });

@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     bookSlot() {
-      alert(`Dentist appointment ${this.slot.startTime} - ${this.slot.endTime} was successfully booked!`);
+      alert(`Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`);
 
       this.$emit("book-slot");
       this.$emit("close");
