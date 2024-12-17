@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     bookSlot() {
-      alert(`Booking slot: ${this.slotInfo.startTime} - ${this.slotInfo.endTime}`);
+      alert(`Dentist appointment ${this.slot.startTime} - ${this.slot.endTime} was successfully booked!`);
 
       this.$emit("book-slot");
       this.$emit("close");
@@ -68,9 +68,7 @@ export default {
             const response = JSON.parse(message.toString());
             console.log("Response received:", response);
 
-            if (response.status === "success") {
-              alert("Successfully booked");
-            } else {
+            if (response.status !== "success") {
               console.error("Error response:", response.message);
             }
 

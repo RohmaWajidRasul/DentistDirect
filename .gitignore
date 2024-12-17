@@ -1,6 +1,7 @@
 # Dependency directories for both frontend and backend workspaces
 frontend/node_modules/
 backend/node_modules/
+node_modules/
 
 # npm logs
 npm-debug.log

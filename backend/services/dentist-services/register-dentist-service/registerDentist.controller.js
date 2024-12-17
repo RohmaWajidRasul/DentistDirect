@@ -26,9 +26,9 @@ export const registerDentist = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { firstName, lastName, email, password, phoneNumber, specialization, location } = parsedMessage.payload;
+        const { firstName, lastName, email, password, phoneNumber, specialization, location, latitude, longitude } = parsedMessage.payload;
 
-        if (!firstName || !lastName || !email || !password || !phoneNumber || !specialization || !location) {
+        if (!firstName || !lastName || !email || !password || !phoneNumber || !specialization || !location || !latitude || !longitude) {
             const errorResponse ={
                 correlationId, 
                 status: 'error', 
@@ -72,7 +72,7 @@ export const registerDentist = async (topic, message) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newDentist = new Dentist({ firstName, lastName, email, password: hashedPassword, phoneNumber, specialization, location });
+        const newDentist = new Dentist({ firstName, lastName, email, password: hashedPassword, phoneNumber, specialization, location, latitude, longitude });
         await newDentist.save();
 
         const successResponse = {
