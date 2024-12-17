@@ -17,12 +17,15 @@
         <p class="fs-4">Check available slots at your dentist, book and cancel appointments easily.</p>
       </b-container>
     </div>
+    <!-- MapComponent -->
+    <MapComponent></MapComponent>
   </div>
 </template>
 
 <script>
-import { inject } from 'vue'  
-import Card from '../components/Card.vue'
+import { inject } from 'vue';
+import Card from '../components/Card.vue';
+import MapComponent from '../components/MapComponent.vue';
 
   
   export default {
@@ -35,10 +38,10 @@ import Card from '../components/Card.vue'
         this.$router.go() // Reload the component to reflect the new state
       }
     },
-    async created() {
-      if (this.globalState.isLoggedIn) {
-      }
-    },
+    //async created() {
+    //  if (this.globalState.isLoggedIn) {
+    //  }
+    //},
     mounted() {
       window.addEventListener('authChange', this.checkLoginStatus)
     },
@@ -57,7 +60,8 @@ import Card from '../components/Card.vue'
       }
     },
     components: {
-      Card
+      Card,
+      MapComponent
     }
   }
   </script>

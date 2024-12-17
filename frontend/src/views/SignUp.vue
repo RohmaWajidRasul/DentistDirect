@@ -200,7 +200,7 @@ export default {
 
 
           if (response.status === 'success') {
-            this.ShowAlert('Patient registered successfully');
+            this.showAlert('Patient registered successfully');
 
             this.$router.push('/login')  // Redirect to home page after sign-up
 

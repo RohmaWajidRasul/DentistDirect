@@ -16,6 +16,7 @@ export const fetchDentistInfo = async (topic, message) => {
             correlationId,
             status: 'error',
             message: 'Invalid JSON format in request',
+            error
         };
         return publishResponse(correlationId, errorResponse);
     }
@@ -28,16 +29,14 @@ export const fetchDentistInfo = async (topic, message) => {
     const { dentistIds } = parsedMessage.payload;
     console.log(dentistIds);
 
-    if (!dentistIds || !Array.isArray(dentistIds) || dentistIds.length === 0) {
-      const errorResponse = {
-        correlationId,
-        status: 'error',
-        message: 'A list of Dentist IDs is required',
-      };
-      return publishResponse(correlationId, errorResponse);
-    }
-
-    const dentists = await Dentist.find({ _id: { $in: dentistIds } }).select('firstName lastName location specialization');
+    let dentists;
+      if (dentistIds && dentistIds.length > 0) {
+      // Fetch dentists by IDs if IDs is provided
+        dentists = await Dentist.find({ _id: { $in: dentistIds } }).select('firstName lastName location specialization latitude longitude');
+      } else {
+      // Get all dentists if no IDs are provided
+        dentists = await Dentist.find().select('firstName lastName location specialization latitude longitude');
+      }
 
     if (!dentists || dentists.length === 0) {
       const errorResponse = {

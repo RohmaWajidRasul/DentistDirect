@@ -1,25 +1,26 @@
 <template>
   <div class="slots-page">
-    
     <!-- Alert Messages -->
-     <Alert
+    <Alert
       v-if="alertMessage"
       :type="alertType"
       :message="alertMessage"
       @close="alertMessage = null"
     />
-    
-    
+
     <!-- Filters -->
     <div class="filters-container">
       <Filters
         :dentists="dentists || []"
         :locations="locations || []"
-        v-model:filters="filters"
-        @update:filters="(value) => console.log('Filters updated:', value)"
+        :filters="filters"
+        @update:filters="(value) => { filters = value; console.log('Filters updated:', value); }"
       />
 
-      <button class="btn btn-primary apply-filters-button" @click="applyFilters">
+      <button
+        class="btn btn-primary apply-filters-button"
+        @click="applyFilters"
+      >
         Apply Filters
       </button>
     </div>
@@ -34,7 +35,7 @@
     <!-- Slots Calendar -->
     <SlotsCalendar
       :slots="groupedSlotsByMonth[currentMonth]"
-      @book-slot="bookSlot" 
+      @book-slot="bookSlot"
     />
   </div>
 </template>
@@ -61,9 +62,8 @@ export default {
         location: null,
       },
       currentDate: new Date(),
-      alertMessage: null, 
-      alertType: "success", // alertType = success or error 
-
+      alertMessage: null,
+      alertType: "success", // alertType = success or error
     };
   },
   computed: {
@@ -74,8 +74,106 @@ export default {
   mounted() {
     this.mqttClient = mqttClient;
     this.fetchSlotsAndDentists();
+    this.subscribeToAppointmentUpdates();
   },
+  beforeUnmount() {
+    this.unsubscribeFromAppointmentUpdates();
+  },
+
   methods: {
+    subscribeToAppointmentUpdates() {
+      const topics = [
+        "response/appointments/manage/+",
+        "response/appointments/created/+",
+      ];
+
+      try {
+        topics.forEach((topic) => {
+          this.mqttClient.subscribe(topic, (err) => {
+            if (err) {
+              console.error(`Failed to subscribe to topic: ${topic}`, err);
+            } else {
+              console.log(`Subscribed to topic: ${topic}`);
+            }
+          });
+        });
+
+        if (!this.mqttMessageHandlerSet) {
+          this.mqttClient.on("message", (topic, message) => {
+            if (topic.startsWith("response/appointments/manage/")) {
+              this.handleAppointmentUpdates(topic, message);
+            } else if (topic.startsWith("response/appointments/created/")) {
+              this.handleCreatedAppointments(topic, message);
+            }
+          });
+          this.mqttMessageHandlerSet = true;
+        }
+      } catch (error) {
+        console.error("Error subscribing to topics:", error.message);
+      }
+    },
+    unsubscribeFromAppointmentUpdates() {
+      const topics = [
+        "response/appointments/manage/+",
+        "response/appointments/created/+",
+      ];
+
+      try {
+        topics.forEach((topic) => {
+          this.mqttClient.unsubscribe(topic, (err) => {
+            if (err) {
+              console.error(`Failed to unsubscribe from topic: ${topic}`, err);
+            } else {
+              console.log(`Unsubscribed from topic: ${topic}`);
+            }
+          });
+        });
+
+        this.mqttClient.off("message", this.handleAppointmentUpdates);
+      } catch (error) {
+        console.error("Error unsubscribing from topic:", error.message);
+      }
+    },
+    
+    handleAppointmentUpdates(topic, message) {
+      try {
+        const response = JSON.parse(message.toString());
+        console.log("Manage response received:", response);
+
+        if (response.status === "success") {
+          console.log("Appointment updated successfully, refreshing slots.");
+          this.fetchSlotsAndDentists();
+        } else {
+          console.error("Error in appointment update:", response.message);
+        }
+      } catch (error) {
+        console.error("Error processing appointment update:", error.message);
+      }
+    },
+    handleCreatedAppointments(topic, message) {
+      try {
+        const response = JSON.parse(message.toString());
+        console.log("Created appointment response received:", response);
+
+        if (response.status === "success") {
+          console.log(
+            "New appointment created successfully, refreshing slots."
+          );
+          this.fetchSlotsAndDentists();
+        } else {
+          console.error(
+            "Error in created appointment response:",
+            response.message
+          );
+        }
+      } catch (error) {
+        console.error(
+          "Error processing created appointment response:",
+          error.message
+        );
+      }
+    },
+
     async fetchSlotsAndDentists() {
       try {
         const correlationId = Date.now().toString();
@@ -97,7 +195,9 @@ export default {
               console.error("Failed to publish request:", err);
               throw new Error("Failed to publish request");
             }
-            console.log(`Request published with correlationId: ${correlationId}`);
+            console.log(
+              `Request published with correlationId: ${correlationId}`
+            );
           }
         );
 
@@ -112,36 +212,47 @@ export default {
 
         const timeout = setTimeout(() => {
           mqttClient.unsubscribe(responseTopic);
-          this.showAlert('Server did not respond. Please try again later.', 'error');
+          this.showAlert(
+            "Server did not respond. Please try again later.",
+            "error"
+          );
         }, 5000);
 
         this.mqttClient.on("message", (topic, message) => {
           if (topic === responseTopic) {
-            clearTimeout(timeout); 
+            clearTimeout(timeout);
             const response = JSON.parse(message.toString());
             console.log("Response received:", response);
             console.log("Filtered slots response:", response.appointments);
 
             if (response.status === "success") {
               this.processSlots(response.appointments);
-              this.showAlert('Slots fetched successfully!', 'success');
+              this.showAlert("Slots fetched successfully!", "success");
             } else {
               console.error("Error response:", response.message);
-              this.showAlert(response.message, 'error');
+              this.showAlert(response.message, "error");
             }
 
             this.mqttClient.unsubscribe(responseTopic, (err) => {
               if (err) {
-                console.error("Failed to unsubscribe from response topic:", err);
+                console.error(
+                  "Failed to unsubscribe from response topic:",
+                  err
+                );
               } else {
-                console.log(`Unsubscribed from response topic: ${responseTopic}`);
+                console.log(
+                  `Unsubscribed from response topic: ${responseTopic}`
+                );
               }
             });
           }
         });
       } catch (error) {
         console.error("Error in fetchSlotsAndDentists:", error.message);
-        this.showAlert("An error occurred while fetching slots. Please try again later.", 'error');
+        this.showAlert(
+          "An error occurred while fetching slots. Please try again later.",
+          "error"
+        );
       }
     },
 
@@ -151,13 +262,17 @@ export default {
     },
 
     processSlots(appointments) {
+      this.appointments = [];
+      this.groupedSlotsByMonth = {};
       this.appointments = appointments.map((appointment) => ({
         id: appointment._id,
         date: appointment.date,
         startTime: appointment.startTime,
         endTime: appointment.endTime,
         dentistId: appointment.dentistId,
-        dentistName: `${appointment.dentist?.firstName || "Unknown"} ${appointment.dentist?.lastName || ""}`,
+        dentistName: `${appointment.dentist?.firstName || "Unknown"} ${
+          appointment.dentist?.lastName || ""
+        }`,
         location: appointment.dentist?.location || "Unknown Location",
       }));
 
@@ -187,10 +302,9 @@ export default {
       this.dentists = Array.from(uniqueDentists.values());
       this.locations = Array.from(uniqueLocations);
 
-      console.log("Dentists for filter:", this.dentists)
-      console.log("Locations for filter:", this.locations)
+      console.log("Dentists for filter:", this.dentists);
+      console.log("Locations for filter:", this.locations);
     },
-
 
     groupSlots() {
       const groupedByMonth = {};
@@ -236,7 +350,6 @@ export default {
 </script>
 
 <style scoped>
-
 /* General styles */
 .slots-page {
   max-width: 1200px;
@@ -303,9 +416,9 @@ export default {
   margin-bottom: 8px;
 }
 
-
 /* Responsive styles for different screen sizes */
-@media (max-width: 1024px) { /* Laptop */
+@media (max-width: 1024px) {
+  /* Laptop */
   .slots-page {
     max-width: 100%;
     padding: 15px;
@@ -317,7 +430,8 @@ export default {
   }
 }
 
-@media (max-width: 768px) { /* Tablet */
+@media (max-width: 768px) {
+  /* Tablet */
   .month-navigation h2 {
     font-size: 1.2rem;
   }
@@ -332,7 +446,8 @@ export default {
   }
 }
 
-@media (max-width: 480px) { /* Mobile L */
+@media (max-width: 480px) {
+  /* Mobile L */
   .month-navigation h2 {
     font-size: 1rem;
   }
@@ -346,7 +461,8 @@ export default {
   }
 }
 
-@media (max-width: 320px) { /* Mobile S */
+@media (max-width: 320px) {
+  /* Mobile S */
   .month-navigation h2 {
     font-size: 0.9rem;
   }
