@@ -44,10 +44,10 @@ const publishRegistration = () => {
     });
 };
 
-const requestTopic = `request/${serviceName}/${serviceId}`;
+const requestTopic = `request/${serviceName}/${serviceId}/+`;
 
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Dentist Info Service');
+    console.log('MQTT connected for Available Appointments Service');
     publishRegistration();
     mqttClient.subscribe( requestTopic, (err) => {
         if (err) {
@@ -59,10 +59,10 @@ mqttClient.on('connect', () => {
 });
 
 mqttClient.on('message', (topic, message) => {
-    if(topic === requestTopic){
+    const baseTopic = `request/${serviceName}/${serviceId}/`;
+    if (topic.startsWith(baseTopic)) {
         getAvailableAppointments(topic, message);
     }
-
 });
 
 const publishHeartbeat = () => {

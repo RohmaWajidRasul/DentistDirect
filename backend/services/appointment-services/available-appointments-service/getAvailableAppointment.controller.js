@@ -2,9 +2,19 @@ import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
 export const getAvailableAppointments = async (topic, message) => {
+
+
+    const topicParts = topic.split('/');
+    const action = topicParts[3]; 
+
+    if (!['booked', 'available'].includes(action)) {
+        console.error(`Invalid action in topic: ${topic}`);
+        return;
+    }
     
     console.log(`Request received on topic: ${topic}`);
     //console.log("Raw message:", message.toString());
+
     let correlationId;
 
     try {
@@ -18,7 +28,7 @@ export const getAvailableAppointments = async (topic, message) => {
                 message: 'Invalid JSON format in request',
                 error
             };
-            return publishAvailabilityResponse(correlationId, errorResponse);
+            return publishAvailabilityResponse(correlationId, errorResponse, action);
         }
         correlationId = parsedMessage.correlationId;
 
@@ -28,16 +38,24 @@ export const getAvailableAppointments = async (topic, message) => {
                 status: 'error',
                 message: 'Invalid or missing payload.',
             };
-            return publishAvailabilityResponse(correlationId, errorResponse);
+            return publishAvailabilityResponse(correlationId, errorResponse, action);
         }
 
         const { payload } = parsedMessage;
         const { dentistId = null, date = null, location = null } = payload;
 
-        const query = { status: { $in: ['available', 'canceled'] } };
-        if (dentistId) query.dentistId = dentistId;
-        if (date) query.date = date;
-        if (location) query.location = location;
+        let query;
+
+        if(action == "booked") {
+            const patientId = payload.patientId;
+            query = { patientId: patientId }
+        } else {
+            query = { status: { $in: ['available', 'canceled'] } };
+            if (dentistId) query.dentistId = dentistId;
+            if (date) query.date = date;
+            if (location) query.location = location;
+        }
+
         const appointments = await Appointment.find(query)
             .sort({ date: 1, startTime: 1 });
 
@@ -47,12 +65,12 @@ export const getAvailableAppointments = async (topic, message) => {
                 status: 'error',
                 message: 'No appointments found.',
             };
-            return publishAvailabilityResponse(correlationId, noAppointmentsResponse);
+            return publishAvailabilityResponse(correlationId, noAppointmentsResponse, action);
         }
 
         const dentistIds = [...new Set(appointments.map(app => app.dentistId.toString()))];
-        console.log ("in getAvailableAppointments")
-        console.log( dentistIds );
+        //console.log ("in getAvailableAppointments")
+        //console.log( dentistIds );
 
         const dentistDetails = await fetchDentistsInfo(dentistIds);
 
@@ -70,7 +88,7 @@ export const getAvailableAppointments = async (topic, message) => {
             appointments: appointmentsWithDentists,
         };
 
-        return publishAvailabilityResponse(correlationId, successResponse);
+        return publishAvailabilityResponse(correlationId, successResponse, action);
     } catch (error) {
         console.error("Error processing request:", error.message);
         const errorResponse = {
@@ -79,7 +97,7 @@ export const getAvailableAppointments = async (topic, message) => {
             message: 'Error fetching appointments',
             error: error.message,
         };
-        return publishAvailabilityResponse(correlationId, errorResponse);
+        return publishAvailabilityResponse(correlationId, errorResponse, action);
     }
 };
 
@@ -89,8 +107,8 @@ const fetchDentistsInfo = (dentistIds) => {
         console.log(correlationId)
 
         const payload = { dentistIds };
-        console.log("in fetchDentistInfo")
-        console.log(payload);
+        //console.log("in fetchDentistInfo")
+        //console.log(payload);
 
         const requestTopic = 'request/dentist-info';
 
@@ -147,8 +165,8 @@ const fetchDentistsInfo = (dentistIds) => {
 
 const generateCorrelationId = () => `corr-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
-const publishAvailabilityResponse = (correlationId, response) => {
-    const responseTopic = `response/available-appointments/${correlationId}`;
+const publishAvailabilityResponse = (correlationId, response, action) => {
+    const responseTopic = `response/available-appointments/${action}/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);

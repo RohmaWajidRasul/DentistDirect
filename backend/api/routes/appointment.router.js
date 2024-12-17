@@ -8,8 +8,8 @@ router.get('/', (req, res) => {
     const date = req.query.date;
     const correlationId = Date.now().toString();
 
-    const requestTopic = 'request/available-appointments';
-    const responseTopic = `response/available-appointments/${correlationId}`;
+    const requestTopic = 'request/available-appointments/available';
+    const responseTopic = `response/available-appointments/available/${correlationId}`;
 
     const payload = { dentistId, date, location };
     console.log(payload);

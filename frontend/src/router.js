@@ -4,12 +4,15 @@ import Home from './views/Home.vue'
 import Slots from './views/Slots.vue'
 import SignUp from './views/SignUp.vue';
 import Login from'./views/Login.vue'
+import MyAppointments from './views/MyAppointments.vue';
 
 const routes = [
   { path: '/', name: 'home-page', component: Home },
   { path: '/slots', name: 'slots-page', component: Slots }, 
   { path: '/signup', name: 'signup', component: SignUp }, 
   { path: '/Login', name: 'login', component: Login }, 
+  { path: '/my-appointments', name: 'my-appointments', component: MyAppointments }, 
+
 ]
 
 const router = createRouter({

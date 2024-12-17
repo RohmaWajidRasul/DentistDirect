@@ -83,8 +83,8 @@ export default {
   methods: {
     subscribeToAppointmentUpdates() {
       const topics = [
-        "response/appointments/manage/+",
-        "response/appointments/created/+",
+        "response/appointment-management/+",
+        "response/create-appointment/+",
       ];
 
       try {
@@ -100,9 +100,9 @@ export default {
 
         if (!this.mqttMessageHandlerSet) {
           this.mqttClient.on("message", (topic, message) => {
-            if (topic.startsWith("response/appointments/manage/")) {
+            if (topic.startsWith("response/appointment-management/")) {
               this.handleAppointmentUpdates(topic, message);
-            } else if (topic.startsWith("response/appointments/created/")) {
+            } else if (topic.startsWith("response/create-appointment/")) {
               this.handleCreatedAppointments(topic, message);
             }
           });
@@ -114,8 +114,8 @@ export default {
     },
     unsubscribeFromAppointmentUpdates() {
       const topics = [
-        "response/appointments/manage/+",
-        "response/appointments/created/+",
+        "response/appointment-management/+",
+        "response/create-appointment/+",
       ];
 
       try {
@@ -188,7 +188,7 @@ export default {
         console.log("Publishing payload:", payload);
 
         this.mqttClient.publish(
-          "request/available-appointments",
+          "request/available-appointments/available",
           JSON.stringify({ correlationId, payload }),
           (err) => {
             if (err) {
@@ -201,7 +201,7 @@ export default {
           }
         );
 
-        const responseTopic = `response/available-appointments/${correlationId}`;
+        const responseTopic = `response/available-appointments/available/${correlationId}`;
         this.mqttClient.subscribe(responseTopic, (err) => {
           if (err) {
             console.error("Failed to subscribe to response topic:", err);

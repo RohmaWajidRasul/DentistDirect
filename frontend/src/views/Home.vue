@@ -6,7 +6,7 @@
     <h1 class ="welcome-text">
       Your dentist finder in Gothenburg!
     </h1>
-    <div v-if="globalState.isLoggedIn" class ="row">
+    <div v-if="true" class ="row">
       <!-- If the user is logged in, show personalized home page -->
         <card text="My Appointments" link="my-appointments" class="left-card"></card>
         <card text="Book Appointment" link="slots" imgsrc="booking"></card>
@@ -24,7 +24,7 @@
 
 <script>
 import { inject } from 'vue';
-//import Card from '../components/Card.vue';
+import Card from '../components/Card.vue';
 import MapComponent from '../components/MapComponent.vue';
 
   
@@ -59,7 +59,10 @@ import MapComponent from '../components/MapComponent.vue';
         showLoginPrompt: false,
       }
     },
-    components: { MapComponent },
+    components: {
+      Card,
+      MapComponent
+    }
   }
   </script>
   

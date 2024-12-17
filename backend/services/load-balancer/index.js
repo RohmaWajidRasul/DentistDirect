@@ -10,7 +10,7 @@ const serviceRegistry = {};
 const requestCount = {};
 const lowRequestDurations = {};
 const maxRequests = 50; 
-const minRequests = 0; 
+const minRequests = 5; 
 const lowLoadTimeLimit = 30000;
 
 const servicePaths = {
@@ -62,10 +62,6 @@ const spawnAllServices = () => {
 };
 
 spawnAllServices();
-spawnAllServices();
-spawnAllServices();
-spawnAllServices();
-spawnAllServices();
 
 const scaleDownService = (serviceName, serviceId) => {
     console.log(`Scaling down service: ${serviceName}, removing instance: ${serviceId}`);
@@ -107,7 +103,7 @@ const handleRequest = (topic, message) => {
 
     let forwardTopic;
 
-    if(serviceName === 'appointment-management') {
+    if(serviceName === 'appointment-management' || serviceName === 'available-appointments') {
         const action = topic.split('/')[2];
         forwardTopic = `request/${serviceName}/${selectedInstance.serviceId}/${action}`;
     } else {
@@ -200,7 +196,7 @@ mqttClient.on('message', (topic, message) => {
 
     } else if (topic.startsWith('alerts/service')) {
         handleAlert(topic, message);
-    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || (topic.startsWith('request/appointment-management') && topic.split('/').length === 3)) {
+    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || ((topic.startsWith('request/appointment-management') || topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
         number = number + 1;
         console.log(`request on load balancer ${number} ${topic}`);
         handleRequest(topic, message);
