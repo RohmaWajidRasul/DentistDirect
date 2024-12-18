@@ -1,6 +1,7 @@
 import Patient from '../models/patient.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
 
 export const createPatient = async (topic, message) => {
     let correlationId; 
@@ -100,7 +101,8 @@ export const createPatient = async (topic, message) => {
             status: 'success', 
             message: 'Patient created successfully', 
             newPatient,
-        }; 
+        };
+        sendEmail(email);
         return publishResponse(correlationId, successResponse);
 
     } catch (error) {
@@ -129,3 +131,31 @@ const publishResponse = (correlationId, response) => {
         }
     });
 };
+
+const sendEmail = (email) => {
+    console.log("Sending email")
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.office365.com',
+        port: 587,
+        secure: false, // use SSL
+        auth: {
+          user: 'dentistdirect13@outlook.com',  
+          pass: 'mkhbzzsapjiuxeim',
+        }
+      });
+
+      const mailOptions = {
+        from: 'dentistdirect13@outlook.com',
+        to: email,
+        subject: 'Sending Email using Node.js',
+        text: 'That was easy!'
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log('Error:', error);
+        } else {
+          console.log('Email sent:', info.response);
+        }
+      });
+}

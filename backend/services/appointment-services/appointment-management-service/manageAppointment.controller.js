@@ -73,7 +73,7 @@ export const manageAppointment = async (topic, message) => {
                 break;
 
             case 'cancel':
-                if (appointment.status === 'canceled' || appointment.status === 'deleted') {
+                { if (appointment.status === 'canceled' || appointment.status === 'deleted') {
                     const errorResponse = {
                         correlationId,
                         status: 'error',
@@ -81,9 +81,16 @@ export const manageAppointment = async (topic, message) => {
                     };
                     return publishResponse(action, correlationId, errorResponse);
                 }
-                appointment.patientId = null;
                 appointment.status = 'canceled';
-                break;
+
+                const response = {
+                    patientId: appointment.patientId,
+                    date: appointment.date
+                }
+                
+                notify(response);
+                appointment.patientId = null;
+                break; }
 
             case 'delete':
                 if (appointment.status === 'deleted') {
@@ -139,6 +146,19 @@ const publishResponse = (action, correlationId, response) => {
             console.error(`Failed to publish to ${responseTopic}:`, err);
         } else {
             console.log(`Response sent to ${responseTopic}`);
+        }
+    });
+};
+
+const notify = (response) => {
+
+    const topic = `request/messages/create`;
+
+    mqttClient.publish(topic, JSON.stringify(response), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${topic}:`, err);
+        } else {
+            console.log(`Response sent to ${topic}`);
         }
     });
 };

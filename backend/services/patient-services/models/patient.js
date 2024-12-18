@@ -33,6 +33,10 @@ const patientSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    messages:[{
+        type: Schema.Types.ObjectId,
+        ref: "Message"
+    }]
 });
 
 const Patient = mongoose.model('Patient', patientSchema);

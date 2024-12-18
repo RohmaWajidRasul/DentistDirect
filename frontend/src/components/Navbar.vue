@@ -10,6 +10,7 @@
       <!-- If the user is logged in, show Logout -->
         <b-nav-item v-if="loggedIn" @click="handleAuthAction">Logout</b-nav-item>
         <b-nav-item to="/slots" :active-class="active-tab">Available Slots</b-nav-item>
+        <b-nav-item to="/inbox" :active-class="active-tab">Inbox</b-nav-item>
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
