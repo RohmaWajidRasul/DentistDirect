@@ -20,7 +20,9 @@ const servicePaths = {
     'register-dentist': path.resolve(__dirname, '../dentist-services/register-dentist-service/index.js'),
     'dentist-info': path.resolve(__dirname, '../dentist-services/dentist-info-service/index.js'),
     'create-patient': path.resolve(__dirname,'../patient-services/create-patient-service/index.js'),
-    'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js')
+    'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js'), 
+    'create-clinic':path.resolve(__dirname, '../clinics-services/create-clinic-service/index.js'), 
+
 
 };
 

@@ -32,10 +32,10 @@ export const fetchDentistInfo = async (topic, message) => {
     let dentists;
       if (dentistIds && dentistIds.length > 0) {
       // Fetch dentists by IDs if IDs is provided
-        dentists = await Dentist.find({ _id: { $in: dentistIds } }).select('firstName lastName location specialization latitude longitude');
+        dentists = await Dentist.find({ _id: { $in: dentistIds } }).select('firstName lastName location specialization clinicId');
       } else {
       // Get all dentists if no IDs are provided
-        dentists = await Dentist.find().select('firstName lastName location specialization latitude longitude');
+        dentists = await Dentist.find().select('firstName lastName location specialization clinicId');
       }
 
     if (!dentists || dentists.length === 0) {
