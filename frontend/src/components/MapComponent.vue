@@ -41,11 +41,11 @@ export default {
         }
     }
 
-    const addMarker = (coordinates, clinicName, location) => {
+    const addMarker = (coordinates, clinicName, clinicLocation) => {
         try {
-            console.log('Adding marker at:', coordinates, 'with name:', clinicName)
+            console.log('Adding marker at:', coordinates, 'with name:', clinicName, 'located at:', clinicLocation)
             const marker = L.marker([coordinates.lat, coordinates.lng]).addTo(map)
-            marker.bindPopup(`${clinicName}`).openPopup()
+            marker.bindPopup(`${clinicName} <br> Location: ${clinicLocation}`).openPopup()
             markers.push(marker)
         } catch (error) {
             console.error('Error adding marker:', error)
