@@ -16,13 +16,17 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "let jsonData = pm.response.json();\r",
-                  "let dentistId = jsonData.newDentist._id;\r",
-                  "pm.environment.set(\"dentist1_Id\", dentistId);\r",
-                  "\r",
-                  "pm.test(\"Create a dentist\", function(){\r",
-                  "    pm.response.to.have.status(201);\r",
-                  "});"
+					"let jsonData = pm.response.json();",
+					"",
+					"pm.test(\"Create dentist - Status code is 200\", function () {",
+					"    pm.response.to.have.status(200);",
+					"});",
+					"",
+					"pm.test(\"Response contains new dentist with clinic\", function () {",
+					"    pm.expect(jsonData).to.have.property('newDentist');",
+					"    pm.expect(jsonData.newDentist).to.have.property('_id');",
+					"});",
+					""
                 ],
                 "type": "text/javascript",
                 "packages": {}
@@ -34,7 +38,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"location\": \"Stenpiren\",\r\n    \"latitude\": \"1\",\r\n    \"longitude\": \"1\"\r\n}\r\n",
+			  "raw": "{\n  \"firstName\": \"Testet\",\n  \"lastName\": \"Testsson\",\n  \"email\": \"Testsson11@example.com\",\n  \"password\": \"securepassword123\",\n  \"phoneNumber\": \"+46701234567\",\n  \"specialization\": \"Orthodontist\",\n  \"clinicId\": \"676b19f302d082985fefa252\"\n}\n",
               "options": {
                 "raw": {
                   "language": "json"
