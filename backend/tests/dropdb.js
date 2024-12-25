@@ -8,6 +8,7 @@ const mongoURIs = {
     patients: process.env.PATIENTDB_PRIMARY_URI,
     dentists: process.env.DENTISTDB_PRIMARY_URI,
     appointments: process.env.APPOINTMENTDB_PRIMARY_URI,
+    clinics:  process.env.CLINICDB_PRIMARY_URI,
 };
 
 const dropDatabase = async (uri, name) => {
