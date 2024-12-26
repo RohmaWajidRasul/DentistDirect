@@ -8,7 +8,7 @@
       <div v-for="notification in notifications" :key="notification._id" class="inbox" @click="changeStatus(notification)">
         {{ notification.subject }}
         <img v-if="notification.status=='unread'"
-        src="frontend\public\notification.png"
+        src="\notification.png"
         class="blue-dot"
         >
       </div>
