@@ -212,6 +212,7 @@ export default {
 
         const timeout = setTimeout(() => {
           mqttClient.unsubscribe(responseTopic);
+          console.log("Timeout")
           this.showAlert(
             "Server did not respond. Please try again later.",
             "error"
@@ -229,8 +230,7 @@ export default {
               this.processSlots(response.appointments);
               this.showAlert("Slots fetched successfully!", "success");
             } else {
-              console.error("Error response:", response.message);
-              this.showAlert(response.message, "error");
+              console.error("Error response:", response);
             }
 
             this.mqttClient.unsubscribe(responseTopic, (err) => {

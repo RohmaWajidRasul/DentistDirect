@@ -150,7 +150,7 @@ export default {
                         console.log("Filtered slots response:", response.appointments);
 
                         if (response.status === "success") {
-                            this.appointments = response.appointments;
+                            this.getAppointments();
                             //this.showAlert('Slots fetched successfully!', 'success');
                         } else {
                             console.error("Error response:", response.message);
@@ -190,6 +190,10 @@ export default {
     border: 0px;
 
 
+}
+
+.cancel-button:hover {
+    background-color: white;
 }
 
 .day-container {
