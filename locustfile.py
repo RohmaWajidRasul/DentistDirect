@@ -326,6 +326,124 @@ class AppointmentServiceTasks(TaskSet):
                 exception=Exception("No response received"),
             )
 
+    @task(3)
+    def book_appointment(self):
+        """Simulate booking an appointment"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/appointments/create"
+        response_topic = f"response/appointments/created/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "dentistId": "1234",
+                "patientId": "5678",
+                "timeSlot": "2024-12-14T10:00:00Z",
+                "location": "Main Street Clinic"
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="book_appointment",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="book_appointment",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
+    @task(4)
+    def cancel_appointment(self):
+        """Simulate canceling an appointment"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/appointments/manage/cancel"
+        response_topic = f"response/appointments/manage/canceled/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "appointmentId": "abcd1234",
+                "reason": "Patient request"
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="cancel_appointment",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="cancel_appointment",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
+    @task(5)
+    def delete_appointment(self):
+        """Simulate deleting an appointment"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/appointments/manage/delete"
+        response_topic = f"response/appointments/manage/deleted/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "appointmentId": "abcd1234",
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="delete_appointment",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="delete_appointment",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
 
 class MixedServiceUser(User):
     tasks = [DentistServiceTasks, PatientServiceTasks, AppointmentServiceTasks]
