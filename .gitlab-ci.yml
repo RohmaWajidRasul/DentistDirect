@@ -61,7 +61,7 @@ test-backend:
     PATIENTDB_PRIMARY_URI: "mongodb://mongo:27017/patients"
     DENTISTDB_PRIMARY_URI: "mongodb://mongo:27017/dentists"
     APPOINTMENTDB_PRIMARY_URI: "mongodb://mongo:27017/appointments"
-    CLINICDB_PRIMARY_URI: "mongodb://localhost:27017/clinics"
+    CLINICDB_PRIMARY_URI: "mongodb://mongo:27017/clinics"
     MQTT_BROKER_URL_BACKEND: "mqtt://mqtt:1883"
     PORT_DENTIST_API: 5007 
     PORT_GATEWAY: 3000
