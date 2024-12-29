@@ -78,3 +78,10 @@ test-backend:
     - echo "PORT_GATEWAY=$PORT_GATEWAY" >> ../.env
     - npm run ci-test
 
+  artifacts:
+    when: always
+    paths:
+      - backend/coverage/ # Collect Jest coverage reports
+    reports:
+      junit: backend/coverage/junit.xml # Generate JUnit report
+  coverage: '/^Statements\s+:\s+(\d+\.\d+)%/' # Parse coverage percentage from Jest output
