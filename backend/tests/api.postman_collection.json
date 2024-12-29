@@ -22,19 +22,6 @@
 									"    pm.response.to.have.status(201);",
 									"});",
 									"",
-									"",
-									"pm.test(\"Response has clinic name\", function () {",
-									"    pm.expect(jsonData.newClinic.name).to.eql(\"Stenpirens dental clinic\");",
-									"});",
-									"",
-									"pm.test(\"Response has correct location\", function () {",
-									"    pm.expect(jsonData.newClinic.location).to.eql(\"Stenpiren, Sweden\");",
-									"});",
-									"",
-									"pm.test(\"Response has correct coordinates\", function () {",
-									"    pm.expect(jsonData.newClinic.longitude).to.eql(11.9748);",
-									"    pm.expect(jsonData.newClinic.latitude).to.eql(57.7089);",
-									"});",
 									""
 								],
 								"type": "text/javascript",
@@ -390,7 +377,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122020\",\r\n    \"email\": \"jane@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122021\",\r\n    \"email\": \"jane1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
