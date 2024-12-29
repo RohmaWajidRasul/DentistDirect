@@ -1,11 +1,133 @@
 {
 	"info": {
-		"_postman_id": "71e88505-8606-4f1f-9e96-045d054e549e",
+		"_postman_id": "4d34e49f-4c75-4bd8-b373-7691a3fbf0ae",
 		"name": "Dentist Direct API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38096908"
+		"_exporter_id": "38096179"
 	},
 	"item": [
+		{
+			"name": "Clinic",
+			"item": [
+				{
+					"name": "Create a clinic",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Create a clinic\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has clinic name\", function () {",
+									"    pm.expect(jsonData.newClinic.name).to.eql(\"Stenpirens dental clinic\");",
+									"});",
+									"",
+									"pm.test(\"Response has correct location\", function () {",
+									"    pm.expect(jsonData.newClinic.location).to.eql(\"Stenpiren, Sweden\");",
+									"});",
+									"",
+									"pm.test(\"Response has correct coordinates\", function () {",
+									"    pm.expect(jsonData.newClinic.longitude).to.eql(11.9748);",
+									"    pm.expect(jsonData.newClinic.latitude).to.eql(57.7089);",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Stenpirens dental clinic\",\n  \"location\": \"Stenpiren, Sweden\",\n  \"longitude\": 11.9748,\n  \"latitude\": 57.7089\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/clinics",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"clinics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all clinics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/clinics/retrieve",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"clinics",
+								"retrieve"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
 		{
 			"name": "Dentist",
 			"item": [
@@ -34,7 +156,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-              "raw": "{\n  \"firstName\": \"Testet\",\n  \"lastName\": \"Testsson\",\n  \"email\": \"Testsson111@example.com\",\n  \"password\": \"securepassword123\",\n  \"phoneNumber\": \"+46701234567\",\n  \"specialization\": \"Orthodontist\",\n  \"clinicId\": \"{{clinic1_Id}}\"\n}\n",
+							"raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"11@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"676b1d1302d082985fefa257\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -445,124 +567,7 @@
 						}
 					},
 					"response": []
-				}, 
-      {
-        "name": "Create a clinic",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"let jsonData = pm.response.json();",
-							"",
-							"pm.test(\"Create a clinic\", function () {",
-							"    pm.response.to.have.status(201);",
-							"});",
-							"",
-							"",
-							"pm.test(\"Response has clinic name\", function () {",
-							"    pm.expect(jsonData.newClinic.name).to.eql(\"Stenpirens dental clinic\");",
-							"});",
-							"",
-							"pm.test(\"Response has correct location\", function () {",
-							"    pm.expect(jsonData.newClinic.location).to.eql(\"Stenpiren, Sweden\");",
-							"});",
-							"",
-							"pm.test(\"Response has correct coordinates\", function () {",
-							"    pm.expect(jsonData.newClinic.longitude).to.eql(11.9748);",
-							"    pm.expect(jsonData.newClinic.latitude).to.eql(57.7089);",
-							"});",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				},
-				{
-					"listen": "prerequest",
-					"script": {
-						"exec": [
-							"",
-							""
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
 				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "{\n  \"name\": \"Stenpirens dental clinic\",\n  \"location\": \"Stenpiren, Sweden\",\n  \"longitude\": 11.9748,\n  \"latitude\": 57.7089\n}\n",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/v1/clinics",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"clinics"
-					]
-				}
-			},
-			"response": []
-		},
-    {
-			"name": "Retrieve all clinics",
-			"event": [
-				{
-					"listen": "test",
-					"script": {
-						"exec": [
-							"let jsonData = pm.response.json();",
-							"",
-							"pm.test(\"Status code is 200\", function () {",
-							"    pm.response.to.have.status(200);",
-							"});"
-						],
-						"type": "text/javascript",
-						"packages": {}
-					}
-				}
-			],
-			"request": {
-				"method": "POST",
-				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
-				"url": {
-					"raw": "http://localhost:3000/v1/clinics/retrieve",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"v1",
-						"clinics",
-						"retrieve"
-					]
-				}
-			},
-			"response": []
-    }
 			]
 		}
 	]

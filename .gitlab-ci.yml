@@ -73,6 +73,7 @@ test-backend:
     - echo "MONGODB_URI_PATIENTS=$MONGODB_URI_PATIENTS" > ../.env
     - echo "MONGODB_URI_DENTISTS=$MONGODB_URI_DENTISTS" >> ../.env
     - echo "MONGODB_URI_APPOINTMENTS=$MONGODB_URI_APPOINTMENTS" >> ../.env
+    - echo "MONGODB_URI_CLINICS=$MONGODB_URI_CLINICS" >> ../.env
     - echo "MQTT_BROKER_URL_BACKEND=$MQTT_BROKER_URL_BACKEND" >> ../.env
     - echo "PORT_DENTIST_API=$PORT_DENTIST_API" >> ../.env
     - echo "PORT_GATEWAY=$PORT_GATEWAY" >> ../.env
