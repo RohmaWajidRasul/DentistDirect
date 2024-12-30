@@ -55,7 +55,9 @@
       "lcov"
     ],
     "testMatch": [
-      "**/?(*.)+(spec|test).[jt]s?(x)"
-    ]
+      "**/unit-tests/**/*.test.js"
+    ],
+    "transform": {},
+    "extensionsToTreatAsEsm": [".js"]
   }
 }
