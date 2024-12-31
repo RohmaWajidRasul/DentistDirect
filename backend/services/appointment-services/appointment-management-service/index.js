@@ -47,7 +47,7 @@ const publishRegistration = () => {
 const requestTopic = `request/${serviceName}/${serviceId}/#`;
 
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Dentist Info Service');
+    console.log('MQTT connected for Appointment management Service');
     publishRegistration();
     mqttClient.subscribe( requestTopic, (err) => {
         if (err) {

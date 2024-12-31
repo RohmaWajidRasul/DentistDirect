@@ -1,13 +1,11 @@
 import Message from '../models/message.js';
 import Patient from '../models/patient.js';
-import mqttClient from '../../../shared/mqtt-client.js';
+//import mqttClient from '../../../shared/mqtt-client.js';
 
 export const createMessage = async (topic, message) => {
-    const messageTopic = 'request/messages/create'; 
+    
 
-    if (topic !== messageTopic){
-        return; 
-    }
+
 
     let correlationId; 
 
@@ -16,11 +14,13 @@ export const createMessage = async (topic, message) => {
         try {
             parsedMessage = JSON.parse(message.toString());
         } catch (error) {
+            console.log(error)
             const errorResponse = {
                 correlationId,
                 status: 'error',
                 message: 'Invalid JSON format in request',
             };
+            console.log(errorResponse)
         }
 
         const { patientId, date } = parsedMessage;

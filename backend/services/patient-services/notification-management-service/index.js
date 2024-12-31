@@ -3,9 +3,11 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from '../../../shared/database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
-import { createMessage } from './createMessage.controller.js';
+import { changeMessage } from './manageMessage.controller.js';
 import morgan from'morgan';
 import mongoose from 'mongoose';
+import { v4 as uuidv4 } from 'uuid';
+
 
 
 dotenv.config();
@@ -21,10 +23,30 @@ const fallbackURI = process.env.PATIENTDB_FALLBACK_URI || 'mongodb://localhost:2
 
 connectDB(primaryURI, fallbackURI, "patientDB");
 
-const requestTopic = 'request/messages/create';
+const serviceId = uuidv4();
+const serviceName = "notification-managment";
 
+const publishRegistration = () => {
+    const registration = {
+        serviceId,
+        serviceName: serviceName,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+    };
+
+    mqttClient.publish('registry/register', JSON.stringify(registration), (err) => {
+        if (err) {
+            console.error('Failed to publish registration:', err);
+        } else {
+            console.log('Service registered successfully');
+        }
+    });
+};
+
+const requestTopic = `request/${serviceName}/${serviceId}`;
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Create Message Service');
+    console.log('MQTT connected for Notification Managment Service');
+    publishRegistration();
     mqttClient.subscribe( requestTopic, (err) => {
         if (err) {
             console.error(`Failed to subscribe to ${requestTopic}`, err);
@@ -34,24 +56,24 @@ mqttClient.on('connect', () => {
     });
 });
 
-mqttClient.on('message', createMessage);
+mqttClient.on('message', changeMessage);
 
 const publishHeartbeat = () => {
     const heartbeat = {
-        service: 'Create Message Service',
+        service: 'manage Message Service',
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/create-message', JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish('heartbeat/manage-messages', JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
         }
     });
 };
 
-//setInterval(publishHeartbeat, 5000);
+setInterval(publishHeartbeat, 5000);
 
 const shutdown = async () => {
     console.log('Shutting down service...');

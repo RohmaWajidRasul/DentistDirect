@@ -60,7 +60,6 @@ mqttClient.on('connect', () => {
 
 mqttClient.on('message', (topic, message) => {
     const baseTopic = `request/${serviceName}/${serviceId}/`;
-    console.log("Anna")
     if (topic.startsWith(baseTopic)) {
         getAvailableAppointments(topic, message);
     }

@@ -1,7 +1,7 @@
 import mqttClient from '../../../shared/mqtt-client.js';
 import Patient from '../models/patient.js';
 import Message from '../models/message.js';
-
+Message;
 
 export const getMessages = async (topic, message) => {
 
@@ -14,6 +14,7 @@ export const getMessages = async (topic, message) => {
     try {
         parsedMessage = JSON.parse(message.toString());
     } catch (error) {
+      console.log(error)
         const errorResponse = {
             correlationId,
             status: 'error',

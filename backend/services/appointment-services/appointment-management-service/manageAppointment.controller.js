@@ -152,7 +152,7 @@ const publishResponse = (action, correlationId, response) => {
 
 const notify = (response) => {
 
-    const topic = `request/messages/create`;
+    const topic = `request/create-notification`;
 
     mqttClient.publish(topic, JSON.stringify(response), (err) => {
         if (err) {

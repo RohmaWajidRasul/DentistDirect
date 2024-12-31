@@ -79,7 +79,6 @@ export default {
                         clearTimeout(timeout);
                         const response = JSON.parse(message.toString());
                         console.log("Response received:", response);
-                        console.log("Filtered slots response:", response.appointments);
 
                         if (response.status === "success") {
                             this.appointments = response.appointments;
@@ -99,8 +98,7 @@ export default {
                     }
                 });
             } catch (error) {
-                console.error("Error in fetchSlotsAndDentists:", error);
-                //this.showAlert("An error occurred while fetching slots. Please try again later.", 'error');
+                console.error("Error in fatchingBookedAppointments:", error);
             }
 
         },
@@ -150,8 +148,7 @@ export default {
                         console.log("Filtered slots response:", response.appointments);
 
                         if (response.status === "success") {
-                            this.getAppointments();
-                            //this.showAlert('Slots fetched successfully!', 'success');
+                            window.location.reload();
                         } else {
                             console.error("Error response:", response.message);
                             //this.showAlert(response.message, 'error');

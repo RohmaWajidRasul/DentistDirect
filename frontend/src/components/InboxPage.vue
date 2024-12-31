@@ -21,13 +21,12 @@
 
 <script>
 import mqttClient from '../mqttClient.js';
-import Alert from './Alerts.vue';
 import NotificationContents from './NotificationContents.vue';
 
 
 export default {
   name: "inbox",
-  components: { Alert, NotificationContents },
+  components: { NotificationContents },
   data() {
     return {
       isLoading: false,
@@ -50,7 +49,7 @@ export default {
 
 
       const correlationId = Date.now().toString();
-      const requestTopic = 'request/messages/fetch';
+      const requestTopic = 'request/get-notification';
       const responseTopic = `response/messages/fetched/${correlationId}`;
       const user = JSON.parse(localStorage.getItem("user"));
 
@@ -110,7 +109,7 @@ export default {
       this.selected = clicked
 
       const correlationId = Date.now().toString();
-      const requestTopic = 'request/messages/read';
+      const requestTopic = 'request/notification-managment';
       const responseTopic = `response/messages/read/${correlationId}`;
       //const user = JSON.parse(localStorage.getItem("user"));
 
