@@ -143,7 +143,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n   \"firstName\": \"Test\",\r\n    \"lastName\": \"Testsson\",\r\n    \"email\": \"test1@example.com\",\r\n    \"password\": \"hashed_password_5\",\r\n    \"phoneNumber\": \"+1403123456\",\r\n    \"specialization\": \"Cosmetic Dentistry\",\r\n    \"clinicId\": \"676b885702d082985fefa25d\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Charlie\",\r\n    \"lastName\": \"Brown\",\r\n    \"email\": \"charliebrown@example.com\",\r\n    \"password\": \"superSecurePassword789\",\r\n    \"phoneNumber\": \"+1123456789\",\r\n    \"specialization\": \"Periodontist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -190,7 +190,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"677416979c52bf406c154217\",\r\n    \"date\": \"2024-12-27\",\r\n    \"startTime\": \"08:00\",\r\n    \"endTime\": \"08:30\",\r\n    \"clinicId\": \"676b885702d082985fefa25d\"\r\n\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2024-12-31\",\r\n    \"startTime\": \"09:00\",\r\n    \"endTime\": \"10:00\",\r\n    \"duration\": 60,\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -237,7 +237,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"676b88b9968f0dc0da9cd9eb\",\r\n    \"date\": \"2024-11-25\",\r\n    \"startTime\": \"18:00\",\r\n    \"endTime\": \"18:30\",\r\n    \"clinicId\": \"677196e8cf89090eff1ab346\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2024-11-25\",\r\n    \"startTime\": \"18:00\",\r\n    \"endTime\": \"18:30\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
