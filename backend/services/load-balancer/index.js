@@ -23,6 +23,7 @@ const servicePaths = {
     'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js'), 
     'create-clinic':path.resolve(__dirname, '../clinics-services/create-clinic-service/index.js'), 
     'retrieve-clinic': path.resolve(__dirname, '../clinics-services/retrieve-clinic-service/index.js'),
+    'fetch-clinic-info': path.resolve(__dirname, '../clinics-services/clinic-info-service/index.js'), 
 
 
 };

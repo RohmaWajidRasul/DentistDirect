@@ -13,6 +13,7 @@
       <Filters
         :dentists="dentists || []"
         :locations="locations || []"
+        :clinics="clinics || []"
         :filters="filters"
         @update:filters="(value) => { filters = value; console.log('Filters updated:', value); }"
       />
@@ -57,9 +58,11 @@ export default {
       groupedSlotsByMonth: {},
       dentists: [],
       locations: [],
+      clinics: [],
       filters: {
         dentistId: null,
         location: null,
+        clinicId: null,
       },
       currentDate: new Date(),
       alertMessage: null,
@@ -181,6 +184,7 @@ export default {
         const payload = {
           dentistId: this.filters.dentistId || null,
           location: this.filters.location || null,
+          clinicId: this.filters.clinicId || null,
         };
 
         console.log("Filters applied:", this.filters);
@@ -269,11 +273,13 @@ export default {
         date: appointment.date,
         startTime: appointment.startTime,
         endTime: appointment.endTime,
+        clinicId: appointment.clinicId,
         dentistId: appointment.dentistId,
         dentistName: `${appointment.dentist?.firstName || "Unknown"} ${
           appointment.dentist?.lastName || ""
         }`,
-        location: appointment.dentist?.location || "Unknown Location",
+        location: appointment.clinic?.name || "Unknown Clinic",
+
       }));
 
       console.log("Formatted slots:", this.appointments);
@@ -284,6 +290,7 @@ export default {
     extractFilters(appointments) {
       const uniqueDentists = new Map();
       const uniqueLocations = new Set();
+      const uniqueClinics = new Map(); 
 
       appointments.forEach((appointment) => {
         if (appointment.dentist) {
@@ -294,16 +301,27 @@ export default {
           });
         }
 
-        if (appointment.dentist?.location) {
-          uniqueLocations.add(appointment.dentist.location);
+        if (appointment.clinic?.location) {
+          uniqueLocations.add(appointment.clinic.location);
         }
+
+        if (appointment.clinic) {
+            const clinic = appointment.clinic;
+            uniqueClinics.set(clinic._id, {
+                id: clinic._id,
+                name: clinic.name || "Unknown Clinic",
+            });
+        }
+
       });
 
       this.dentists = Array.from(uniqueDentists.values());
       this.locations = Array.from(uniqueLocations);
+      this.clinics = Array.from(uniqueClinics.values());
 
       console.log("Dentists for filter:", this.dentists);
       console.log("Locations for filter:", this.locations);
+      console.log("Clinics for filter:", this.clinics);
     },
 
     groupSlots() {

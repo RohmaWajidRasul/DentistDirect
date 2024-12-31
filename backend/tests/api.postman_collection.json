@@ -45,7 +45,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Stenpirens dental clinic\",\n  \"location\": \"Stenpiren, Sweden\",\n  \"longitude\": 11.9748,\n  \"latitude\": 57.7089\n}\n",
+							"raw": "{\n  \"name\": \"Lindholmens clinic\",\n  \"location\": \"Lindholmen, Sweden\",\n  \"longitude\": 11.9383,\n  \"latitude\": 57.7078\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -143,7 +143,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"11@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"676b1d1302d082985fefa257\"\r\n}\r\n",
+							"raw": "{\r\n   \"firstName\": \"Test\",\r\n    \"lastName\": \"Testsson\",\r\n    \"email\": \"test1@example.com\",\r\n    \"password\": \"hashed_password_5\",\r\n    \"phoneNumber\": \"+1403123456\",\r\n    \"specialization\": \"Cosmetic Dentistry\",\r\n    \"clinicId\": \"676b885702d082985fefa25d\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -190,7 +190,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2024-12-25\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"677416979c52bf406c154217\",\r\n    \"date\": \"2024-12-27\",\r\n    \"startTime\": \"08:00\",\r\n    \"endTime\": \"08:30\",\r\n    \"clinicId\": \"676b885702d082985fefa25d\"\r\n\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -237,7 +237,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2024-11-25\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"676b88b9968f0dc0da9cd9eb\",\r\n    \"date\": \"2024-11-25\",\r\n    \"startTime\": \"18:00\",\r\n    \"endTime\": \"18:30\",\r\n    \"clinicId\": \"677196e8cf89090eff1ab346\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -377,7 +377,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122021\",\r\n    \"email\": \"jane1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122022\",\r\n    \"email\": \"jane123@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -424,7 +424,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"patientId\": \"{{patient1_Id}}\",\r\n    \"status\": \"booked\"\r\n   \r\n}\r\n",
+							"raw": "{\r\n    \"patientId\": \"6771d05b5a80dd5b626be059\",\r\n    \"status\": \"booked\"\r\n   \r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"

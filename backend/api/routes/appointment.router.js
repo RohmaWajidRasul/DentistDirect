@@ -4,14 +4,14 @@ import mqttClient from '../../shared/mqtt-client.js';
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    const { dentistId, location } = req.body;
+    const { dentistId, location, clinicId } = req.body;
     const date = req.query.date;
     const correlationId = Date.now().toString();
 
     const requestTopic = 'request/available-appointments/available';
     const responseTopic = `response/available-appointments/available/${correlationId}`;
 
-    const payload = { dentistId, date, location };
+    const payload = { dentistId, date, location, clinicId };
     console.log(payload);
 
     let responseSent = false;

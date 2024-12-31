@@ -72,14 +72,18 @@ export const getAvailableAppointments = async (topic, message) => {
         const dentistIds = [...new Set(appointments.map(app => app.dentistId.toString()))];
         //console.log ("in getAvailableAppointments")
         //console.log( dentistIds );
+        const clinicIds = [...new Set(appointments.map(app => app.clinicId?.toString()).filter(Boolean))];
 
         const dentistDetails = await fetchDentistsInfo(dentistIds);
+        const clinicDetails = await fetchClinicsInfo(clinicIds);
 
         const dentistMap = Object.fromEntries(dentistDetails.map(dentist => [dentist._id, dentist]));
+        const clinicMap = Object.fromEntries(clinicDetails.map(clinic => [clinic._id, clinic]));
 
         const appointmentsWithDentists = appointments.map(app => ({
             ...app.toObject(),
             dentist: dentistMap[app.dentistId.toString()] || null,
+            clinic: clinicMap[app.clinicId?.toString()] || null,
         }));
 
         const successResponse = {
@@ -151,6 +155,65 @@ const fetchDentistsInfo = (dentistIds) => {
         mqttClient.once('message', (topic, message) => {
             if (topic === responseTopic) {
                 handleResponse(topic,message);
+            }
+        });
+
+        mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
+            if (err) {
+                clearTimeout(timeout);
+                mqttClient.off('message', handleResponse);
+                reject(err);
+            }
+        });
+    });
+};
+
+const fetchClinicsInfo = (clinicIds) => {
+    return new Promise((resolve, reject) => {
+        const correlationId = generateCorrelationId();
+        console.log(correlationId);
+
+        const payload = { clinicIds };
+
+        const requestTopic = 'request/clinic-info';
+        const responseTopic = `response/clinic-info/${correlationId}`;
+
+        const timeout = setTimeout(() => {
+            mqttClient.unsubscribe(responseTopic); 
+            reject(new Error('Timeout waiting for clinic info response'));
+        }, 20000);
+
+        const handleResponse = (topic, message) => {
+            console.log(`Received message on topic: ${topic}`);
+            if (topic === responseTopic) {
+                clearTimeout(timeout);
+                mqttClient.unsubscribe(responseTopic);
+
+                try {
+                    const parsedMessage = JSON.parse(message.toString());
+                    if (parsedMessage.status === 'success') {
+                        resolve(parsedMessage.clinics);
+                    } else {
+                        reject(new Error(parsedMessage.message));
+                    }
+                } catch (err) {
+                    console.error('Error parsing response:', err);
+                    reject(err);
+                }
+            }
+        };
+
+        mqttClient.subscribe(responseTopic, (err) => {
+            if (err) {
+                console.error('Failed to subscribe to response topic:', err);
+                clearTimeout(timeout);
+                reject(err);
+            }
+        });
+
+        mqttClient.once('message', (topic, message) => {
+            if (topic === responseTopic) {
+                handleResponse(topic, message);
             }
         });
 
