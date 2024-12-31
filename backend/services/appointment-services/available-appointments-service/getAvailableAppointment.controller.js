@@ -42,7 +42,7 @@ export const getAvailableAppointments = async (topic, message) => {
         }
 
         const { payload } = parsedMessage;
-        const { dentistId = null, date = null, location = null } = payload;
+        const { dentistId = null, date = null, location = null, clinicId = null } = payload;
 
         let query;
 
@@ -54,6 +54,7 @@ export const getAvailableAppointments = async (topic, message) => {
             if (dentistId) query.dentistId = dentistId;
             if (date) query.date = date;
             if (location) query.location = location;
+            if (clinicId) query.clinicId = clinicId;
         }
 
         const appointments = await Appointment.find(query)

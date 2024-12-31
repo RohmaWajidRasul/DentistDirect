@@ -26,10 +26,10 @@ export const createAppointment = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request'); 
         }
 
-        const { dentistId, date, startTime, endTime } = parsedMessage.payload;
+        const { dentistId, date, startTime, endTime, clinicId } = parsedMessage.payload;
 
 
-        if (!dentistId || !date || !startTime || !endTime) {
+        if (!dentistId || !date || !startTime || !endTime || !clinicId) {
             const errorResponse = {
                 correlationId,
                 status: 'error',
@@ -73,7 +73,7 @@ export const createAppointment = async (topic, message) => {
         }
 
 
-        const appointment = new Appointment({ dentistId, date, startTime, endTime, duration });
+        const appointment = new Appointment({ dentistId, date, startTime, endTime, duration, clinicId});
         await appointment.save();
 
         const successResponse = {

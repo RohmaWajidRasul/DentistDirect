@@ -37,7 +37,12 @@ const appointmentSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Patient',
         default: null,
-    }
+    }, 
+    clinicId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Clinic', 
+        required: true,
+      }
 });
 
 appointmentSchema.pre('save', async function (next) {
