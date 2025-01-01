@@ -498,8 +498,8 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									"pm.test(\"get available slots\", function(){\r",
-									"    pm.response.to.have.status(200);\r",
+									"pm.test(\"get available slots\", function(){",
+									"    pm.response.to.have.status(200);",
 									"});"
 								],
 								"type": "text/javascript",
@@ -507,15 +507,12 @@
 							}
 						}
 					],
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
 					"request": {
 						"method": "GET",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n \"dentistId\": \"\",\n  \"date\": \"\",\n  \"location\": \"\",\n  \"clinicId\": \"\"\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
