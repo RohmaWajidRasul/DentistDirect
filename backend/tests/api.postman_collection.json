@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "4d34e49f-4c75-4bd8-b373-7691a3fbf0ae",
-		"name": "Dentist Direct API",
+		"_postman_id": "f1a76d92-60e1-4f4a-91ee-e7b1c3f476cc",
+		"name": "Dentist Direct API Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "38096179"
 	},
@@ -45,7 +45,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Lindholmens clinic\",\n  \"location\": \"Lindholmen, Sweden\",\n  \"longitude\": 11.9383,\n  \"latitude\": 57.7078\n}\n",
+							"raw": "{\n  \"name\": \"Lindholms pirens clinic\",\n  \"location\": \"Lindholmen, Sweden\",\n  \"longitude\": 11.9385,\n  \"latitude\": 57.7073\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -143,7 +143,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Charlie\",\r\n    \"lastName\": \"Brown\",\r\n    \"email\": \"charliebrown@example.com\",\r\n    \"password\": \"superSecurePassword789\",\r\n    \"phoneNumber\": \"+1123456789\",\r\n    \"specialization\": \"Periodontist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n\r\n",
+							"raw": "{\r\n    \"firstName\": \"Charlie\",\r\n    \"lastName\": \"Brown\",\r\n    \"email\": \"Testet5@example.com\",\r\n    \"password\": \"superSecurePassword789\",\r\n    \"phoneNumber\": \"+1123456789\",\r\n    \"specialization\": \"Periodontist\",\r\n    \"clinicId\": \"676b1d1302d082985fefa257\"\r\n}\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -190,7 +190,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2024-12-31\",\r\n    \"startTime\": \"09:00\",\r\n    \"endTime\": \"10:00\",\r\n    \"duration\": 60,\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"dentistId\": \"6774772befeb0c803d3ce51d\",\r\n    \"date\": \"2024-12-29\",\r\n    \"startTime\": \"13:00\",\r\n    \"endTime\": \"14:00\",\r\n    \"clinicId\": \"6774233c67274c1a220b504c\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -237,7 +237,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2024-11-25\",\r\n    \"startTime\": \"18:00\",\r\n    \"endTime\": \"18:30\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"67747718efeb0c803d3ce519\",\r\n    \"date\": \"2025-01-03\",\r\n    \"startTime\": \"19:00\",\r\n    \"endTime\": \"19:30\",\r\n    \"clinicId\": \"6774233c67274c1a220b504c\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -377,7 +377,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122022\",\r\n    \"email\": \"jane123@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122027\",\r\n    \"email\": \"jane123@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
