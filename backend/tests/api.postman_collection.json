@@ -45,7 +45,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"name\": \"Lindholms pirens clinic\",\n  \"location\": \"Lindholmen, Sweden\",\n  \"longitude\": 11.9385,\n  \"latitude\": 57.7073\n}\n",
+							"raw": "{\n  \"name\": \"Pirens clinic\",\n  \"location\": \"Lindholmen, Sweden\",\n  \"longitude\": 11.9383,\n  \"latitude\": 57.7070\n}\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -143,7 +143,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Charlie\",\r\n    \"lastName\": \"Brown\",\r\n    \"email\": \"Testet5@example.com\",\r\n    \"password\": \"superSecurePassword789\",\r\n    \"phoneNumber\": \"+1123456789\",\r\n    \"specialization\": \"Periodontist\",\r\n    \"clinicId\": \"676b1d1302d082985fefa257\"\r\n}\r\n\r\n",
+							"raw": "{\r\n    \"firstName\": \"Charlie\",\r\n    \"lastName\": \"Brown\",\r\n    \"email\": \"Testet6@example.com\",\r\n    \"password\": \"superSecurePassword789\",\r\n    \"phoneNumber\": \"+1123456789\",\r\n    \"specialization\": \"Periodontist\",\r\n    \"clinicId\": \"6769b1a53582ae9cefd8c299\"\r\n}\r\n\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -190,7 +190,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"6774772befeb0c803d3ce51d\",\r\n    \"date\": \"2024-12-29\",\r\n    \"startTime\": \"13:00\",\r\n    \"endTime\": \"14:00\",\r\n    \"clinicId\": \"6774233c67274c1a220b504c\"\r\n}\r\n",
+							"raw": "{\r\n    \"dentistId\": \"6774772befeb0c803d3ce51d\",\r\n    \"date\": \"2024-12-31\",\r\n    \"startTime\": \"13:00\",\r\n    \"endTime\": \"14:00\",\r\n    \"clinicId\": \"677196e8cf89090eff1ab346\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -237,7 +237,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"67747718efeb0c803d3ce519\",\r\n    \"date\": \"2025-01-03\",\r\n    \"startTime\": \"19:00\",\r\n    \"endTime\": \"19:30\",\r\n    \"clinicId\": \"6774233c67274c1a220b504c\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"6774772befeb0c803d3ce51d\",\r\n    \"date\": \"2025-01-04\",\r\n    \"startTime\": \"19:00\",\r\n    \"endTime\": \"19:30\",\r\n    \"clinicId\": \"677196e8cf89090eff1ab346\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -377,7 +377,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122027\",\r\n    \"email\": \"jane123@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122030\",\r\n    \"email\": \"janeet5@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -507,9 +507,21 @@
 							}
 						}
 					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n \"dentistId\": \"\",\n  \"date\": \"\",\n  \"location\": \"\",\n  \"clinicId\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "http://localhost:3000/v1/appointments",
 							"protocol": "http",
