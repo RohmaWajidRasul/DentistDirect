@@ -1,6 +1,10 @@
 import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,8 +23,8 @@ export const spawnBroker = () => {
             "-it", 
             "-d", 
             "--name", id, 
-            "-p", "1884:1883", 
-            "-p", "8080:8080", 
+            "-p", `${process.env.BACKEND_PORT}:1883`, 
+            "-p", `${process.env.FRONTEND_PORT}:8080`, 
             "-v", `${localConfigPath}:/mosquitto/config`,
             "eclipse-mosquitto"
           ]);

@@ -1,6 +1,6 @@
 import mqttClient from '../../shared/mqtt-client.js';
 import { checkDBHealth } from '../../shared/checkDBHealth.js';
-import { spawnBroker } from './dockerBroker'
+import { spawnBroker } from './dockerBroker.js'
 
 
 //-----Monitoring the health status of databases----------------------
