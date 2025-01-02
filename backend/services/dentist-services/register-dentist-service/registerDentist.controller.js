@@ -75,9 +75,6 @@ export const registerDentist = async (topic, message) => {
         const newDentist = new Dentist({ firstName, lastName, email, password: hashedPassword, phoneNumber, specialization, clinicId });
         await newDentist.save();
 
-        //const populatedDentist = await Dentist.findById(newDentist._id).populate('clinicId');
-
-
         const successResponse = {
             correlationId, 
             status: 'success', 

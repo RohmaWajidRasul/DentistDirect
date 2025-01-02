@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "f1a76d92-60e1-4f4a-91ee-e7b1c3f476cc",
-		"name": "Dentist Direct API Copy",
+		"_postman_id": "71e88505-8606-4f1f-9e96-045d054e549e",
+		"name": "Dentist Direct API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38096179"
+		"_exporter_id": "38096908"
 	},
 	"item": [
 		{
@@ -17,6 +17,9 @@
 							"script": {
 								"exec": [
 									"let jsonData = pm.response.json();",
+									"let clinicId = jsonData.newClinic._id;",
+									"pm.environment.set(\"clinic1_Id\", clinicId);",
+									"",
 									"",
 									"pm.test(\"Create a clinic\", function () {",
 									"    pm.response.to.have.status(201);",
@@ -143,7 +146,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Charlie\",\r\n    \"lastName\": \"Brown\",\r\n    \"email\": \"Testet6@example.com\",\r\n    \"password\": \"superSecurePassword789\",\r\n    \"phoneNumber\": \"+1123456789\",\r\n    \"specialization\": \"Periodontist\",\r\n    \"clinicId\": \"6769b1a53582ae9cefd8c299\"\r\n}\r\n\r\n",
+							"raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -190,7 +193,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"6774772befeb0c803d3ce51d\",\r\n    \"date\": \"2024-12-31\",\r\n    \"startTime\": \"13:00\",\r\n    \"endTime\": \"14:00\",\r\n    \"clinicId\": \"677196e8cf89090eff1ab346\"\r\n}\r\n",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2025-01-25\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -237,7 +240,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"6774772befeb0c803d3ce51d\",\r\n    \"date\": \"2025-01-04\",\r\n    \"startTime\": \"19:00\",\r\n    \"endTime\": \"19:30\",\r\n    \"clinicId\": \"677196e8cf89090eff1ab346\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2025-01-26\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -377,7 +380,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122030\",\r\n    \"email\": \"janeet5@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Jane\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200010122020\",\r\n    \"email\": \"jane@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+987654321\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -424,7 +427,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"patientId\": \"6771d05b5a80dd5b626be059\",\r\n    \"status\": \"booked\"\r\n   \r\n}\r\n",
+							"raw": "{\r\n    \"patientId\": \"{{patient1_Id}}\",\r\n    \"status\": \"booked\"\r\n   \r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -498,7 +501,9 @@
 							"listen": "test",
 							"script": {
 								"exec": [
-									""
+									"pm.test(\"get available slots\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
 								],
 								"type": "text/javascript",
 								"packages": {}
@@ -508,15 +513,6 @@
 					"request": {
 						"method": "GET",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "http://localhost:3000/v1/appointments",
 							"protocol": "http",
@@ -534,6 +530,20 @@
 				},
 				{
 					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Patient Login\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
