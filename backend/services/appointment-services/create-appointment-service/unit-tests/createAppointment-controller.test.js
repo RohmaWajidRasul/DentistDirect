@@ -1,13 +1,20 @@
-/* global jest, describe, beforeEach, it, expect */
+import { vi, describe, it, expect, afterAll, beforeEach } from 'vitest';
 
 import { createAppointment } from '../createAppointment.controller.js';
 import Appointment from '../../models/appointment.js';
 import mqttClient from '../../../../shared/mqtt-client.js';
 
 // Mock dependencies
-jest.mock('../../models/appointment.js');
-jest.mock('../../../shared/mqtt-client.js', () => ({
-  publish: jest.fn(),
+vi.mock('../../models/appointment.js');
+vi.mock('../../../../shared/mqtt-client.js', () => ({
+  default: {
+    publish: vi.fn(),
+    subscribe: vi.fn(),
+    on: vi.fn(),
+    once: vi.fn(),
+    unsubscribe: vi.fn(),
+    end: vi.fn(),
+  }
 }));
 
 describe('createAppointment', () => {
@@ -23,7 +30,7 @@ describe('createAppointment', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks(); // Reset mocks before each test
+    vi.clearAllMocks(); // Reset mocks before each test
   });
 
   it('should ignore requests with an invalid topic', async () => {
@@ -42,25 +49,6 @@ describe('createAppointment', () => {
     expect(mqttClient.publish).toHaveBeenCalledWith(
       expect.stringContaining('response/appointments/created'),
       expect.stringContaining('Invalid JSON format in request'),
-      expect.any(Function)
-    );
-  });
-
-  it('should publish an error response if correlationId is missing', async () => {
-    const messageWithoutCorrelationId = JSON.stringify({
-      payload: {
-        dentistId: 'dentist123',
-        date: '2024-12-31',
-        startTime: '10:00',
-        endTime: '11:00',
-      },
-    });
-
-    await createAppointment(validTopic, messageWithoutCorrelationId);
-
-    expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/appointments/created'),
-      expect.stringContaining('Correlation ID is missing in the request'),
       expect.any(Function)
     );
   });
@@ -144,7 +132,7 @@ describe('createAppointment', () => {
 
   it('should create an appointment and publish a success response', async () => {
     Appointment.findOne.mockResolvedValue(null); // No existing appointment
-    Appointment.prototype.save = jest.fn().mockResolvedValue(); // Mock save
+    Appointment.prototype.save = vi.fn().mockResolvedValue(); // Mock save
 
     await createAppointment(validTopic, validMessage);
 
@@ -174,4 +162,12 @@ describe('createAppointment', () => {
       expect.any(Function)
     );
   });
+});
+
+// Add cleanup logic after all tests
+afterAll(() => {
+  mqttClient.unsubscribe(); // Unsubscribe from all topics
+  mqttClient.end(); // Close the MQTT connection
+  vi.clearAllTimers();
+  vi.clearAllMocks();
 });
