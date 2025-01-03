@@ -94,7 +94,7 @@ export default {
           if (response.status === 'success') {
 
             this.showAlert(response.messages);
-            this.notifications = response.messages;
+            this.notifications = response.notifications;
           } else {
             this.showAlert('Login failed: ' + response.message, 'error');
           }
@@ -106,6 +106,8 @@ export default {
       this.alertType = type;
     },
     changeStatus(clicked) {
+      clicked.status = "read";
+      this.notifications[this.notifications.indexOf(clicked)] = clicked;
       this.selected = clicked
 
       const correlationId = Date.now().toString();
@@ -119,7 +121,7 @@ export default {
       const payload = {
         correlationId,
         payload: {
-          messageId: clicked._id
+          notificationId: clicked._id
         }
       };
 
@@ -231,6 +233,11 @@ export default {
 
   .inbox {
     height: 100px;
+  }
+
+  .body {
+    margin: auto;
+
   }
 
 }
