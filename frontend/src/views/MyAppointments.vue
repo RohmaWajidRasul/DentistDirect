@@ -190,7 +190,7 @@ export default {
 }
 
 .cancel-button:hover {
-    background-color: white;
+background-color: darkblue;
 }
 
 .day-container {
