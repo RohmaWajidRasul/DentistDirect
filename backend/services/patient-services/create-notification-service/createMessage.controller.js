@@ -1,4 +1,4 @@
-import Message from '../models/message.js';
+import Notification from '../models/message.js';
 import Patient from '../models/patient.js';
 //import mqttClient from '../../../shared/mqtt-client.js';
 
@@ -51,19 +51,19 @@ export const createMessage = async (topic, message) => {
         const body = `Your appointment on ${date} got cancelled`
         const header = "Appointment cancelled";
 
-        let newMessage = new Message({ 
+        let newNotification = new Notification({ 
             "body": body,
             "subject": header
          });
-        newMessage = await newMessage.save();
-        patient.messages.push(newMessage._id);
+        newNotification = await newNotification.save();
+        patient.notifications.push(newNotification._id);
         await patient.save();
 
         const successResponse = {
             correlationId, 
             status: 'success', 
-            message: 'Dentist registered successfully', 
-            newMessage,
+            message: 'Notification create successfully', 
+            newNotification: newNotification,
         }; 
         console.log(successResponse)
 
@@ -71,7 +71,7 @@ export const createMessage = async (topic, message) => {
         const errorResponse ={
             correlationId, 
             status : 'error', 
-            message: 'Error registering dentist', 
+            message: 'Error creating notification', 
             error: error.message, 
         };
         console.log(errorResponse)

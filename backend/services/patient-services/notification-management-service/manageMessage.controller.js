@@ -1,10 +1,10 @@
 import mqttClient from '../../../shared/mqtt-client.js';
-import Message from '../models/message.js';
+import Notification from '../models/message.js';
 
 
 export const changeMessage = async (topic, message) => {
 
-  console.log(`Handling message on topic: ${topic}`);
+  console.log(`Handling notification on topic: ${topic}`);
 
   let correlationId;
 
@@ -28,36 +28,36 @@ export const changeMessage = async (topic, message) => {
       throw new Error('Correlation ID is missing in the request');
     }
 
-    const { messageId } = parsedMessage.payload;
+    const { notificationId } = parsedMessage.payload;
 
-    const messageInstance = await Message.findById(messageId);
+    const notification = await Notification.findById(notificationId);
 
-    if (!message) {
+    if (!notification) {
       const errorResponse = {
         correlationId,
         status: 'error',
-        message: 'No messages found for the provided ID',
+        message: 'No notification found for the provided ID',
       };
       return publishResponse(correlationId, errorResponse);
     }
 
-    messageInstance.status = "read";
-    await messageInstance.save();
+    notification.status = "read";
+    await notification.save();
 
 
     const successResponse = {
       correlationId,
       status: 'success',
-      message: 'Messages managed successfully',
+      message: 'Notification managed successfully',
     };
 
     return publishResponse(correlationId, successResponse);
   } catch (error) {
-    console.error(`Error managing messages: ${error.message}`);
+    console.error(`Error managing notification: ${error.message}`);
     const errorResponse = {
       correlationId,
       status: 'error',
-      message: 'Error managing messages',
+      message: 'Error managing notification',
       error: error.message,
     };
     return publishResponse(correlationId, errorResponse);

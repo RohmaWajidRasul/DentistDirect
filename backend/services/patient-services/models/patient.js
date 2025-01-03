@@ -33,9 +33,9 @@ const patientSchema = new Schema({
         type: Date,
         default: Date.now,
     },
-    messages:[{
+    notifications:[{
         type: Schema.Types.ObjectId,
-        ref: "Message"
+        ref: "Notification"
     }]
 });
 

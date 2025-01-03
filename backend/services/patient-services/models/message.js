@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 var Schema = mongoose.Schema;
 
 
-const messageSchema = new Schema({
+const notificationSchema = new Schema({
     body: {
         type: String,
         required: true,
@@ -15,8 +15,12 @@ const messageSchema = new Schema({
         enum: ['read', 'unread'],
         default: 'unread',
     },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    }
 
 });
 
-const Message = mongoose.model('Message', messageSchema);
-export default Message;
+const Notification = mongoose.model('Notification', notificationSchema);
+export default Notification;

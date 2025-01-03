@@ -1,7 +1,7 @@
 import mqttClient from '../../../shared/mqtt-client.js';
 import Patient from '../models/patient.js';
-import Message from '../models/message.js';
-Message;
+import Notification from '../models/message.js';
+Notification;
 
 export const getMessages = async (topic, message) => {
 
@@ -31,14 +31,13 @@ export const getMessages = async (topic, message) => {
     const { patientId } = parsedMessage.payload;
 
     const patient = await Patient.findById(patientId);
-    await patient.populate("messages");
-    patient.save();
+    await patient.populate("notifications");
 
-    if (!patient) {
+    if (!patient.notifications) {
       const errorResponse = {
         correlationId,
         status: 'error',
-        message: 'No messages found for the provided ID',
+        message: 'No notifications found for the provided ID',
       };
       return publishResponse(correlationId, errorResponse);
     }
@@ -46,16 +45,16 @@ export const getMessages = async (topic, message) => {
     const successResponse = {
       correlationId,
       status: 'success',
-      message: 'Messages retrieved successfully',
-      messages: patient.messages,
+      message: 'Notifications retrieved successfully',
+      notifications: patient.notifications.reverse(),
     };
     return publishResponse(correlationId, successResponse);
   } catch (error) {
-    console.error(`Error fetching messages: ${error.message}`);
+    console.error(`Error fetching notifications: ${error.message}`);
     const errorResponse = {
       correlationId,
       status: 'error',
-      message: 'Error fetching messages',
+      message: 'Error fetching notifications',
       error: error.message,
     };
     return publishResponse(correlationId, errorResponse);
