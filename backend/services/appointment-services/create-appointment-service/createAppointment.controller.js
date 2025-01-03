@@ -60,18 +60,6 @@ export const createAppointment = async (topic, message) => {
             };
             return publishResponse(correlationId, errorResponse);
         }
-       
-        // Check if there already is an appointment created at the same time
-        const existingAppointment = await Appointment.findOne({ dentistId, date, startTime });
-        if (existingAppointment) {
-            const errorResponse = {
-                correlationId,
-                status: 'error',
-                message: 'Appointment already exists at this time.',
-            };
-            return publishResponse(correlationId, errorResponse);
-        }
-
 
         const appointment = new Appointment({ dentistId, date, startTime, endTime, duration, clinicId});
         await appointment.save();

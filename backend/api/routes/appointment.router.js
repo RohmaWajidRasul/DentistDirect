@@ -70,25 +70,20 @@ router.patch("/:appointmentId", (req, res) => {
     const { appointmentId } = req.params;
     const { status } = req.body;
 
-    if (!["canceled", "booked"].includes(status)) {
+    if (status && !["canceled", "booked"].includes(status)) {
         return res.status(400).json({ message: "Invalid status" });
+
     }
 
     const correlationId = Date.now().toString();
 
-    let requestTopic;
-    let responseTopic;
-
-    if (status === "canceled") {
-        requestTopic = "request/appointment-management/cancel";
-        responseTopic = `response/appointment-management/canceled/${correlationId}`;
-    } else {
-        requestTopic = "request/appointment-management/book";
-        responseTopic = `response/appointment-management/booked/${correlationId}`;
-    }
+    let requestTopic = "request/appointment-management";
+    let responseTopic = `response/appointment-management/updated/${correlationId}`;
   
     const payload = { appointmentId, ...req.body };
-  
+
+
+    //console.log(requestTopic);
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
         if (err) {
             console.error("Failed to publish request", err);

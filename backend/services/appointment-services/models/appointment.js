@@ -55,6 +55,7 @@ appointmentSchema.pre('save', async function (next) {
     const overlappingAppointment = await mongoose.model('Appointment').findOne({
         dentistId: appointment.dentistId,
         date: appointment.date,
+        status: { $ne: 'deleted' },
         $or: [
             {
                 startTime: { $lte: appointment.startTime },
@@ -69,7 +70,6 @@ appointmentSchema.pre('save', async function (next) {
                 endTime: { $lte: appointment.endTime },
             },
         ],
-        status: { $ne: 'deleted' }, 
     });
 
     if (overlappingAppointment) {

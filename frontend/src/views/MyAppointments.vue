@@ -111,10 +111,11 @@ export default {
 
                 const payload = {
                     appointmentId: slotid,
+                    status: "canceled",
                 };
 
                 console.log("Publishing payload:", payload);
-                const requestTopic = "request/appointment-management/cancel";
+                const requestTopic = "request/appointment-management";
 
                 mqttClient.publish(
                     requestTopic,
@@ -128,7 +129,7 @@ export default {
                     }
                 );
 
-                const responseTopic = `response/appointment-management/canceled/${correlationId}`;
+                const responseTopic = `response/appointment-management/updated/${correlationId}`;
                 mqttClient.subscribe(responseTopic, (err) => {
                     if (err) {
                         console.error("Failed to subscribe to response topic:", err);

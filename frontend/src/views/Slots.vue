@@ -47,7 +47,7 @@ import MonthNavigation from "../components/MonthNavigation.vue";
 import SlotsCalendar from "../components/SlotsCalendar.vue";
 import mqttClient from "../mqttClient.js";
 import Alert from "../components/Alerts.vue";
-import { format, getWeek, addMonths, subMonths } from "date-fns";
+import { format, getISOWeek, addMonths, subMonths } from "date-fns";
 
 export default {
   name: "slots-page",
@@ -86,8 +86,8 @@ export default {
   methods: {
     subscribeToAppointmentUpdates() {
       const topics = [
-        "response/appointment-management/+",
-        "response/create-appointment/+",
+        "response/appointment-management/#",
+        "response/create-appointment/#",
       ];
 
       try {
@@ -117,8 +117,8 @@ export default {
     },
     unsubscribeFromAppointmentUpdates() {
       const topics = [
-        "response/appointment-management/+",
-        "response/create-appointment/+",
+        "response/appointment-management/#",
+        "response/create-appointment/#",
       ];
 
       try {
@@ -329,7 +329,7 @@ export default {
 
       this.appointments.forEach((appointment) => {
         const month = format(new Date(appointment.date), "MMMM yyyy");
-        const week = getWeek(new Date(appointment.date));
+        const week = getISOWeek(new Date(appointment.date));
         const day = format(new Date(appointment.date), "EEEE, MMM d");
 
         if (!groupedByMonth[month]) {
