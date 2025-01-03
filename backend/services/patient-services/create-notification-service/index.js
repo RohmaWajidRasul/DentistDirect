@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from '../../../shared/database.js';
 import mqttClient from '../../../shared/mqtt-client.js';
-import { createMessage } from './createMessage.controller.js';
+import { createMessage } from './createNotification.controller.js';
 import morgan from'morgan';
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';

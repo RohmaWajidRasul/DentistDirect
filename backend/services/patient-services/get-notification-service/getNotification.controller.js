@@ -1,6 +1,6 @@
 import mqttClient from '../../../shared/mqtt-client.js';
 import Patient from '../models/patient.js';
-import Notification from '../models/message.js';
+import Notification from '../models/notification.js';
 Notification;
 
 export const getMessages = async (topic, message) => {

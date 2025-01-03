@@ -1,5 +1,5 @@
 import mqttClient from '../../../shared/mqtt-client.js';
-import Notification from '../models/message.js';
+import Notification from '../models/notification.js';
 
 
 export const changeMessage = async (topic, message) => {

@@ -1,4 +1,4 @@
-import Notification from '../models/message.js';
+import Notification from '../models/notification.js';
 import Patient from '../models/patient.js';
 //import mqttClient from '../../../shared/mqtt-client.js';
 
