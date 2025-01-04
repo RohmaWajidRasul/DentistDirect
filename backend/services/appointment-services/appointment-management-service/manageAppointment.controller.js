@@ -77,7 +77,7 @@ export const manageAppointment = async (topic, message) => {
                         appointment.status = 'canceled';
                         break;
 
-                    case 'delete':
+                    case 'deleted':
                         if (appointment.status === 'deleted') {
                             const errorResponse = {
                                 correlationId,
