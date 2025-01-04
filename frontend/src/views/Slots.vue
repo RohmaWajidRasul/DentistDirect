@@ -54,6 +54,7 @@ export default {
   components: { Filters, MonthNavigation, SlotsCalendar, Alert },
   data() {
     return {
+      allAppointments: [],
       appointments: [],
       groupedSlotsByMonth: {},
       dentists: [],
@@ -69,6 +70,7 @@ export default {
       alertType: "success", // alertType = success or error
     };
   },
+
   computed: {
     currentMonth() {
       return format(this.currentDate, "MMMM yyyy");
@@ -181,15 +183,9 @@ export default {
       try {
         const correlationId = Date.now().toString();
 
-        const payload = {
-          dentistId: this.filters.dentistId || null,
-          location: this.filters.location || null,
-          clinicId: this.filters.clinicId || null,
-        };
+        const payload = {};
 
-        console.log("Filters applied:", this.filters);
-
-        console.log("Publishing payload:", payload);
+        console.log("Fetching all slots and dentists...");
 
         this.mqttClient.publish(
           "request/available-appointments/available",
@@ -199,9 +195,7 @@ export default {
               console.error("Failed to publish request:", err);
               throw new Error("Failed to publish request");
             }
-            console.log(
-              `Request published with correlationId: ${correlationId}`
-            );
+            console.log(`Request published with correlationId: ${correlationId}`);
           }
         );
 
@@ -216,10 +210,7 @@ export default {
 
         const timeout = setTimeout(() => {
           mqttClient.unsubscribe(responseTopic);
-          this.showAlert(
-            "Server did not respond. Please try again later.",
-            "error"
-          );
+          this.showAlert("Server did not respond. Please try again later.", "error");
         }, 5000);
 
         this.mqttClient.on("message", (topic, message) => {
@@ -227,7 +218,6 @@ export default {
             clearTimeout(timeout);
             const response = JSON.parse(message.toString());
             console.log("Response received:", response);
-            console.log("Filtered slots response:", response.appointments);
 
             if (response.status === "success") {
               this.processSlots(response.appointments);
@@ -239,24 +229,16 @@ export default {
 
             this.mqttClient.unsubscribe(responseTopic, (err) => {
               if (err) {
-                console.error(
-                  "Failed to unsubscribe from response topic:",
-                  err
-                );
+                console.error("Failed to unsubscribe from response topic:", err);
               } else {
-                console.log(
-                  `Unsubscribed from response topic: ${responseTopic}`
-                );
+                console.log(`Unsubscribed from response topic: ${responseTopic}`);
               }
             });
           }
         });
       } catch (error) {
         console.error("Error in fetchSlotsAndDentists:", error.message);
-        this.showAlert(
-          "An error occurred while fetching slots. Please try again later.",
-          "error"
-        );
+        this.showAlert("An error occurred while fetching slots. Please try again later.", "error");
       }
     },
 
@@ -266,9 +248,9 @@ export default {
     },
 
     processSlots(appointments) {
-      this.appointments = [];
+      this.allAppointments = [];
       this.groupedSlotsByMonth = {};
-      this.appointments = appointments.map((appointment) => ({
+      this.allAppointments = appointments.map((appointment) => ({
         id: appointment._id,
         date: appointment.date,
         startTime: appointment.startTime,
@@ -278,14 +260,16 @@ export default {
         dentistName: `${appointment.dentist?.firstName || "Unknown"} ${
           appointment.dentist?.lastName || ""
         }`,
-        location: appointment.clinic?.name || "Unknown Clinic",
+        location: appointment.clinic?.location || "Unknown Location",
+        clinicName: appointment.clinic?.name || "Unknown Clinic",
+
 
       }));
 
-      console.log("Formatted slots:", this.appointments);
+      console.log("Formatted slots:", this.allAppointments);
 
-      this.groupSlots();
       this.extractFilters(appointments);
+      this.applyFilters();
     },
     extractFilters(appointments) {
       const uniqueDentists = new Map();
@@ -352,8 +336,20 @@ export default {
     },
     applyFilters() {
       console.log("Applying filters:", this.filters);
-      this.fetchSlotsAndDentists();
+      this.appointments = this.allAppointments.filter((appointment) => {
+        const matchesDentist =
+          !this.filters.dentistId || appointment.dentistId === this.filters.dentistId;
+        const matchesLocation = 
+          !this.filters.location || appointment.location === this.filters.location;
+        const matchesClinic =
+          !this.filters.clinicId || appointment.clinicId === this.filters.clinicId;
+        console.log(matchesClinic, matchesDentist, matchesLocation, this.filters.location, appointment.location);
+
+        return matchesDentist && matchesLocation && matchesClinic;
+      });
+      this.groupSlots();
     },
+
     prevMonth() {
       this.currentDate = subMonths(this.currentDate, 1);
     },

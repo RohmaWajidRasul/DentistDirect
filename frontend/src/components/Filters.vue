@@ -15,6 +15,8 @@
         track-by="id"
         placeholder="Search and select a dentist"
         @select="updateFilters"
+        @remove="updateFilters"
+
       />
     </div>
 
@@ -31,6 +33,8 @@
         :allow-empty="true"
         placeholder="Search and select a location"
         @select="updateFilters"
+        @remove="updateFilters"
+
       />
     </div>
      <!-- Clinic Filter -->
@@ -48,6 +52,8 @@
         track-by="id"
         placeholder="Select a clinic"
         @select="updateFilters"
+        @remove="updateFilters"
+
       />
     </div>
   </div>
