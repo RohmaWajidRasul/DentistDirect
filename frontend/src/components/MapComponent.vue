@@ -41,11 +41,22 @@ export default {
         }
     }
 
-    const addMarker = (coordinates, clinicName, clinicLocation) => {
+    const addMarker = (coordinates, clinicName, clinicId, clinicLocation) => {
         try {
             console.log('Adding marker at:', coordinates, 'with name:', clinicName, 'located at:', clinicLocation)
             const marker = L.marker([coordinates.lat, coordinates.lng]).addTo(map)
-            marker.bindPopup(`${clinicName} <br> Location: ${clinicLocation}`).openPopup()
+
+            marker.bindTooltip(`${clinicName} <br> Location: ${clinicLocation}`, {
+                permanent: false, 
+                direction: 'top',
+                className: 'custom-tooltip' 
+            });
+
+            marker.on('click', () => {
+                console.log('Marker clicked:', clinicName);
+                window.location.href = `/slots?clinicId=${clinicId}`;
+            });
+
             markers.push(marker)
         } catch (error) {
             console.error('Error adding marker:', error)
@@ -82,6 +93,7 @@ export default {
                     addMarker( 
                         { lat: parseFloat(clinic.latitude), lng: parseFloat(clinic.longitude)},
                         clinic.name,
+                        clinic._id,
                         clinic.location
                     )
             })

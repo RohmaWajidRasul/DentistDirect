@@ -79,13 +79,21 @@ export default {
       type: Array,
       required: true,
     },
+    filters: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
       selectedDentist: null,
       selectedLocation: null,
-      selectedClinic: null, 
+      selectedClinic: this.filters.clinicId || null, 
     };
+  },
+  mounted() {
+    this.selectedClinic = this.filters.clinicId || null;
+
   },
   emits: ["filter-change"],
   methods: {

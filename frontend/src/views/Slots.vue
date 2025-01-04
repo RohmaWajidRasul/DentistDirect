@@ -52,6 +52,12 @@ import { format, getISOWeek, addMonths, subMonths } from "date-fns";
 export default {
   name: "slots-page",
   components: { Filters, MonthNavigation, SlotsCalendar, Alert },
+  props: {
+    clinicId: {
+      type: String,
+      default: null
+    }
+  },
   data() {
     return {
       allAppointments: [],
@@ -80,6 +86,10 @@ export default {
     this.mqttClient = mqttClient;
     this.fetchSlotsAndDentists();
     this.subscribeToAppointmentUpdates();
+    if (this.clinicId) {
+    this.filters.clinicId = this.clinicId;
+    this.applyFilters();
+  }
   },
   beforeUnmount() {
     this.unsubscribeFromAppointmentUpdates();
