@@ -5,6 +5,7 @@ import connectDB from '../../shared/database.js';
 import mqttClient from '../../shared/mqtt-client.js';
 import { registerDentist } from './register-dentist-service/registerDentist.controller.js';
 import { fetchDentistInfo } from './dentist-info-service/fetchDentistInfo.controller.js';
+import { loginDentist } from './login-dentist-service/loginDentist.controller.js';
 import morgan from 'morgan';
 import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,10 +27,12 @@ const serviceName = 'dentist-service';
 
 const registerTopic = `request/dentists/register/${serviceId}`;
 const infoTopic = `request/dentists/info/${serviceId}`;
+const loginTopic = `request/dentists/login/${serviceId}`;
 
 const topicHandlers = {
     [registerTopic]: registerDentist,
     [infoTopic]: fetchDentistInfo,
+    [loginTopic]: loginDentist
 };
 
 // Register the service with the registry

@@ -20,7 +20,9 @@ const servicePaths = {
     'register-dentist': path.resolve(__dirname, '../dentist-services/register-dentist-service/index.js'),
     'dentist-info': path.resolve(__dirname, '../dentist-services/dentist-info-service/index.js'),
     'create-patient': path.resolve(__dirname,'../patient-services/create-patient-service/index.js'),
-    'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js')
+    'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js'),
+    'dentist-login': path.resolve(__dirname, '../dentist-services/login-dentist-service/index.js'),
+    'patient-info': path.resolve(__dirname, '../patient-services/patient-info-service/index.js')
 
 };
 
@@ -196,7 +198,9 @@ mqttClient.on('message', (topic, message) => {
 
     } else if (topic.startsWith('alerts/service')) {
         handleAlert(topic, message);
-    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || ((topic.startsWith('request/appointment-management') || topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
+    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) ||
+            ((topic.startsWith('request/appointment-management') ||
+            topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
         number = number + 1;
         console.log(`request on load balancer ${number} ${topic}`);
         handleRequest(topic, message);

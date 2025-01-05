@@ -1,0 +1,255 @@
+<template>
+  <div class="form-container">
+    <!-- Alert Messages -->
+    <Alert
+      v-if="alertMessage"
+      :type="alertType"
+      :message="alertMessage"
+      @close="alertMessage = null"
+    />
+
+    <h2 class="form-title">Sign Up here</h2>
+    <form @submit.prevent="handleSignup" class="signup-form">
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="firstName"
+          v-model="user.firstName"
+          placeholder="Enter your first name"
+          required
+          autocomplete="given-name"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="lastName"
+          v-model="user.lastName"
+          placeholder="Enter your last name"
+          required
+          autocomplete="family-name"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          v-model="user.email"
+          placeholder="Enter your email"
+          required
+          autocomplete="email"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          v-model="user.password"
+          placeholder="Enter your password"
+          required
+          autocomplete="new-password"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input
+          type="tel"
+          class="form-control"
+          id="phoneNumber"
+          v-model="user.phoneNumber"
+          placeholder="Enter your phone number"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="specialization">Specialization</label>
+        <input
+          type="text"
+          class="form-control"
+          id="specialization"
+          v-model="user.specialization"
+          placeholder="Enter your specialization"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="location">Location</label>
+        <input
+          type="text"
+          class="form-control"
+          id="location"
+          v-model="user.location"
+          placeholder="Enter your location"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="latitude">Latitude</label>
+        <input
+          type="number"
+          step="any"
+          class="form-control"
+          id="latitude"
+          v-model="user.latitude"
+          placeholder="Enter latitude"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="longitude">Longitude</label>
+        <input
+          type="number"
+          step="any"
+          class="form-control"
+          id="longitude"
+          v-model="user.longitude"
+          placeholder="Enter longitude"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Sign Up</button>
+      <span v-if="isLoading">Signing Up...</span>
+    </form>
+  </div>
+</template>
+  
+  <script>
+import { registerDentist } from "../api";
+import Alert from "../components/DentistAlerts.vue";
+
+export default {
+  components: { Alert },
+  data() {
+    return {
+      user: {
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        phoneNumber: "",
+        specialization: "",
+        location: "",
+        latitude: null,
+        longitude: null,
+      },
+      errorMessages: [],
+      alertMessage: null,
+      alertType: "success",
+      isLoading: false,
+    };
+  },
+  methods: {
+    validateInfo() {
+      this.errorMessages = [];
+
+      const requiredFields = [
+        "firstName",
+        "lastName",
+        "email",
+        "phoneNumber",
+        "password",
+        "specialization",
+        "location",
+        "latitude",
+        "longitude",
+      ];
+      // Check if all required fields are filled
+      requiredFields.forEach((field) => {
+        if (!this.user[field]) {
+          this.errorMessages.push(`${field} is required.`);
+        }
+      });
+
+      // Validate email format
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (this.user.email && !emailPattern.test(this.user.email)) {
+        this.errorMessages.push("Invalid email format.");
+      }
+
+      // Validate phone number length
+      if (
+        this.user.phoneNumber &&
+        (this.user.phoneNumber.length < 10 || this.user.phoneNumber.length > 15)
+      ) {
+        this.errorMessages.push(
+          "Phone number must be between 10 and 15 characters."
+        );
+      }
+
+      // Validate password length
+      if (this.user.password && this.user.password.length < 8) {
+        this.errorMessages.push("Password must be at least 8 characters long.");
+      }
+
+      // Validate specialization
+      if (this.user.specialization && this.user.specialization.length < 3) {
+        this.errorMessages.push(
+          "Specialization must be at least 3 characters long."
+        );
+      }
+
+      // Validate location
+      if (this.user.location && this.user.location.length < 3) {
+        this.errorMessages.push("Location must be at least 3 characters long.");
+      }
+
+      // Validate latitude and longitude as numbers
+      if (isNaN(this.user.latitude) || isNaN(this.user.longitude)) {
+        this.errorMessages.push(
+          "Latitude and longitude must be valid numbers."
+        );
+      }
+
+      return this.errorMessages.length === 0;
+    },
+
+    async handleSignup() {
+      if (!this.validateInfo()) {
+        this.showAlert(this.errorMessages.join("\n")); // Display all error messages
+        return;
+      }
+      this.isLoading = true;
+
+      try {
+        const response = await registerDentist(this.user);
+        if (response.status === "success") {
+          this.showAlert("Dentist registered successfully!", "success");
+          this.$router.push("/login"); // Redirect to login page
+        } else {
+          this.showAlert(
+            `Failed to register dentist: ${response.message}`,
+            "error"
+          );
+        }
+      } catch (error) {
+        this.showAlert("Error during registration. Please try again.", "error");
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    showAlert(message, type) {
+      this.alertMessage = message;
+      this.alertType = type;
+    },
+  },
+};
+</script>
+
