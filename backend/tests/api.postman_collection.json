@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "71e88505-8606-4f1f-9e96-045d054e549e",
+		"_postman_id": "9a708c93-debc-4831-bfa9-96d13dbe7d8d",
 		"name": "Dentist Direct API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38096908"
+		"_exporter_id": "38096965"
 	},
 	"item": [
 		{
@@ -42,7 +42,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5007/v1/dentists",
+							"raw": "http://localhost:5007/v1/dentists/register",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -50,7 +50,8 @@
 							"port": "5007",
 							"path": [
 								"v1",
-								"dentists"
+								"dentists",
+								"register"
 							]
 						}
 					},
@@ -233,6 +234,64 @@
 								"v1",
 								"appointments",
 								"{{appointment1_Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dentist-Patient Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5007/v1/appointments/booked/6777f84b0205b0076c71e78f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"appointments",
+								"booked",
+								"6777f84b0205b0076c71e78f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Dentist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"carina.korrman@bigfronts.com\",\n  \"password\": \"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5007/v1/dentists/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"dentists",
+								"login"
 							]
 						}
 					},
@@ -447,6 +506,17 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"variable": [
+		{
+			"key": "dentist",
+			"value": "dentist1_Id"
+		},
+		{
+			"key": "appointment2_Id",
+			"value": "",
+			"type": "default"
 		}
 	]
 }
