@@ -4,16 +4,8 @@ import mqttClient from '../../../shared/mqtt-client.js';
 export const manageAppointment = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
 
-    const topicParts = topic.split('/');
-    const action = topicParts[3]; 
-
-    if (!['book', 'cancel', 'delete'].includes(action)) {
-        console.error(`Invalid action in topic: ${topic}`);
-        return;
-    }
-
     let correlationId;
-   
+
     try {
         let parsedMessage;
         try {
@@ -23,9 +15,9 @@ export const manageAppointment = async (topic, message) => {
                 correlationId,
                 status: 'error',
                 message: 'Invalid JSON format in request',
-                error
+                error: error.message,
             };
-            return publishResponse(action, correlationId, errorResponse);
+            return publishResponse(correlationId, errorResponse);
         }
 
         correlationId = parsedMessage.correlationId;
@@ -34,8 +26,7 @@ export const manageAppointment = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { appointmentId, patientId } = parsedMessage.payload;
-        console.log(parsedMessage.payload)
+        const { appointmentId, ...updates } = parsedMessage.payload || {};
 
         if (!appointmentId) {
             const errorResponse = {
@@ -43,7 +34,7 @@ export const manageAppointment = async (topic, message) => {
                 status: 'error',
                 message: 'Appointment ID is required',
             };
-            return publishResponse(action, correlationId, errorResponse);
+            return publishResponse(correlationId, errorResponse);
         }
 
         const appointment = await Appointment.findById(appointmentId);
@@ -54,49 +45,70 @@ export const manageAppointment = async (topic, message) => {
                 status: 'error',
                 message: 'Appointment not found',
             };
-            return publishResponse(action, correlationId, errorResponse);
+            return publishResponse(correlationId, errorResponse);
         }
 
-        switch (action) {
-            case 'book':
-                if (appointment.status === 'booked' || appointment.status === 'deleted') {
-                    const errorResponse = {
-                        correlationId,
-                        status: 'error',
-                        message: `Appointment is already ${appointment.status}`,
-                    };
-                    return publishResponse(action, correlationId, errorResponse);
+        // Update fields dynamically based on provided keys
+        for (const [key, value] of Object.entries(updates)) {
+            if (key === "status") {
+                switch (value) {
+                    case 'booked':
+                        if (appointment.status === 'booked' || appointment.status === 'deleted') {
+                            const errorResponse = {
+                                correlationId,
+                                status: 'error',
+                                message: `Appointment is already ${appointment.status}`,
+                            };
+                            return publishResponse(correlationId, errorResponse);
+                        }
+                        appointment.status = 'booked';
+                        break;
+
+                    case 'canceled':
+                        if (appointment.status === 'canceled' || appointment.status === 'deleted') {
+                            const errorResponse = {
+                                correlationId,
+                                status: 'error',
+                                message: `Appointment is already ${appointment.status}`,
+                            };
+                            return publishResponse(correlationId, errorResponse);
+                        }
+                        appointment.patientId = null;
+                        appointment.status = 'canceled';
+                        break;
+
+                    case 'deleted':
+                        if (appointment.status === 'deleted') {
+                            const errorResponse = {
+                                correlationId,
+                                status: 'error',
+                                message: 'Appointment is already deleted',
+                            };
+                            return publishResponse(correlationId, errorResponse);
+                        }
+                        appointment.status = 'deleted';
+                        break;
+
+                    default: {
+                        const errorResponse = {
+                            correlationId,
+                            status: 'error',
+                            message: 'Invalid status provided',
+                        };
+                        return publishResponse(correlationId, errorResponse);
+                    }
                 }
-
-                appointment.patientId = patientId;
-                appointment.status = 'booked';
-                break;
-
-            case 'cancel':
-                if (appointment.status === 'canceled' || appointment.status === 'deleted') {
-                    const errorResponse = {
-                        correlationId,
-                        status: 'error',
-                        message: `Appointment is already ${appointment.status}`,
-                    };
-                    return publishResponse(action, correlationId, errorResponse);
-                }
-                appointment.patientId = null;
-                appointment.status = 'canceled';
-                break;
-
-            case 'delete':
-                if (appointment.status === 'deleted') {
-                    const errorResponse = {
-                        correlationId,
-                        status: 'error',
-                        message: 'Appointment is already deleted',
-                    };
-                    return publishResponse(action, correlationId, errorResponse);
-                }
-
-                appointment.status = 'deleted';
-                break;
+            } else if (key in appointment) {
+                // Dynamically update other fields
+                appointment[key] = value;
+            } else {
+                const errorResponse = {
+                    correlationId,
+                    status: 'error',
+                    message: `Invalid field: ${key}`,
+                };
+                return publishResponse(correlationId, errorResponse);
+            }
         }
 
         await appointment.save();
@@ -104,11 +116,10 @@ export const manageAppointment = async (topic, message) => {
         const successResponse = {
             correlationId,
             status: 'success',
-            message: `Appointment ${action}ed successfully`,
+            message: 'Appointment updated successfully',
             appointment,
         };
-        return publishResponse(action, correlationId, successResponse);
-
+        return publishResponse(correlationId, successResponse);
     } catch (error) {
         if (!correlationId) {
             console.error('Critical error: Correlation ID is missing or undefined.', error.message);
@@ -118,22 +129,19 @@ export const manageAppointment = async (topic, message) => {
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: `Error processing ${action} request`,
+            message: 'Error processing request',
             error: error.message,
         };
-        return publishResponse(action, correlationId, errorResponse);
+        return publishResponse(correlationId, errorResponse);
     }
 };
 
-const publishResponse = (action, correlationId, response) => {
+
+
+const publishResponse = (correlationId, response) => {
     let responseTopic;
-
-    if (action === 'delete') {
-        responseTopic = `response/appointment-management/deleted/${correlationId}`;
-    } else {
-        responseTopic = `response/appointment-management/${action}ed/${correlationId}`
-    }
-
+    responseTopic = `response/appointment-management/updated/${correlationId}`
+   
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);

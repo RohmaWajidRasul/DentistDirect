@@ -27,22 +27,15 @@ const dentistSchema = new Schema({
         type: String,
         required: true,
     },
-    location: {
-        type: String,
+    clinicId: {
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Clinic',
         required: true
-    },
+    }, 
     createdAt: {
         type: Date,
         default: Date.now,
     },
-    latitude: {
-        type: Number,
-        required: true
-    },
-    longitude: {
-        type: Number,
-        required: true
-    }
 });
 
 const Dentist = mongoose.model('Dentist', dentistSchema);
