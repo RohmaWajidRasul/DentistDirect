@@ -22,7 +22,7 @@ const checkDatabases = async () => {
         dbStatus[key] = result;
     }
 
-    console.log('Database statuses:', dbStatus);
+    //console.log('Database statuses:', dbStatus);
 };
 
 setInterval(checkDatabases, 10000); // Check every 10 seconds
@@ -71,8 +71,6 @@ mqttClient.on('message', (topic, message) => {
 
         try {
             const heartbeat = JSON.parse(message.toString());
-            console.log(`Received heartbeat from ${instanceKey}:`);
-
             
             servicesStatus[instanceKey] = {
                 status: heartbeat.status,
@@ -103,7 +101,7 @@ setInterval(() => {
             }
         } else {
             servicesStatus[instanceKey].status = 'healthy';
-            console.log(`Instance ${instanceKey} is healthy.`);
+            //console.log(`Instance ${instanceKey} is healthy.`);
         }
     }
 }, HEARTBEAT_TIMEOUT / 2);
@@ -113,7 +111,7 @@ const publishAlert = (serviceName, serviceId) => {
         service: serviceName,
         serviceId,
         status: 'down',
-        timestamp: new Date().toISOString(),
+        timestamp: Date.now(),
     };
 
     mqttClient.publish('alerts/service', JSON.stringify(alert), (err) => {

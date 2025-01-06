@@ -28,7 +28,7 @@ export const changeMessage = async (topic, message) => {
       throw new Error('Correlation ID is missing in the request');
     }
 
-    const { notificationId } = parsedMessage.payload;
+    const { notificationId, status} = parsedMessage.payload;
 
     const notification = await Notification.findById(notificationId);
 
@@ -41,7 +41,7 @@ export const changeMessage = async (topic, message) => {
       return publishResponse(correlationId, errorResponse);
     }
 
-    notification.status = "read";
+    notification.status = status;
     await notification.save();
 
 
@@ -65,7 +65,7 @@ export const changeMessage = async (topic, message) => {
 };
 
 const publishResponse = (correlationId, response) => {
-  const responseTopic = `response/messages/read/${correlationId}`;
+  const responseTopic = `response/notification-management/${correlationId}`;
   console.log(response)
   mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
     if (err) {

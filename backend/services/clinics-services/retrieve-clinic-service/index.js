@@ -66,7 +66,7 @@ const publishHeartbeat = () => {
     const heartbeat = {
         service: 'retrieve-clinics',
         status: 'healthy',
-        timestamp: new Date().toISOString(),
+        timestamp: Date.now(),
         uptime: process.uptime(), 
     };
 

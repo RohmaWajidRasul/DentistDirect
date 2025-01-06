@@ -1,11 +1,8 @@
 import Notification from '../models/notification.js';
 import Patient from '../models/patient.js';
-//import mqttClient from '../../../shared/mqtt-client.js';
+import mqttClient from '../../../shared/mqtt-client.js';
 
 export const createMessage = async (topic, message) => {
-    
-
-
 
     let correlationId; 
 
@@ -23,10 +20,10 @@ export const createMessage = async (topic, message) => {
             console.log(errorResponse)
         }
 
-        const { patientId, date } = parsedMessage;
+        const { patientId, notification } = parsedMessage;
         console.log(parsedMessage)
 
-        if (!patientId || !date) {
+        if (!patientId || !notification) {
             const errorResponse ={
                 correlationId, 
                 status: 'error', 
@@ -48,12 +45,12 @@ export const createMessage = async (topic, message) => {
             console.log(errorResponse)
         }
         
-        const body = `Your appointment on ${date} got cancelled`
-        const header = "Appointment cancelled";
+        const body = notification.body;
+        const subject = notification.subject;
 
         let newNotification = new Notification({ 
             "body": body,
-            "subject": header
+            "subject": subject
          });
         newNotification = await newNotification.save();
         patient.notifications.push(newNotification._id);
@@ -65,7 +62,7 @@ export const createMessage = async (topic, message) => {
             message: 'Notification create successfully', 
             newNotification: newNotification,
         }; 
-        console.log(successResponse)
+        return publishResponse(correlationId, successResponse);
 
     } catch (error) {
         const errorResponse ={
@@ -74,7 +71,20 @@ export const createMessage = async (topic, message) => {
             message: 'Error creating notification', 
             error: error.message, 
         };
-        console.log(errorResponse)
+        return publishResponse(correlationId, errorResponse);
     }
     
+};
+
+const publishResponse = (correlationId, response) => {
+    let responseTopic;
+    responseTopic = `response/create-notifcation/${correlationId}`
+   
+    mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${responseTopic}:`, err);
+        } else {
+            console.log(`Response sent to ${responseTopic}`);
+        }
+    });
 };

@@ -60,13 +60,13 @@ mqttClient.on('message', getMessages);
 
 const publishHeartbeat = () => {
     const heartbeat = {
-        service: 'Get Message Service',
+        service: 'Get Notification Service',
         status: 'healthy',
-        timestamp: new Date().toISOString(),
+        timestamp: Date.now(),
         uptime: process.uptime(),
     };
 
-    mqttClient.publish('heartbeat/get-messages', JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish(`heartbeat/${serviceName}/${serviceId}`, JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
         }

@@ -21,13 +21,13 @@ const servicePaths = {
     'dentist-info': path.resolve(__dirname, '../dentist-services/dentist-info-service/index.js'),
     'create-patient': path.resolve(__dirname,'../patient-services/create-patient-service/index.js'),
     'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js'),
+    'manage-patient': path.resolve(__dirname, '../patient-services/manage-patient-service/index.js'),
     'get-notification': path.resolve(__dirname, '../patient-services/get-notification-service/index.js'),
     'notification-managment': path.resolve(__dirname, '../patient-services/notification-management-service/index.js'),
     'create-notification': path.resolve(__dirname, '../patient-services/create-notification-service/index.js'),
     'create-clinic':path.resolve(__dirname, '../clinics-services/create-clinic-service/index.js'), 
     'retrieve-clinic': path.resolve(__dirname, '../clinics-services/retrieve-clinic-service/index.js'),
     'fetch-clinic-info': path.resolve(__dirname, '../clinics-services/clinic-info-service/index.js'), 
-
 
 };
 
@@ -196,7 +196,7 @@ mqttClient.on('message', (topic, message) => {
         }
 
     } else if (topic.startsWith('alerts/service')) {
-        handleAlert(topic, message);
+        handleAlert(message);
     } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || ((topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
         number = number + 1;
         console.log(`request on load balancer ${number} ${topic}`);

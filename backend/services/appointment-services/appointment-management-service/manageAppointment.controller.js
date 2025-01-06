@@ -48,7 +48,6 @@ export const manageAppointment = async (topic, message) => {
             return publishResponse(correlationId, errorResponse);
         }
 
-        // Update fields dynamically based on provided keys
         for (const [key, value] of Object.entries(updates)) {
             if (key === "status") {
                 switch (value) {
@@ -66,7 +65,7 @@ export const manageAppointment = async (topic, message) => {
 
                     case 'canceled':
                         { 
-                            if (appointment.status === 'canceled' || appointment.status === 'deleted') {
+                            if (!appointment.status === 'booked') {
                                 const errorResponse = {
                                     correlationId,
                                     status: 'error',
@@ -74,15 +73,12 @@ export const manageAppointment = async (topic, message) => {
                                 };
                                 return publishResponse(correlationId, errorResponse);
                             }
-                            appointment.patientId = null;
-                            appointment.status = 'canceled';
 
-                            const response = {
-                                patientId: appointment.patientId,
-                                date: appointment.date
-                            }
+                            notify(appointment, value);
                             
-                            notify(response);
+                            appointment.patientId = null;
+                            appointment.status = 'canceled';                            
+                            
                             break; 
                         }
 
@@ -94,7 +90,11 @@ export const manageAppointment = async (topic, message) => {
                                 message: 'Appointment is already deleted',
                             };
                             return publishResponse(correlationId, errorResponse);
+                        } else if (appointment.status === 'booked') {
+                            notify(appointment, value)
+
                         }
+
                         appointment.status = 'deleted';
                         break;
 
@@ -159,9 +159,19 @@ const publishResponse = (correlationId, response) => {
     });
 };
 
-const notify = (response) => {
+const notify = (appointment, status) => {
 
     const topic = `request/create-notification`;
+
+    const notification = {
+        body: `Your appointment on ${appointment.date} got ${status}. Please book another appointment to meet your dental needs.`,
+        subject: `Appointment ${status}`,
+    }
+
+    const response = {
+        patientId: appointment.patientId,
+        notification: notification
+    }
 
     mqttClient.publish(topic, JSON.stringify(response), (err) => {
         if (err) {
