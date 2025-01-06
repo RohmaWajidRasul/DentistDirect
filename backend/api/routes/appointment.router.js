@@ -4,14 +4,14 @@ import mqttClient from '../../shared/mqtt-client.js';
 const router = express.Router();
 
 router.get('/', (req, res) => {
-    const { dentistId, location } = req.body;
+    const { dentistId, location, clinicId } = req.body;
     const date = req.query.date;
     const correlationId = Date.now().toString();
 
     const requestTopic = 'request/available-appointments/available';
     const responseTopic = `response/available-appointments/available/${correlationId}`;
 
-    const payload = { dentistId, date, location };
+    const payload = { dentistId, date, location, clinicId };
     console.log(payload);
 
     let responseSent = false;
@@ -70,25 +70,20 @@ router.patch("/:appointmentId", (req, res) => {
     const { appointmentId } = req.params;
     const { status } = req.body;
 
-    if (!["canceled", "booked"].includes(status)) {
+    if (status && !["canceled", "booked"].includes(status)) {
         return res.status(400).json({ message: "Invalid status" });
+
     }
 
     const correlationId = Date.now().toString();
 
-    let requestTopic;
-    let responseTopic;
-
-    if (status === "canceled") {
-        requestTopic = "request/appointment-management/cancel";
-        responseTopic = `response/appointment-management/canceled/${correlationId}`;
-    } else {
-        requestTopic = "request/appointment-management/book";
-        responseTopic = `response/appointment-management/booked/${correlationId}`;
-    }
+    let requestTopic = "request/appointment-management";
+    let responseTopic = `response/appointment-management/updated/${correlationId}`;
   
     const payload = { appointmentId, ...req.body };
-  
+
+
+    //console.log(requestTopic);
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
         if (err) {
             console.error("Failed to publish request", err);

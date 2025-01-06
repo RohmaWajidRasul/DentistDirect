@@ -39,6 +39,7 @@
   
   <script>
   import DayContainer from "./DayContainer.vue";
+  import dayjs from "dayjs";
   
   export default {
     name: "WeekContainer",
@@ -52,12 +53,16 @@
         return ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
       },
       weekDates() {
-        // Convert weekSlots keys (dates) into a map of { dayName: date } for matching
         const datesMap = {};
         Object.keys(this.weekSlots).forEach((date) => {
-          const dayName = new Date(date).toLocaleDateString("en-US", { weekday: "long" });
+          //console.log ("here", this.weekSlots);
+          const dayIndex = dayjs(date).day();
+          const dayName = this.daysOfWeek[(dayIndex + 1) % 7]; // Shift index to start from Monday
+          //console.log (dayIndex, date, dayName)
+
           datesMap[dayName] = date;
         });
+        //console.log(datesMap);
         return datesMap;
       },
     },

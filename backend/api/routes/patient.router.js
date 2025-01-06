@@ -47,10 +47,12 @@ router.post('/login', (req, res) => {
 router.post('/', (req, res) => {
     const payload = req.body;
     const correlationId = Date.now().toString();
+    console.log(`Received payload:`, payload);
 
 
     const requestTopic = 'request/create-patient';
     const responseTopic = `response/create-patient/${correlationId}`;
+    console.log(`Request topic: ${requestTopic}, Response topic: ${responseTopic}`);
 
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
         if (err) {

@@ -9,7 +9,12 @@ import InboxPage from './components/InboxPage.vue';
 
 const routes = [
   { path: '/', name: 'home-page', component: Home },
-  { path: '/slots', name: 'slots-page', component: Slots }, 
+  { 
+    path: '/slots', 
+    name: 'slots-page', 
+    component: Slots,
+    props: (route) => ({ clinicId: route.query.clinicId || null })
+  }, 
   { path: '/signup', name: 'signup', component: SignUp }, 
   { path: '/Login', name: 'login', component: Login }, 
   { path: '/my-appointments', name: 'my-appointments', component: MyAppointments },

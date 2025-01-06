@@ -23,7 +23,11 @@ const servicePaths = {
     'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js'),
     'get-notification': path.resolve(__dirname, '../patient-services/get-notification-service/index.js'),
     'notification-managment': path.resolve(__dirname, '../patient-services/notification-management-service/index.js'),
-    'create-notification': path.resolve(__dirname, '../patient-services/create-notification-service/index.js')
+    'create-notification': path.resolve(__dirname, '../patient-services/create-notification-service/index.js'),
+    'create-clinic':path.resolve(__dirname, '../clinics-services/create-clinic-service/index.js'), 
+    'retrieve-clinic': path.resolve(__dirname, '../clinics-services/retrieve-clinic-service/index.js'),
+    'fetch-clinic-info': path.resolve(__dirname, '../clinics-services/clinic-info-service/index.js'), 
+
 
 };
 
@@ -71,7 +75,6 @@ const scaleDownService = (serviceName, serviceId) => {
     delete serviceRegistry[serviceName][serviceId];
     mqttClient.publish(`scaleDown/${serviceName}/${serviceId}`, JSON.stringify({ serviceId, action: 'terminate' }));
 
-    // Ensure at least one instance remains active
     if (Object.keys(serviceRegistry[serviceName]).length === 0) {
         console.log(`All instances of ${serviceName} are down! Starting a new instance.`);
         spawnService(serviceName);
@@ -86,7 +89,6 @@ const handleAlert = (message) => {
         delete serviceRegistry[service][serviceId];
         console.log(`Removed down instance: ${serviceId} for service: ${service}`);
 
-        // Spawn replacement
         console.log(`Spawning a replacement instance for ${service}`);
         spawnService(service);
     }
@@ -106,7 +108,7 @@ const handleRequest = (topic, message) => {
 
     let forwardTopic;
 
-    if(serviceName === 'appointment-management' || serviceName === 'available-appointments') {
+    if(serviceName === 'available-appointments') {
         const action = topic.split('/')[2];
         forwardTopic = `request/${serviceName}/${selectedInstance.serviceId}/${action}`;
     } else {
@@ -134,13 +136,11 @@ const monitorServiceLoad = () => {
         for (const serviceId of serviceInstances) {
             const requests = requestCount[serviceId] || 0;
 
-            // Handle scale-up
             if (requests > maxRequests) {
                 console.log(`Scaling up: spawning new instance for ${serviceName}`);
                 spawnService(serviceName);
             }
 
-            // Handle scale-down
             if (requests < minRequests) {
                 if (serviceInstances.length <= 1) {
                     //console.log(`Cannot scale down: only 1 instance of ${serviceName} is running.`);
@@ -156,13 +156,11 @@ const monitorServiceLoad = () => {
         }
     }
 
-    // Reset request counts every monitoring interval
     for (const serviceId in requestCount) {
         requestCount[serviceId] = 0;
     }
 };
 
-// Run load monitoring every  seconds
 setInterval(monitorServiceLoad, 5000);
 
 mqttClient.on('connect', () => {
@@ -199,7 +197,7 @@ mqttClient.on('message', (topic, message) => {
 
     } else if (topic.startsWith('alerts/service')) {
         handleAlert(topic, message);
-    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || ((topic.startsWith('request/appointment-management') || topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
+    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || ((topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
         number = number + 1;
         console.log(`request on load balancer ${number} ${topic}`);
         handleRequest(topic, message);

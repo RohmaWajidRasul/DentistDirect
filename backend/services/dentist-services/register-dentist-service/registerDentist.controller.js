@@ -26,9 +26,9 @@ export const registerDentist = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { firstName, lastName, email, password, phoneNumber, specialization, location, latitude, longitude } = parsedMessage.payload;
+        const { firstName, lastName, email, password, phoneNumber, specialization, clinicId} = parsedMessage.payload;
 
-        if (!firstName || !lastName || !email || !password || !phoneNumber || !specialization || !location || !latitude || !longitude) {
+        if (!firstName || !lastName || !email || !password || !phoneNumber || !specialization || !clinicId) {
             const errorResponse ={
                 correlationId, 
                 status: 'error', 
@@ -37,7 +37,7 @@ export const registerDentist = async (topic, message) => {
 
             return publishResponse(correlationId, errorResponse);
         }
-        
+
         // Out of bounds validation for phone number
         if (phoneNumber.length < 10 || phoneNumber.length > 15) {
             const errorResponse = {
@@ -72,7 +72,7 @@ export const registerDentist = async (topic, message) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newDentist = new Dentist({ firstName, lastName, email, password: hashedPassword, phoneNumber, specialization, location, latitude, longitude });
+        const newDentist = new Dentist({ firstName, lastName, email, password: hashedPassword, phoneNumber, specialization, clinicId });
         await newDentist.save();
 
         const successResponse = {

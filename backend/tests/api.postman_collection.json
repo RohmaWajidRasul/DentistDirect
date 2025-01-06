@@ -7,6 +7,118 @@
 	},
 	"item": [
 		{
+			"name": "Clinic",
+			"item": [
+				{
+					"name": "Create a clinic",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let clinicId = jsonData.newClinic._id;",
+									"pm.environment.set(\"clinic1_Id\", clinicId);",
+									"",
+									"",
+									"pm.test(\"Create a clinic\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Pirens clinic\",\n  \"location\": \"Lindholmen, Sweden\",\n  \"longitude\": 11.9383,\n  \"latitude\": 57.7070\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/clinics",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"clinics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Retrieve all clinics",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/clinics/retrieve",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"clinics",
+								"retrieve"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Dentist",
 			"item": [
 				{
@@ -34,7 +146,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"location\": \"Stenpiren\",\r\n    \"latitude\": \"1\",\r\n    \"longitude\": \"1\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -81,7 +193,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2024-12-25\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2025-01-25\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -128,7 +240,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2024-11-25\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2025-01-26\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -418,6 +530,20 @@
 				},
 				{
 					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Patient Login\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
 					"request": {
 						"method": "POST",
 						"header": [],
