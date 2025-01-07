@@ -26,7 +26,7 @@ const servicePaths = {
     'manage-patient': path.resolve(__dirname, '../patient-services/manage-patient-service/index.js'),
 
     'get-notification': path.resolve(__dirname, '../patient-services/get-notification-service/index.js'),
-    'notification-managment': path.resolve(__dirname, '../patient-services/notification-management-service/index.js'),
+    'notification-management': path.resolve(__dirname, '../patient-services/notification-management-service/index.js'),
     'create-notification': path.resolve(__dirname, '../patient-services/create-notification-service/index.js'),
 
     'monitor-preference': path.resolve(__dirname, '../patient-services/monitor-preference-service/index.js'),

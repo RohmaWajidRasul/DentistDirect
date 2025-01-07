@@ -2,9 +2,10 @@ import Notification from '../models/notification.js';
 import Patient from '../models/patient.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
-export const createMessage = async (topic, message) => {
+export const createMessage = async (message) => {
 
     let correlationId; 
+    let patientId;
 
     try {
         let parsedMessage;
@@ -20,8 +21,14 @@ export const createMessage = async (topic, message) => {
             console.log(errorResponse)
         }
 
-        const { patientId, notification } = parsedMessage;
-        console.log(parsedMessage)
+        correlationId = parsedMessage.correlationId;
+
+        if (!correlationId) {
+            throw new Error('Correlation ID is missing in the request');
+        }
+
+        let { patientId, notification } = parsedMessage.payload;
+        //console.log(parsedMessage)
 
         if (!patientId || !notification) {
             const errorResponse ={
@@ -30,7 +37,7 @@ export const createMessage = async (topic, message) => {
                 message : 'All fields are required', 
             }; 
             console.log(errorResponse)
-            return publishResponse(correlationId, errorResponse);
+            return publishResponse(correlationId, patientId, errorResponse);
 
         }
 
@@ -45,7 +52,7 @@ export const createMessage = async (topic, message) => {
             }; 
 
             console.log(errorResponse)
-            return publishResponse(correlationId, errorResponse);
+            return publishResponse(correlationId, patientId, errorResponse);
 
         }
         
@@ -66,7 +73,7 @@ export const createMessage = async (topic, message) => {
             message: 'Notification create successfully', 
             newNotification: newNotification,
         }; 
-        return publishResponse(correlationId, successResponse);
+        return publishResponse(correlationId, patientId, successResponse);
 
     } catch (error) {
         const errorResponse ={
@@ -75,14 +82,14 @@ export const createMessage = async (topic, message) => {
             message: 'Error creating notification', 
             error: error.message, 
         };
-        return publishResponse(correlationId, errorResponse);
+        return publishResponse(correlationId, patientId, errorResponse);
     }
     
 };
 
-const publishResponse = (correlationId, response) => {
+const publishResponse = (correlationId, patientId, response) => {
     let responseTopic;
-    responseTopic = `response/create-notifcation/${correlationId}`
+    responseTopic = `response/create-notifcation/${patientId}/${correlationId}`
    
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {

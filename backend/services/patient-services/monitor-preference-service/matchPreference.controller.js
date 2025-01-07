@@ -111,7 +111,9 @@ export const matchPreference = async (topic, message) => {
 const sendMatchNotification = (patient, appointment) => {
     const topic = `request/create-notification`;
 
-    const notificationPayload = {
+    const correlationId = Date.now().toString();
+
+    const payload = {
         patientId: patient._id,
         notification: {
             subject: "Appointment Match Found",
@@ -121,7 +123,7 @@ const sendMatchNotification = (patient, appointment) => {
         }
     };
 
-    mqttClient.publish(topic, JSON.stringify(notificationPayload), (err) => {
+    mqttClient.publish(topic, JSON.stringify({correlationId, payload}), (err) => {
         if (err) {
             console.error(`Failed to publish to ${topic}:`, err);
         } else {
@@ -132,8 +134,10 @@ const sendMatchNotification = (patient, appointment) => {
 
 const sendConflictNotification = (patient, appointment) => {
     const topic = `request/create-notification`;
+    const correlationId = Date.now().toString();
 
-    const notificationPayload = {
+
+    const payload = {
         patientId: patient._id,
         notification: {
             subject: "Preferred Appointment Booked",
@@ -143,7 +147,7 @@ const sendConflictNotification = (patient, appointment) => {
         }
     };
 
-    mqttClient.publish(topic, JSON.stringify(notificationPayload), (err) => {
+    mqttClient.publish(topic, JSON.stringify({correlationId, payload}), (err) => {
         if (err) {
             console.error(`Failed to publish to ${topic}:`, err);
         } else {

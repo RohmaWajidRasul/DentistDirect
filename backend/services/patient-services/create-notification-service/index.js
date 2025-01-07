@@ -58,7 +58,11 @@ mqttClient.on('connect', () => {
     });
 });
 
-mqttClient.on('message', createMessage);
+mqttClient.on('message', (topic, message) => {
+    if(topic === requestTopic){
+        createMessage(message);
+    }
+});
 
 const publishHeartbeat = () => {
     const heartbeat = {

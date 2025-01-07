@@ -24,7 +24,7 @@ const fallbackURI = process.env.PATIENTDB_FALLBACK_URI || 'mongodb://localhost:2
 connectDB(primaryURI, fallbackURI, "patientDB");
 
 const serviceId = uuidv4();
-const serviceName = "notification-managment";
+const serviceName = "notification-management";
 
 const publishRegistration = () => {
     const registration = {

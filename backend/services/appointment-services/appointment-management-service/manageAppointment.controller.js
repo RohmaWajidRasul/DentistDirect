@@ -161,7 +161,7 @@ const publishResponse = (correlationId, response) => {
 };
 
 const notify = (appointment, status) => {
-
+    const correlationId = Date.now().toString();
     const topic = `request/create-notification`;
 
     const notification = {
@@ -169,12 +169,12 @@ const notify = (appointment, status) => {
         subject: `Appointment ${status}`,
     }
 
-    const response = {
+    const payload = {
         patientId: appointment.patientId,
         notification: notification
     }
 
-    mqttClient.publish(topic, JSON.stringify(response), (err) => {
+    mqttClient.publish(topic, JSON.stringify({correlationId, payload}), (err) => {
         if (err) {
             console.error(`Failed to publish to ${topic}:`, err);
         } else {
