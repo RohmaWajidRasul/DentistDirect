@@ -167,7 +167,7 @@ export default {
     },
     addNotificationToLocalStorage(notification) {
       const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
-      notifications.push(notification);
+      notifications.unshift(notification);
       localStorage.setItem('notifications', JSON.stringify(notifications));
 
       const unreadCount = parseInt(localStorage.getItem('unreadCount') || '0', 10) + 1;
