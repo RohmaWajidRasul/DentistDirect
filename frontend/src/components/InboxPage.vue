@@ -113,17 +113,13 @@ export default {
       const responseTopic = `response/messages/read/${correlationId}`;
       //const user = JSON.parse(localStorage.getItem("user"));
 
-
-
-
       const payload = {
         correlationId,
         payload: {
-          notificationId: clicked._id
+          notificationId: clicked._id,
+          status: "read"
         }
       };
-
-      
 
       mqttClient.subscribe(responseTopic, (err) => {
         if (err) {
@@ -139,6 +135,8 @@ export default {
           this.showAlert('Failed to send request to server. Please try again later.', 'error');
           console.error('Failed to publish request to MQTT:', err);
           return;
+        } else {
+          console.log("publishing", requestTopic, payload)
         }
       });
 
