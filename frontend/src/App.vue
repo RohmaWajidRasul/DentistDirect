@@ -1,7 +1,9 @@
 <template>
   <div id="app" class="d-flex flex-column min-vh-100">
     <!-- Navbar -->
-    <Navbar :loggedIn="loggedIn" @handleAuthAction="handleAuthAction" />
+    <Navbar :loggedIn="loggedIn" @handleAuthAction="handleAuthAction"
+    :admin="isAdmin"
+    />
 
     <!-- Main content -->
     <div class="flex-grow-1">
@@ -26,7 +28,8 @@ export default {
   },
   data() {
     return {
-      loggedIn: false // Initialize from localStorage
+      loggedIn: false, // Initialize from localStorage
+      isAdmin: false
     }
   },
   setup() {
@@ -39,6 +42,9 @@ export default {
       console.log('Is user logged in? ', loggedIn)
       return loggedIn
     },
+    updateAdminStatus() {
+      this.isAdmin = !this.isAdmin;
+    },
     handleAuthAction() {
       if (this.isLoggedIn()) {
         console.log('Signing out')
@@ -46,6 +52,7 @@ export default {
         localStorage.removeItem('calendarId') // removes the localStorage key & value
         this.loggedIn = false // Update loggedIn status
         this.globalState.isLoggedIn = false
+        this.isAdmin = false;
         this.$router.push('/')
       } else {
         console.log('Redirecting to login')
@@ -60,6 +67,7 @@ export default {
   mounted() {
     this.loggedIn = this.isLoggedIn() // Set initial login state
     window.addEventListener('authChange', this.updateLoggedInState)
+    window.addEventListener('admin', this.updateAdminStatus)
   },
   beforeUnmount() {
     window.removeEventListener('authChange', this.updateLoggedInState)

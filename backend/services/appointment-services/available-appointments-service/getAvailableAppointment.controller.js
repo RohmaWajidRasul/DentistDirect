@@ -251,7 +251,7 @@ const publishAvailabilityResponse = (correlationId, response, action) => {
 const log = (result) => {
     const logTopic = "request/create-log"
     const topicParts = requestTopic.split("/")
-    const serviceName = topicParts[1] + "/" + topicParts[3];
+    const serviceName = topicParts[1] + " " + topicParts[3];
     const serviceId = topicParts[2];
 
     const payload =  {

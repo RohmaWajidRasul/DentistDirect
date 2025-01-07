@@ -204,20 +204,25 @@ mqttClient.on('message', (topic, message) => {
 
     } else if (topic.startsWith('alerts/service')) {
         handleAlert(topic, message);
+    } else if(topic.startsWith ("request/registry")) {
+        publishRegistry(message);
     } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || ((topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
         number = number + 1;
         console.log(`request on load balancer ${number} ${topic}`);
         handleRequest(topic, message);
-    }
+    } 
 });
 
-const publishRegistry = () => {
+const publishRegistry = (message) => {
+    const parsedMessage = JSON.parse(message.toString());
+    const correlationId = parsedMessage.correlationId;
+
     const payload = {
         "serviceRegistry" : serviceRegistry,
         "requestCount" : longRequestCount
     }
 
-    mqttClient.publish('publish/registry', JSON.stringify(payload), (err) => {
+    mqttClient.publish(`response/registry/${correlationId}`, JSON.stringify(payload), (err) => {
         if (err) {
             console.error('Failed to publish registration:', err);
         } else {
@@ -228,7 +233,4 @@ const publishRegistry = () => {
     for (const serviceId in longRequestCount) {
         longRequestCount[serviceId] = 0;
     }
-
 }
-
-setInterval(publishRegistry, 30000);

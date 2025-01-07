@@ -32,7 +32,7 @@ export const createPatient = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { firstName, lastName, SSN, email, password, phoneNumber} = parsedMessage.payload;
+        const { firstName, lastName, SSN, email, password, phoneNumber, isAdmin = false} = parsedMessage.payload;
 
         // Check required fields
         if (!firstName || !lastName || !SSN || !email || !phoneNumber || !password) {
@@ -94,7 +94,8 @@ export const createPatient = async (topic, message) => {
             SSN, 
             email, 
             password: hashedPassword, 
-            phoneNumber 
+            phoneNumber,
+            isAdmin
         });
 
         await newPatient.save();

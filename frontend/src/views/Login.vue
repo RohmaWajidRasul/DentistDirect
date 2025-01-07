@@ -109,6 +109,11 @@
               // Store user info in localStorage to keep user in "logged in" state
               localStorage.setItem('user', JSON.stringify({ userId: response.patient._id, email: this.user.email }));
              // Store user data in localStorage, to stay in "logged in" state
+
+             if(response.patient.isAdmin) {
+              window.dispatchEvent(new Event('admin'));
+             }
+
               window.dispatchEvent(new Event('authChange')) 
               // Redirect to home page
               this.$router.push('/');

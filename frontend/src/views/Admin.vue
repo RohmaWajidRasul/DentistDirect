@@ -12,20 +12,50 @@
         <div v-else>
             Number of available appointments: 0
         </div>
-        <div v-for="(instances, serviceName) in registry" :key="serviceName">
-            <h3>{{ serviceName }} instances: </h3>
-            <ul>
-                <li v-for="(instance, serviceId) in instances" :key="serviceId">
-                    Service ID: {{ serviceId }} requests : {{ getRequestCount(serviceId) }}
-
-                </li>
-            </ul>
+        <div v-if="registry">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Service Name</th>
+                        <th scope="col">Number of Instances</th>
+                        <th scope="col">Requests</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(instances, serviceName) in registry" :key="serviceName">
+                        <th scope="row">{{ serviceName }}</th>
+                        <td>{{ Object.keys(instances).length }}</td>
+                        <td>{{ getRequestCountPerService(serviceName) }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <h3>
-            Logs: 
+            Logs:
         </h3>
-        <div v-for=" log in logs" :key="log._id">
-            {{ log.result }} - {{ log.serviceName }} - {{ log.requestTime }} - {{ log.patientId }}
+        <div v-if="logs">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Service Name</th>
+                        <th scope="col">Service Instance</th>
+                        <th scope="col">Result</th>
+                        <th scope="col">Request Time</th>
+                        <th scope="col">Requestee</th>
+                        
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for=" log in logs" :key="log._id">
+                        <th scope="row">{{ log.serviceName }}</th>
+                        <td>{{ log.serviceId }}</td>
+                        <td>{{ log.result }}</td>
+                        <td>{{ log.requestTime }}</td>
+                        <td>{{ log.patientId }}</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 </template>
@@ -44,7 +74,9 @@ export default {
             requestCount: undefined,
             numberOfAppointments: undefined,
             numberOfUsers: undefined,
-            logs: undefined
+            logs: undefined,
+            registryInterval: null,
+            dataInterval: null,
         }
     },
 
@@ -56,10 +88,7 @@ export default {
 
                 const correlationId = Date.now().toString();
 
-
-
-                console.log("Publishing payload:",);
-                const requestTopic = "request/publish/registry";
+                const requestTopic = "request/registry";
 
                 mqttClient.publish(
                     requestTopic,
@@ -73,8 +102,7 @@ export default {
                     }
                 );
 
-                //const responseTopic = `response/publish/registry/${correlationId}`;
-                const responseTopic = "publish/registry";
+                const responseTopic = `response/registry/${correlationId}`;
 
                 mqttClient.subscribe(responseTopic, (err) => {
                     if (err) {
@@ -86,35 +114,35 @@ export default {
 
                 const timeout = setTimeout(() => {
                     mqttClient.unsubscribe(responseTopic);
-                    //this.showAlert('Server did not respond. Please try again later.', 'error');
-                }, 50000);
+                }, 5000);
 
-                mqttClient.on("message", (topic, message) => {
+                const handleMessage = (topic, message) => {
 
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
                         const response = JSON.parse(message.toString());
-                        console.log("Response received:", response);
-                        console.log("Filtered slots response:", response.appointments);
-                        console.log(response)
-                        console.log(response.serviceRegistry);
-                        console.log(response.requestCount)
+
                         this.registry = response.serviceRegistry
                         this.requestCount = response.requestCount;
-                        if (response.status === "success") {
-                            console.log(message)
-                        } else {
-                            //console.error("Error response:", response.message);
-                            //this.showAlert(response.message, 'error');
-                        }
 
-
+                        mqttClient.unsubscribe(responseTopic, (err) => {
+                            if (err) {
+                                console.error("Failed to unsubscribe from response topic:", err);
+                            } else {
+                                console.log(`Unsubscribed from response topic: ${responseTopic}`);
+                            }
+                        });
+                        mqttClient.removeListener("message", handleMessage);
                     }
-                });
+
+
+                };
+
+                mqttClient.on("message", handleMessage)
             } catch (error) {
-                console.error("Error in fetchSlotsAndDentists:", error);
-                //this.showAlert("An error occurred while fetching slots. Please try again later.", 'error');
+                console.error("Error in Get Registry:", error);
             }
+
 
         },
         getNumberOfAppointments() {
@@ -148,11 +176,10 @@ export default {
                     mqttClient.unsubscribe(responseTopic);
                 }, 5000);
 
-                mqttClient.on("message", (topic, message) => {
+                const handleMessage = (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
                         const response = JSON.parse(message.toString());
-                        console.log("Response received:", response);
 
                         if (response.status === "success") {
                             this.numberOfAppointments = response.appointments.length;
@@ -167,10 +194,12 @@ export default {
                                 console.log(`Unsubscribed from response topic: ${responseTopic}`);
                             }
                         });
+                        mqttClient.removeListener("message", handleMessage);
                     }
-                });
+                };
+                mqttClient.on("message", handleMessage)
             } catch (error) {
-                console.error("Error in fetchSlotsAndDentists:", error.message);
+                console.error("Error in Get Numbers of appointments:", error);
             }
         },
         getNumberOfUsers() {
@@ -204,11 +233,10 @@ export default {
                     mqttClient.unsubscribe(responseTopic);
                 }, 5000);
 
-                mqttClient.on("message", (topic, message) => {
+                const handleMessage = (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
                         const response = JSON.parse(message.toString());
-                        console.log("Response received:", response);
 
                         if (response.status === "success") {
                             this.numberOfUsers = response.numberUniqueUsers;
@@ -223,12 +251,14 @@ export default {
                                 console.log(`Unsubscribed from response topic: ${responseTopic}`);
                             }
                         });
+                        mqttClient.removeListener("message", handleMessage);
                     }
-                });
+                };
+                mqttClient.on("message", handleMessage);
             } catch (error) {
-                console.error("Error in fetchSlotsAndDentists:", error.message);
+                console.error("Error in Get Number of Users:", error.message);
             }
-        },        
+        },
         getLogs() {
             try {
                 const correlationId = Date.now().toString();
@@ -260,11 +290,10 @@ export default {
                     mqttClient.unsubscribe(responseTopic);
                 }, 5000);
 
-                mqttClient.on("message", (topic, message) => {
+                const handleMessage = (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
                         const response = JSON.parse(message.toString());
-                        console.log("Response received:", response);
 
                         if (response.status === "success") {
                             this.logs = response.logs.reverse();
@@ -279,18 +308,35 @@ export default {
                                 console.log(`Unsubscribed from response topic: ${responseTopic}`);
                             }
                         });
+                        mqttClient.removeListener("message", handleMessage);
                     }
-                });
+                };
+                mqttClient.on("message", handleMessage)
             } catch (error) {
-                console.error("Error in fetchSlotsAndDentists:", error.message);
+                console.error("Error in Get Logs:", error.message);
             }
         },
         getRequestCount(serviceId) {
             return this.requestCount[serviceId] || 0;
         },
-        startInterval() {
-            setInterval(this.refreshData, 5000);
+        getRequestCountPerService(serviceName) {
 
+            const serviceInstances = Object.keys(this.registry[serviceName]);
+            let serviceRequestCount = 0;
+            for (const serviceId of serviceInstances) {
+                const requests = this.requestCount[serviceId] || 0;
+                serviceRequestCount += requests;
+            }
+            return serviceRequestCount;
+        },
+        startInterval() {
+            this.dataInterval = setInterval(this.refreshData, 10000);
+            this.registryInterval = setInterval(this.getRegistry, 30000);
+
+        },
+        stopInterval() {
+            if (this.dataInterval) clearInterval(this.dataInterval);
+            if (this.registryInterval) clearInterval(this.registryInterval);
         },
         refreshData() {
             this.getNumberOfAppointments();
@@ -306,6 +352,10 @@ export default {
         this.getNumberOfUsers();
         this.getLogs();
         this.startInterval();
+    },
+    unmounted() {
+        mqttClient.unsubscribe("response/#");
+        this.stopInterval();
     }
 }
 

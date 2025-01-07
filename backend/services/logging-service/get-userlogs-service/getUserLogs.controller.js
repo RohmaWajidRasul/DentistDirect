@@ -49,7 +49,7 @@ export const getLogs = async (topic, message) => {
         const successResponse = {
             correlationId,
             status: 'success',
-            message: 'Dentist registered successfully',
+            message: 'Numbers of users fetched successfully',
             numberUniqueUsers,
         };
         return publishResponse(correlationId, successResponse);
@@ -65,7 +65,7 @@ export const getLogs = async (topic, message) => {
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: 'Error registering dentist',
+            message: 'Error fetching user numbers',
             error: error.message,
         };
         return publishResponse(correlationId, errorResponse);

@@ -58,7 +58,7 @@ export const getLogs = async (topic, message) => {
         const errorResponse = {
             correlationId,
             status: 'error',
-            message: 'Error registering dentist',
+            message: 'Error fetching logs',
             error: error.message,
         };
         return publishResponse(correlationId, errorResponse);

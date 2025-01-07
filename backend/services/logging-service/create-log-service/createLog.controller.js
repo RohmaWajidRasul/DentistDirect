@@ -36,6 +36,7 @@ export const createLog = async (topic, message) => {
         });
         await newLog.save();
 
+        
 
 
     } catch (error) {

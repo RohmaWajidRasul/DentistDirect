@@ -10,8 +10,8 @@
       <!-- If the user is logged in, show Logout -->
         <b-nav-item v-if="loggedIn" @click="handleAuthAction">Logout</b-nav-item>
         <b-nav-item to="/slots" :active-class="active-tab">Available Slots</b-nav-item>
-        <b-nav-item to="/inbox" :active-class="active-tab">Inbox</b-nav-item>
-        <b-nav-item to="/admin" :active-class="active-tab">Admin</b-nav-item>
+        <b-nav-item v-if="loggedIn" to="/inbox" :active-class="active-tab">Inbox</b-nav-item>
+        <b-nav-item v-if="admin" to="/admin" :active-class="active-tab">Admin</b-nav-item>
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
@@ -21,6 +21,10 @@
 export default {
   props: { // "logged-in" status passed down from app.vue 
     loggedIn: {
+      type: Boolean,
+      required: true
+    },
+    admin: {
       type: Boolean,
       required: true
     }
