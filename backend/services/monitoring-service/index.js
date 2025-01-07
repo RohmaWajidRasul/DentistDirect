@@ -77,6 +77,8 @@ mqttClient.on('message', (topic, message) => {
                 lastSeen: heartbeat.timestamp,
                 uptime: heartbeat.uptime
             };
+            //console.log('Heartbeat from', serviceName, serviceId);
+
         } catch (err) {
             console.error('Failed to parse heartbeat message:', err);
         }

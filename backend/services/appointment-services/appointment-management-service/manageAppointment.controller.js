@@ -61,6 +61,7 @@ export const manageAppointment = async (topic, message) => {
                             return publishResponse(correlationId, errorResponse);
                         }
                         appointment.status = 'booked';
+                        matchPreference(appointment)
                         break;
 
                     case 'canceled':
@@ -181,3 +182,16 @@ const notify = (appointment, status) => {
         }
     });
 };
+
+const matchPreference = (appointment) => {
+    //const correlationId = Date.now().toString();
+    const requestTopic = `request/monitor-preference`;
+    mqttClient.publish(requestTopic, JSON.stringify(appointment), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${requestTopic}:`, err);
+        } else {
+            console.log(`Response sent to ${requestTopic}`);
+        }
+    });
+};
+

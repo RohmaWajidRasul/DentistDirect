@@ -87,4 +87,54 @@ router.post('/', (req, res) => {
         }
     });
 });
+
+router.patch("/:patientId", (req, res) => {
+    const { patientId } = req.params;
+
+    const correlationId = Date.now().toString();
+
+    let requestTopic = "request/manage-patient";
+    let responseTopic = `response/manage-patient/${correlationId}`;
+  
+    const payload = { patientId, ...req.body };
+
+    mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
+        if (err) {
+            console.error("Failed to publish request", err);
+            return res
+                .status(500)
+                .json({ message: "Failed to publish request" });
+        }
+    });
+  
+    const timeout = setTimeout(() => {
+        mqttClient.unsubscribe(responseTopic);
+        return res
+          .status(504)
+          .json({ message: "Request timeout. No response from server." });
+    }, 5000);
+    
+    mqttClient.subscribe(responseTopic, (err) => {
+        if (err) {
+            clearTimeout(timeout);
+            console.error("Failed to subscribe to response topic", err);
+            return res
+                .status(500)
+                .json({ message: "Failed to subscribe to response topic" });
+        }  
+    });
+  
+    mqttClient.on("message", (topic, message) => {
+        if (topic === responseTopic) {
+          clearTimeout(timeout);
+          mqttClient.unsubscribe(responseTopic);
+
+          const response = JSON.parse(message.toString());
+
+          const statusCode = response.status === "success" ? 200 : 404;
+          return res.status(statusCode).json(response);
+        }  
+    });
+});
+
 export default router;

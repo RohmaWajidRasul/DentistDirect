@@ -46,8 +46,6 @@ export default {
   },
   methods: {
     async fillInbox() {
-
-
       const correlationId = Date.now().toString();
       const requestTopic = 'request/get-notification';
       const responseTopic = `response/messages/fetched/${correlationId}`;

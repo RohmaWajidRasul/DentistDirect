@@ -17,14 +17,20 @@ const servicePaths = {
     'appointment-management': path.resolve(__dirname, '../appointment-services/appointment-management-service/index.js'),
     'available-appointments': path.resolve(__dirname, '../appointment-services/available-appointments-service/index.js'),
     'create-appointment': path.resolve(__dirname, '../appointment-services/create-appointment-service/index.js'),
+
     'register-dentist': path.resolve(__dirname, '../dentist-services/register-dentist-service/index.js'),
     'dentist-info': path.resolve(__dirname, '../dentist-services/dentist-info-service/index.js'),
+
     'create-patient': path.resolve(__dirname,'../patient-services/create-patient-service/index.js'),
     'patient-login': path.resolve(__dirname, '../patient-services/login-service/index.js'),
     'manage-patient': path.resolve(__dirname, '../patient-services/manage-patient-service/index.js'),
+
     'get-notification': path.resolve(__dirname, '../patient-services/get-notification-service/index.js'),
     'notification-managment': path.resolve(__dirname, '../patient-services/notification-management-service/index.js'),
     'create-notification': path.resolve(__dirname, '../patient-services/create-notification-service/index.js'),
+
+    'monitor-preference': path.resolve(__dirname, '../patient-services/monitor-preference-service/index.js'),
+
     'create-clinic':path.resolve(__dirname, '../clinics-services/create-clinic-service/index.js'), 
     'retrieve-clinic': path.resolve(__dirname, '../clinics-services/retrieve-clinic-service/index.js'),
     'fetch-clinic-info': path.resolve(__dirname, '../clinics-services/clinic-info-service/index.js'), 

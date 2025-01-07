@@ -58,18 +58,20 @@ export const managePatient = async (topic, message) => {
                 return publishResponse(correlationId, errorResponse);
                 
             } else if (key === "preferences") {
-                const { preferences } = value;
+
+                //console.log(key, value);
 
                 const updatedPreferences = {
-                    dateRange: preferences.dateRange || { startDate: null, endDate: null }, 
-                    dentist: preferences.dentist || null,
-                    specialization: preferences.specialization || '', 
-                    clinic: preferences.clinic || null 
+                    dateRange: value.dateRange || { startDate: null, endDate: null }, 
+                    dentist: value.dentist || null,
+                    specialization: value.specialization || '', 
+                    clinic: value.clinic || null 
                 };
-
+                
                 patient.preferences = updatedPreferences;
+                
 
-            }else if (key in patient) {
+            } else if (key in patient) {
                 patient[key] = value;
             } else {
                 const errorResponse = {

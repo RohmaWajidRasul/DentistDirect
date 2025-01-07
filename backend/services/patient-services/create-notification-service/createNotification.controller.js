@@ -30,6 +30,8 @@ export const createMessage = async (topic, message) => {
                 message : 'All fields are required', 
             }; 
             console.log(errorResponse)
+            return publishResponse(correlationId, errorResponse);
+
         }
 
 
@@ -43,6 +45,8 @@ export const createMessage = async (topic, message) => {
             }; 
 
             console.log(errorResponse)
+            return publishResponse(correlationId, errorResponse);
+
         }
         
         const body = notification.body;
