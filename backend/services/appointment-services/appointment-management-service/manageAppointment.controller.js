@@ -60,8 +60,19 @@ export const manageAppointment = async (topic, message) => {
                             };
                             return publishResponse(correlationId, errorResponse);
                         }
+                        if (!updates.patientId) {
+                            const errorResponse = {
+                                correlationId,
+                                status: 'error',
+                                message: 'Patient ID is required to book the appointment',
+                            };
+                            return publishResponse(correlationId, errorResponse);
+                        }
+                    
                         appointment.status = 'booked';
-                        matchPreference(appointment)
+                        appointment.patientId = updates.patientId;
+                        console.log(appointment);
+                        matchPreference(appointment);
                         break;
 
                     case 'canceled':

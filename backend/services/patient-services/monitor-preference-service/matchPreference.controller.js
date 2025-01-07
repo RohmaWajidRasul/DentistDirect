@@ -66,7 +66,7 @@ export const matchPreference = async (topic, message) => {
         const appointment = JSON.parse(message.toString());
         console.log (appointment);
 
-        const { date, dentistId, clinicId, status } = appointment;
+        const { date, dentistId, clinicId, status, patientId } = appointment;
 
         const specialization = await fetchDentistSpecialization(dentistId);
 
@@ -94,8 +94,13 @@ export const matchPreference = async (topic, message) => {
             console.log(`Matched patients: ${matchedPatients.length}`);
 
             matchedPatients.forEach((patient) => {
+                console.log(patient._id, patientId)
                 if (status === 'booked') {
-                    sendConflictNotification(patient, appointment);
+                    if (!patient._id.equals(patientId)) {
+                        sendConflictNotification(patient, appointment);                        
+                    } else {
+                        console.log('Patient is the same, no notification will be sent.');
+                    }
                 } else {
                     sendMatchNotification(patient, appointment);
                 }
