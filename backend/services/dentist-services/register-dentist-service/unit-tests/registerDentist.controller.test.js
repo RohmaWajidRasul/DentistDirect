@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { registerDentist } from '../registerDentist.controller.js';
-import Dentist from '../models/dentist.js';
+import Dentist from '../../models/dentist.js';
 import bcrypt from 'bcrypt';
-import mqttClient from '../../../shared/mqtt-client.js';
+import mqttClient from '../../../../shared/mqtt-client.js';
 
-vi.mock('../models/dentist.js');
+vi.mock('../../models/dentist.js');
 vi.mock('bcrypt');
-vi.mock('../../../shared/mqtt-client.js', () => ({
+vi.mock('../../../../shared/mqtt-client.js', () => ({
   default: {
     publish: vi.fn(),
   },

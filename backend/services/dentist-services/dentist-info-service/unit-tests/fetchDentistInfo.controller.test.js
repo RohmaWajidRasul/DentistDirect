@@ -1,15 +1,15 @@
 import { vi, describe, it, expect, afterEach } from 'vitest';
 import { fetchDentistInfo } from '../fetchDentistInfo.controller.js';
-import Dentist from '../models/dentist.js';
-import mqttClient from '../../../shared/mqtt-client.js';
+import Dentist from '../../models/dentist.js';
+import mqttClient from '../../../../shared/mqtt-client.js';
 
 // Mock dependencies
-vi.mock('../models/dentist.js', () => ({
+vi.mock('../../models/dentist.js', () => ({
     default: {
       find: vi.fn(), // Mock the find method
     },
   }));
-vi.mock('../../../shared/mqtt-client.js', () => ({
+vi.mock('../../../../shared/mqtt-client.js', () => ({
   default: {
     publish: vi.fn(),
     subscribe: vi.fn(),
