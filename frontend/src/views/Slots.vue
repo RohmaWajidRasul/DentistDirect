@@ -193,7 +193,16 @@ export default {
       try {
         const correlationId = Date.now().toString();
 
-        const payload = {};
+        const user = JSON.parse(localStorage.getItem("user"));
+
+        let payload;
+        if(user) {
+        payload = {
+          patientId: user.userId,
+        };
+      } else {
+        payload = {}
+      }
 
         console.log("Fetching all slots and dentists...");
 

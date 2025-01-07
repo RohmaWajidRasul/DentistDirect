@@ -5,7 +5,7 @@ import paho.mqtt.client as mqtt
 from locust import User, TaskSet, task, between
 
 class MQTTClientWrapper:
-    def __init__(self, host="localhost", port=1883):
+    def __init__(self, host="localhost", port=1884):
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message

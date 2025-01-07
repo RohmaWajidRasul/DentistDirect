@@ -5,6 +5,7 @@ import Slots from './views/Slots.vue'
 import SignUp from './views/SignUp.vue';
 import Login from'./views/Login.vue'
 import MyAppointments from './views/MyAppointments.vue';
+import Admin from './views/Admin.vue';
 
 const routes = [
   { path: '/', name: 'home-page', component: Home },
@@ -16,8 +17,8 @@ const routes = [
   }, 
   { path: '/signup', name: 'signup', component: SignUp }, 
   { path: '/Login', name: 'login', component: Login }, 
-  { path: '/my-appointments', name: 'my-appointments', component: MyAppointments }, 
-
+  { path: '/my-appointments', name: 'my-appointments', component: MyAppointments },
+  { path: '/admin', name: 'admin-page', component: Admin }
 ]
 
 const router = createRouter({

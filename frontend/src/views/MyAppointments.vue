@@ -22,7 +22,7 @@
 import mqttClient from '../mqttClient.js';
 
 export default {
-    name: "DayContainer",
+    name: "my-appointments",
 
 
     data() {

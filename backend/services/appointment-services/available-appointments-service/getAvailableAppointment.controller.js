@@ -1,6 +1,11 @@
 import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
+
+let patientId;
+let requestTime;
+let requestTopic;
+
 export const getAvailableAppointments = async (topic, message) => {
 
 
@@ -18,7 +23,9 @@ export const getAvailableAppointments = async (topic, message) => {
     let correlationId;
 
     try {
-        let parsedMessage; 
+        let parsedMessage;
+        requestTime = Date.now();
+        requestTopic = topic;
         try {
             parsedMessage = JSON.parse(message.toString());
         } catch (error) {
@@ -44,10 +51,10 @@ export const getAvailableAppointments = async (topic, message) => {
         const { payload } = parsedMessage;
         const { dentistId = null, date = null, location = null, clinicId = null } = payload;
 
+        patientId =  parsedMessage.payload.patientId || null;
         let query;
 
         if(action == "booked") {
-            const patientId = payload.patientId;
             query = { patientId: patientId }
         } else {
             query = { status: { $in: ['available', 'canceled'] } };
@@ -230,6 +237,7 @@ const fetchClinicsInfo = (clinicIds) => {
 const generateCorrelationId = () => `corr-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
 const publishAvailabilityResponse = (correlationId, response, action) => {
+    log(response.status)
     const responseTopic = `response/available-appointments/${action}/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
@@ -239,3 +247,33 @@ const publishAvailabilityResponse = (correlationId, response, action) => {
         }
     });
 };
+
+const log = (result) => {
+    const logTopic = "request/create-log"
+    const topicParts = requestTopic.split("/")
+    const serviceName = topicParts[1] + "/" + topicParts[3];
+    const serviceId = topicParts[2];
+
+    const payload =  {
+        result,
+        serviceId,
+        serviceName,
+        requestTime,
+        patientId
+    }
+    const correlationId = Date.now();
+
+    const logMessage = {
+        correlationId,
+        payload
+      };
+    
+
+    mqttClient.publish(logTopic, JSON.stringify(logMessage), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${logTopic}:`, err);
+        } else {
+            console.log(`Request sent to ${logTopic}`);
+        }
+    });
+}
