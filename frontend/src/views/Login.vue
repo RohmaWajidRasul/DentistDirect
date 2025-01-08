@@ -107,7 +107,7 @@
   
             if (response.status === 'success') {
               // Store user info in localStorage to keep user in "logged in" state
-              localStorage.setItem('user', JSON.stringify({ userId: response.patient._id, email: this.user.email }));
+              localStorage.setItem('user', JSON.stringify({ userId: response.patient._id, email: this.user.email, user: response.patient }));
              // Store user data in localStorage, to stay in "logged in" state
               window.dispatchEvent(new Event('authChange')) 
               // Redirect to home page
