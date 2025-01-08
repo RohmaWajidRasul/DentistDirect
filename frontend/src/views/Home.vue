@@ -153,17 +153,7 @@ import MapComponent from '../components/MapComponent.vue';
   flex-wrap: wrap;
 }
 
-
-@media (width <= 700px) {
-  .left-card {
-    margin-left: 30px;
-  }
-}
-
 @media (width <= 305px) {
-  .left-card {
-    margin-left: 0px;
-  }
 
   .card {
     margin-top: 10px;
