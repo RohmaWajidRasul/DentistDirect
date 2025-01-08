@@ -1,9 +1,10 @@
-import { vi, describe, it, expect, afterEach } from 'vitest';
+import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { createPatient } from '../createPatient.controller.js';
 import Patient from '../../models/patient.js';
 import mqttClient from '../../../../shared/mqtt-client.js';
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 
+// Mock dependencies
 vi.mock('../../models/patient.js');
 vi.mock('../../../../shared/mqtt-client.js', () => ({
   default: {
@@ -11,13 +12,11 @@ vi.mock('../../../../shared/mqtt-client.js', () => ({
   },
 }));
 vi.mock('bcrypt', () => ({
-    default: {
-      hash: vi.fn(),
-    },
+  hash: vi.fn(),
 }));
-  
+
 describe('createPatient', () => {
-  const validTopic = 'request/patients/create';
+  const validTopic = 'request/create-patient';
   const validMessage = JSON.stringify({
     correlationId: '12345',
     payload: {
@@ -30,8 +29,12 @@ describe('createPatient', () => {
     },
   });
 
+  beforeEach(() => {
+    vi.clearAllMocks(); // Reset mocks before each test
+  });
+
   afterEach(() => {
-    vi.clearAllMocks(); // Clear all mocks after each test
+    vi.restoreAllMocks(); // Restore mocks after each test
   });
 
   it('should return early for invalid topic', async () => {
@@ -40,7 +43,7 @@ describe('createPatient', () => {
     await createPatient(invalidTopic, validMessage);
 
     expect(mqttClient.publish).not.toHaveBeenCalled();
-    expect(Patient.find).not.toHaveBeenCalled();
+    expect(Patient.findOne).not.toHaveBeenCalled();
   });
 
   it('should handle invalid JSON format in the message', async () => {
@@ -49,8 +52,13 @@ describe('createPatient', () => {
     await createPatient(validTopic, invalidMessage);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/patients/created'),
-      expect.stringContaining('Invalid JSON format in request'),
+      'response/create-patient/undefined',
+      JSON.stringify({
+        correlationId: undefined,
+        status: 'error',
+        message: 'Invalid JSON format in request',
+        error: expect.any(Object),
+      }),
       expect.any(Function)
     );
   });
@@ -68,8 +76,12 @@ describe('createPatient', () => {
     await createPatient(validTopic, messageWithMissingFields);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/patients/created'),
-      expect.stringContaining('All fields are required'),
+      'response/create-patient/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'All fields are required',
+      }),
       expect.any(Function)
     );
   });
@@ -90,8 +102,12 @@ describe('createPatient', () => {
     await createPatient(validTopic, messageWithInvalidPhone);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/patients/created'),
-      expect.stringContaining('Phone number should be between 10 and 15 characters'),
+      'response/create-patient/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Phone number should be between 10 and 15 characters.',
+      }),
       expect.any(Function)
     );
   });
@@ -112,8 +128,12 @@ describe('createPatient', () => {
     await createPatient(validTopic, messageWithShortPassword);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/patients/created'),
-      expect.stringContaining('Password must be at least 8 characters long'),
+      'response/create-patient/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Password must be at least 8 characters long.',
+      }),
       expect.any(Function)
     );
   });
@@ -134,8 +154,12 @@ describe('createPatient', () => {
     await createPatient(validTopic, messageWithInvalidSSN);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/patients/created'),
-      expect.stringContaining('SSN must be in YYMMDDXXXX format or YYYYMMDDXXXX format'),
+      'response/create-patient/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'SSN must be in YYMMDDXXXX format or YYYYMMDDXXXX format',
+      }),
       expect.any(Function)
     );
   });
@@ -147,8 +171,12 @@ describe('createPatient', () => {
 
     expect(Patient.findOne).toHaveBeenCalledWith({ SSN: '2001011234' });
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/patients/created'),
-      expect.stringContaining('Patient already registered'),
+      'response/create-patient/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Patient already registered.',
+      }),
       expect.any(Function)
     );
   });
@@ -156,21 +184,21 @@ describe('createPatient', () => {
   it('should handle successful patient creation', async () => {
     // Mock dependencies
     Patient.findOne.mockResolvedValue(null); // No existing patient
-    bcrypt.default.hash.mockResolvedValue('hashed_password'); // Simulate password hashing
-    console.log(bcrypt.default.hash); 
+    bcrypt.hash.mockResolvedValue('hashed_password'); // Mock password hashing
     Patient.prototype.save = vi.fn().mockResolvedValue(); // Mock save method
 
-    // Call the function
     await createPatient(validTopic, validMessage);
 
-    // Assert that bcrypt.hash is called with the correct arguments
-    expect(bcrypt.default.hash).toHaveBeenCalledWith('password123', 10);
-
-    // Assert that the new patient is saved and MQTT publish is called
+    expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
     expect(Patient.prototype.save).toHaveBeenCalled();
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/patients/created'),
-      expect.stringContaining('Patient created successfully'),
+      'response/create-patient/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'success',
+        message: 'Patient created successfully',
+        newPatient: expect.any(Object),
+      }),
       expect.any(Function)
     );
   });
@@ -181,8 +209,13 @@ describe('createPatient', () => {
     await createPatient(validTopic, validMessage);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/patients/created'),
-      expect.stringContaining('Error creating patient'),
+      'response/create-patient/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Error creating patient',
+        error: 'Database error',
+      }),
       expect.any(Function)
     );
   });

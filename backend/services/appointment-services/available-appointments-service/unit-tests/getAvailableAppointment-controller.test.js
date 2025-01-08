@@ -1,152 +1,167 @@
-import { vi, describe, it, expect, afterAll, beforeEach } from 'vitest';
-import { getAvailableAppointments } from '../getAvailableAppointment.controller.js';
-// import { fetchDentistsInfo } from '../../../dentist-services/fetchDentistInfo.controller.js';
+import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Appointment from '../../models/appointment.js';
 import mqttClient from '../../../../shared/mqtt-client.js';
+import { getAvailableAppointments } from '../getAvailableAppointment.controller.js';
 
 // Mock dependencies
-vi.mock('../../models/appointment.js');
-vi.mock('../../../dentist-services/fetchDentistInfo.controller.js', () => ({
-  fetchDentistsInfo: vi.fn(),
+vi.mock('../../models/appointment.js', () => ({
+  default: {
+    find: vi.fn(),
+  },
 }));
 
 vi.mock('../../../../shared/mqtt-client.js', () => ({
   default: {
     publish: vi.fn(),
-    subscribe: vi.fn(),
-    on: vi.fn(),
-    once: vi.fn(),
-    unsubscribe: vi.fn(),
-    end: vi.fn(),
-  }
+  },
 }));
 
+// Mock console
+vi.spyOn(console, 'error').mockImplementation(() => {});
+vi.spyOn(console, 'log').mockImplementation(() => {});
+
 describe('getAvailableAppointments', () => {
-  const validTopic = 'request/appointments/availability/fetch';
+  const mockTopic = 'request/available-appointments/available';
   const validMessage = JSON.stringify({
     correlationId: '12345',
-    payload: { dentistId: 'dentist123', date: '2024-12-31', location: 'New York' },
+    payload: {
+      dentistId: 'dentist123',
+      date: '2024-12-31',
+      location: 'New York',
+      clinicId: 'clinic123',
+    },
   });
 
   beforeEach(() => {
-    vi.clearAllMocks(); // Reset mocks before each test
+    vi.clearAllMocks();
   });
 
-  it('should ignore requests with an invalid topic', async () => {
-    const invalidTopic = 'invalid/topic';
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('should return an error for invalid action in topic', async () => {
+    const invalidTopic = 'request/available-appointments/invalid-action';
+
     await getAvailableAppointments(invalidTopic, validMessage);
 
-    // Ensure no MQTT publish or database interactions
+    expect(console.error).toHaveBeenCalledWith(
+      'Invalid action in topic: request/available-appointments/invalid-action'
+    );
     expect(mqttClient.publish).not.toHaveBeenCalled();
-    expect(Appointment.find).not.toHaveBeenCalled();
   });
 
-  it('should publish an error response for invalid JSON message', async () => {
+  it('should return an error for invalid JSON message', async () => {
     const invalidMessage = 'Invalid JSON';
-    await getAvailableAppointments(validTopic, invalidMessage);
-
+  
+    // Call the controller
+    await getAvailableAppointments(mockTopic, invalidMessage);
+  
+    // Verify that mqttClient.publish was called with the correct arguments
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/appointments/availability/fetched'),
-      expect.stringContaining('Invalid JSON format in request'),
-      expect.any(Function)
+      'response/available-appointments/available/undefined', // Topic with undefined correlationId
+      JSON.stringify({
+        correlationId: undefined,
+        status: 'error',
+        message: 'Invalid JSON format in request',
+        error: expect.any(Object), // Error should be an object
+      }),
+      expect.any(Function) // Callback argument
     );
   });
-
-  it('should publish an error response for missing or invalid payload', async () => {
+  
+  it('should return an error for missing or invalid payload', async () => {
     const invalidPayloadMessage = JSON.stringify({
       correlationId: '12345',
       payload: null,
     });
 
-    await getAvailableAppointments(validTopic, invalidPayloadMessage);
+    await getAvailableAppointments(mockTopic, invalidPayloadMessage);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/appointments/availability/fetched'),
-      expect.stringContaining('Invalid or missing payload.'),
+      'response/available-appointments/available/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Invalid or missing payload.',
+      }),
       expect.any(Function)
     );
   });
 
-  it('should publish an error response when no appointments are found', async () => {
+  it('should return an error when no appointments are found', async () => {
     Appointment.find.mockReturnValueOnce({
-      sort: vi.fn().mockReturnValue([]), // Simulate an empty array for "no appointments found"
+      sort: vi.fn().mockResolvedValue([]),
     });
-  
-  
-    await getAvailableAppointments(validTopic, validMessage);
+
+    await getAvailableAppointments(mockTopic, validMessage);
 
     expect(Appointment.find).toHaveBeenCalledWith({
       status: { $in: ['available', 'canceled'] },
       dentistId: 'dentist123',
       date: '2024-12-31',
       location: 'New York',
+      clinicId: 'clinic123',
     });
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/appointments/availability/fetched/12345'), // Match the correct topic structure
-      expect.stringContaining('No appointments found.'), // Ensure correct error message
+      'response/available-appointments/available/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'No appointments found.',
+      }),
       expect.any(Function)
     );
   });
 
-  /*
-  it('should return available appointments with mocked dentist information', async () => {
-    // Mock appointments
+  it('should handle successful response with appointments and details', async () => {
     const mockAppointments = [
-      { _id: 'appointment1', dentistId: 'dentist123' },
-      { _id: 'appointment2', dentistId: 'dentist456' },
+      { _id: 'appointment1', dentistId: 'dentist123', clinicId: 'clinic123', toObject: () => ({}) },
+      { _id: 'appointment2', dentistId: 'dentist456', clinicId: 'clinic123', toObject: () => ({}) },
     ];
-  
-    // Mock Appointment.find to return an object with a chainable sort method
-    Appointment.find.mockReturnValue({
-      sort: vi.fn().mockResolvedValue(mockAppointments), // Chainable .sort method
+
+    Appointment.find.mockReturnValueOnce({
+      sort: vi.fn().mockResolvedValue(mockAppointments),
     });
-  
-    // Expected response
-    const expectedResponse = {
-      correlationId: '12345',
-      status: 'success',
-      message: 'Appointments retrieved successfully',
-      appointments: mockAppointments,
-    };
-  
-    // Call the function
-    await getAvailableAppointments(validTopic, validMessage);
-  
-    // Verify Appointment.find is called with the correct query
+
+    await getAvailableAppointments(mockTopic, validMessage);
+
     expect(Appointment.find).toHaveBeenCalledWith({
       status: { $in: ['available', 'canceled'] },
       dentistId: 'dentist123',
       date: '2024-12-31',
       location: 'New York',
+      clinicId: 'clinic123',
     });
-  
-    // Verify mqttClient.publish is called with the expected response
-    expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/appointments/availability/fetched/12345'),
-      JSON.stringify(expectedResponse),
-      expect.any(Function)
-    );
-  }, 10000);
-  */
-  
-  it('should publish an error response when an exception occurs', async () => {
-    Appointment.find.mockRejectedValue(new Error('Database error')); // Simulate a database error
-
-    await getAvailableAppointments(validTopic, validMessage);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/appointments/availability/fetched'),
-      expect.stringContaining('Error fetching appointments'),
+      'response/available-appointments/available/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'success',
+        message: 'Appointments and dentist info retrieved successfully',
+        appointments: expect.any(Array),
+      }),
       expect.any(Function)
     );
   });
-});
 
-// Add cleanup logic after all tests
-afterAll(() => {
-  mqttClient.unsubscribe(); // Unsubscribe from all topics
-  mqttClient.end(); // Close the MQTT connection
-  vi.clearAllTimers();
-  vi.clearAllMocks();
+  it('should return an error when a database exception occurs', async () => {
+    Appointment.find.mockRejectedValueOnce(new Error('Database error'));
+
+    await getAvailableAppointments(mockTopic, validMessage);
+
+    expect(console.error).toHaveBeenCalledWith('Error processing request:', 'Database error');
+    expect(mqttClient.publish).toHaveBeenCalledWith(
+      'response/available-appointments/available/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Error fetching appointments',
+        error: 'Database error',
+      }),
+      expect.any(Function)
+    );
+  });
 });

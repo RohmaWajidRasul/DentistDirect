@@ -4,19 +4,25 @@ import Dentist from '../../models/dentist.js';
 import bcrypt from 'bcrypt';
 import mqttClient from '../../../../shared/mqtt-client.js';
 
+// Mock dependencies
 vi.mock('../../models/dentist.js');
 vi.mock('bcrypt');
 vi.mock('../../../../shared/mqtt-client.js', () => ({
   default: {
     publish: vi.fn(),
+    subscribe: vi.fn(),
   },
 }));
 
 describe('registerDentist', () => {
-  const dentistTopic = 'request/dentists/register';
+  const dentistTopic = 'request/register-dentist';
 
   beforeEach(() => {
-    vi.clearAllMocks(); // Clear mocks before each test
+    vi.clearAllMocks(); // Reset mocks before each test
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks(); // Restore original implementations after each test
   });
 
   it('should ignore requests with an invalid topic', async () => {
@@ -35,8 +41,13 @@ describe('registerDentist', () => {
     await registerDentist(dentistTopic, message);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/dentists/registered'),
-      expect.stringContaining('Invalid JSON format in request'),
+      'response/register-dentist/undefined',
+      JSON.stringify({
+        correlationId: undefined,
+        status: 'error',
+        message: 'Invalid JSON format in request',
+        error: {}, // Updated to match the actual structure
+      }),
       expect.any(Function)
     );
   });
@@ -44,13 +55,10 @@ describe('registerDentist', () => {
   it('should handle missing correlationId', async () => {
     const message = JSON.stringify({ payload: {} });
 
-    // Call the function and ensure no error is thrown
     await registerDentist(dentistTopic, message);
 
-    // Verify mqttClient.publish was not called
     expect(mqttClient.publish).not.toHaveBeenCalled();
   });
-
 
   it('should return an error if any required field is missing', async () => {
     const message = JSON.stringify({
@@ -61,8 +69,12 @@ describe('registerDentist', () => {
     await registerDentist(dentistTopic, message);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/dentists/registered/12345'),
-      expect.stringContaining('All fields are required'),
+      'response/register-dentist/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'All fields are required',
+      }),
       expect.any(Function)
     );
   });
@@ -77,15 +89,19 @@ describe('registerDentist', () => {
         password: 'password123',
         phoneNumber: '123', // Invalid phone number
         specialization: 'Orthodontics',
-        location: 'New York',
+        clinicId: 'clinic123',
       },
     });
 
     await registerDentist(dentistTopic, message);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/dentists/registered/12345'),
-      expect.stringContaining('Phone number should be between 10 and 15 characters.'),
+      'response/register-dentist/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Phone number should be between 10 and 15 characters.',
+      }),
       expect.any(Function)
     );
   });
@@ -100,15 +116,19 @@ describe('registerDentist', () => {
         password: '12345', // Short password
         phoneNumber: '1234567890',
         specialization: 'Orthodontics',
-        location: 'New York',
+        clinicId: 'clinic123',
       },
     });
 
     await registerDentist(dentistTopic, message);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/dentists/registered/12345'),
-      expect.stringContaining('Password must be at least 8 characters long.'),
+      'response/register-dentist/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Password must be at least 8 characters long.',
+      }),
       expect.any(Function)
     );
   });
@@ -124,15 +144,19 @@ describe('registerDentist', () => {
         password: 'password123',
         phoneNumber: '1234567890',
         specialization: 'Orthodontics',
-        location: 'New York',
+        clinicId: 'clinic123',
       },
     });
 
     await registerDentist(dentistTopic, message);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/dentists/registered/12345'),
-      expect.stringContaining('Email already in use.'),
+      'response/register-dentist/12345',
+      JSON.stringify({
+        correlationId: '12345',
+        status: 'error',
+        message: 'Email already in use.',
+      }),
       expect.any(Function)
     );
   });
@@ -143,16 +167,16 @@ describe('registerDentist', () => {
     Dentist.prototype.save = vi.fn().mockResolvedValue();
 
     const message = JSON.stringify({
-      correlationId: '12345',
-      payload: {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        password: 'password123',
-        phoneNumber: '1234567890',
-        specialization: 'Orthodontics',
-        location: 'New York',
-      },
+        correlationId: '12345',
+        payload: {
+            firstName: 'John',
+            lastName: 'Doe',
+            email: 'john.doe@example.com',
+            password: 'password123',
+            phoneNumber: '1234567890',
+            specialization: 'Orthodontics',
+            clinicId: 'clinic123',
+        },
     });
 
     await registerDentist(dentistTopic, message);
@@ -161,13 +185,13 @@ describe('registerDentist', () => {
     expect(bcrypt.hash).toHaveBeenCalledWith('password123', 10);
     expect(Dentist.prototype.save).toHaveBeenCalled();
     expect(mqttClient.publish).toHaveBeenCalledWith(
-      expect.stringContaining('response/dentists/registered/12345'),
-      expect.stringContaining('Dentist registered successfully'),
-      expect.any(Function)
+        'response/register-dentist/12345',
+        JSON.stringify({
+            correlationId: '12345',
+            status: 'success',
+            message: 'Dentist registered successfully',
+        }),
+        expect.any(Function)
     );
-  });
-
-  afterEach(() => {
-    vi.clearAllMocks(); // Clear mocks after each test
   });
 });
