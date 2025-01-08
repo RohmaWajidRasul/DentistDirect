@@ -11,7 +11,7 @@ const fetchDentistSpecialization = async (dentistId) => {
         const dentistIds = [dentistId];
         const payload = { dentistIds };
 
-        console.log(payload);
+        //console.log(payload);
 
         const onResponse = (message) => {
             
@@ -64,7 +64,7 @@ export const matchPreference = async (topic, message) => {
     console.log(`Message received on topic: ${topic}`);
     try {
         const appointment = JSON.parse(message.toString());
-        console.log (appointment);
+        //console.log (appointment);
 
         const { date, dentistId, clinicId, status, patientId } = appointment;
 
@@ -91,22 +91,22 @@ export const matchPreference = async (topic, message) => {
         const matchedPatients = await Patient.find(query);
 
         if (matchedPatients.length > 0) {
-            console.log(`Matched patients: ${matchedPatients.length}`);
+            //console.log(`Matched patients: ${matchedPatients.length}`);
 
             matchedPatients.forEach((patient) => {
-                console.log(patient._id, patientId)
+                //console.log(patient._id, patientId)
                 if (status === 'booked') {
                     if (!patient._id.equals(patientId)) {
                         sendConflictNotification(patient, appointment);                        
                     } else {
-                        console.log('Patient is the same, no notification will be sent.');
+                        //console.log('Patient is the same, no notification will be sent.');
                     }
                 } else {
                     sendMatchNotification(patient, appointment);
                 }
             });
         } else {
-            console.log('No matching patients found for this appointment.');
+            //console.log('No matching patients found for this appointment.');
         }
     } catch (err) {
         console.error('Error processing matchPreference:', err.message);
@@ -132,7 +132,7 @@ const sendMatchNotification = (patient, appointment) => {
         if (err) {
             console.error(`Failed to publish to ${topic}:`, err);
         } else {
-            console.log(`Match notification sent to ${topic}`);
+            //console.log(`Match notification sent to ${topic}`);
         }
     });
 };
@@ -156,7 +156,7 @@ const sendConflictNotification = (patient, appointment) => {
         if (err) {
             console.error(`Failed to publish to ${topic}:`, err);
         } else {
-            console.log(`Conflict notification sent to ${topic}`);
+            //console.log(`Conflict notification sent to ${topic}`);
         }
     });
 };

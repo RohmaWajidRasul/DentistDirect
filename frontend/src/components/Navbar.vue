@@ -45,9 +45,11 @@ export default {
   mounted() {
     this.updateUnreadCount();
     // Update unread count when a new notification arrives
+    window.addEventListener('new-unreadCount', this.updateUnreadCount);
     window.addEventListener('new-notification', this.updateUnreadCount);
   },
   beforeUnmount() {
+    window.removeEventListener('new-unreadCount', this.updateUnreadCount);
     window.removeEventListener('new-notification', this.updateUnreadCount);
   }
 };

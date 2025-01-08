@@ -63,7 +63,7 @@ export const getMessages = async (topic, message) => {
 
 const publishResponse = (correlationId, response) => {
   const responseTopic = `response/messages/fetched/${correlationId}`;
-  console.log(response)
+  //console.log(response)
   mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
     if (err) {
       console.error(`Failed to publish to ${responseTopic}:`, err);

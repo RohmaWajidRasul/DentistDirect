@@ -146,6 +146,8 @@ export default {
                 if (unreadCount > 0) {
                   unreadCount -= 1;
                   localStorage.setItem('unreadCount', unreadCount);
+                  window.dispatchEvent(new Event('new-unreadCount'));
+
                 }
 
                 this.showAlert('Notification marked as read.', 'success');

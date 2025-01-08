@@ -172,6 +172,7 @@ export default {
 
       const unreadCount = parseInt(localStorage.getItem('unreadCount') || '0', 10) + 1;
       localStorage.setItem('unreadCount', unreadCount);
+      console.log("Triggered new notification")
       window.dispatchEvent(new Event('new-notification')) 
     }
   },

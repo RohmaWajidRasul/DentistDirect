@@ -71,7 +71,8 @@ export const manageAppointment = async (topic, message) => {
                     
                         appointment.status = 'booked';
                         appointment.patientId = updates.patientId;
-                        console.log(appointment);
+                        console.log(appointment, updates.patientId);
+                        sendBookingNotification(updates.patientId, appointment);
                         matchPreference(appointment);
                         break;
 
@@ -190,6 +191,29 @@ const notify = (appointment, status) => {
             console.error(`Failed to publish to ${topic}:`, err);
         } else {
             console.log(`Response sent to ${topic}`);
+        }
+    });
+};
+
+const sendBookingNotification = (patient, appointment) => {
+    const topic = `request/create-notification`;
+    const correlationId = Date.now().toString();
+
+    const payload = {
+        patientId: patient,
+        notification: {
+            subject: "Appointment Booked Successfully",
+            body: `You have an appointment on ${new Date(
+                appointment.date
+            ).toLocaleDateString()}.`
+        }
+    };
+
+    mqttClient.publish(topic, JSON.stringify({correlationId, payload}), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${topic}:`, err);
+        } else {
+            console.log(`Booking notification sent to ${topic}`);
         }
     });
 };
