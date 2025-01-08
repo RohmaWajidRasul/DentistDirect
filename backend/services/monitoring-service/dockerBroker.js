@@ -79,29 +79,4 @@ export const spawnBroker = async () => {
 
 }
 
-spawnBroker();
-
-
-
-export const runBroker = () => {
-
-    try {
-        const broker = spawn("docker", ["start", "Broker"]);
-
-    broker.stdout.on('data', (data) => {
-        console.log(`stdout: ${data}`);
-      });
-      
-      broker.stderr.on('data', (data) => {
-        console.error(`stderr: ${data}`);
-      });
-      
-
-    } catch(err) {
-        console.log(err)
-    }
-
-}
-
-
-//runBroker();
+//spawnBroker();
