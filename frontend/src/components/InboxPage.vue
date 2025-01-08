@@ -3,27 +3,28 @@
     <div v-if="selected && smallScreen" class="back-button" @click="goBack()">
       back
     </div>
-    
-    <div v-if="!selected || !smallScreen" class="message-list">  
-      <div 
-        v-for="notification in notifications" 
-        :key="notification._id" 
-        class="inbox" 
+
+    <div v-if="!selected || !smallScreen" class="message-list">
+      <div
+        v-for="notification in notifications"
+        :key="notification._id"
+        class="inbox"
+        :class="{ unread: notification.status === 'unread' }"
         @click="changeStatus(notification)"
       >
         {{ notification.subject }}
-        <img 
+        <img
           v-if="notification.status === 'unread'"
           src="\notification.png"
           class="blue-dot"
-        >
+        />
       </div>
     </div>
 
-    <div class="body">
-      <notification-contents 
-        v-if="selected" 
+    <div class="message-body" v-if="selected">
+      <notification-contents
         :mailBody="selected.body"
+        :createdAt="selected.createdAt"
       />
     </div>
 
@@ -46,39 +47,45 @@ export default {
       notifications: [],
       selected: null,
       alertMessage: null,
-      alertType: 'success'
+      alertType: "success",
     };
   },
   mounted() {
     try {
       this.loadNotifications();
     } catch (error) {
-      this.showAlert('Failed to load notifications. Please try again later.', 'error');
-      console.error('Error loading notifications:', error);
+      this.showAlert(
+        "Failed to load notifications. Please try again later.",
+        "error"
+      );
+      console.error("Error loading notifications:", error);
     }
-    window.addEventListener('new-notification', this.loadNotifications);
+    window.addEventListener("new-notification", this.loadNotifications);
   },
   beforeUnmount() {
-    window.removeEventListener('new-notification', this.loadNotifications);
+    window.removeEventListener("new-notification", this.loadNotifications);
   },
   computed: {
     smallScreen() {
       return window.innerWidth < 801;
-    }
+    },
   },
   methods: {
     loadNotifications() {
-      const storedNotifications = localStorage.getItem('notifications');
+      const storedNotifications = localStorage.getItem("notifications");
       if (storedNotifications) {
         try {
           this.notifications = JSON.parse(storedNotifications);
-          this.showAlert('Notifications loaded successfully.', 'success');
+          this.showAlert("Notifications loaded successfully.", "success");
         } catch (error) {
-          this.showAlert('Failed to parse notifications. Data might be corrupted.', 'error');
-          console.error('Error parsing notifications:', error);
+          this.showAlert(
+            "Failed to parse notifications. Data might be corrupted.",
+            "error"
+          );
+          console.error("Error parsing notifications:", error);
         }
       } else {
-        this.showAlert('No notifications found.', 'info');
+        this.showAlert("No notifications found.", "info");
       }
     },
 
@@ -166,7 +173,7 @@ export default {
       this.selected = clicked;
     },
 
-    showAlert(message, type = 'success') {
+    showAlert(message, type = "success") {
       this.alertMessage = message;
       this.alertType = type;
 
@@ -177,26 +184,77 @@ export default {
 
     goBack() {
       this.selected = null;
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
-.inbox {
-  border: solid black;
-  height: 70px;
-  cursor: pointer;
-  text-align: center;
-  padding-top: 20px;
-}
-
 .wrapper {
   display: flex;
+  gap: 20px;
+  height: 100vh; /* Full viewport height for the wrapper */
+}
+
+.message-list {
+  border-right: 2px solid black;
+  height: 100%;
+  width: 30%;
+  text-align: center;
+  overflow-y: auto;
+  padding-top: 10px;
+  box-sizing: border-box;
+  scrollbar-color: #90c3d4 transparent; /* Firefox: Custom scrollbar colors */
+
+
+  /* Hide scrollbar */
+  scrollbar-width: none; /* Firefox: Hide scrollbar */
+}
+
+.message-list::-webkit-scrollbar {
+  display: none; /* Chrome, Safari: Hide scrollbar */
+}
+
+.message-list:hover {
+  scrollbar-width: thin; /* Show thin scrollbar on hover (Firefox) */
+}
+
+.message-list:hover::-webkit-scrollbar {
+  display: block; /* Show scrollbar on hover (Chrome, Safari) */
+}
+
+.message-list:hover::-webkit-scrollbar-thumb {
+  background-color: #90c3d4;
+  border-radius: 10px;
+}
+
+.message-list:hover::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+
+.message-body {
+  position: relative; /* Ensure the bubble is positioned relative to this container */
+  padding: 20px; /* Optional padding for the section */
+  width: 100%; /* Ensure the parent takes full width */
+  overflow: hidden; /* Prevent overflow issues */
+}
+
+.inbox {
+  background-color: #e8f4fa;
+  border-radius: 8px;
+  padding: 10px 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .inbox:hover {
-  background-color: lightgray;
+  background-color: #d6edf9;
+}
+
+.unread {
+  font-weight: bold;
 }
 
 .back-button {
@@ -207,20 +265,12 @@ export default {
 }
 
 .blue-dot {
-  width: 30px;
-  align-content: center;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: blue;
   position: relative;
   left: 10px;
-}
-
-.message-list {
-  border-right: solid black;
-  width: 30%;
-  text-align: center;
-}
-
-.body {
-  text-align: center;
 }
 
 .alert {
@@ -252,11 +302,11 @@ export default {
   .message-list {
     width: 100%;
   }
+  .body {
+    width: 100%;
+  }
   .inbox {
     height: 100px;
-  }
-  .body {
-    margin: auto;
   }
 }
 </style>
