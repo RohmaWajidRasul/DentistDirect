@@ -42,6 +42,8 @@ const publishRegistration = () => {
     });
 };
 
+
+
 const requestTopic = `request/${serviceName}/${serviceId}`;
 
 mqttClient.on('connect', () => {
@@ -65,13 +67,13 @@ mqttClient.on('message', (topic, message) => {
 
 const publishHeartbeat = () => {
     const heartbeat = {
-        service: 'Create Log Service',
+        service: `${serviceName}`,
         status: 'healthy',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
     };
 
-    mqttClient.publish(`heartbeat/${serviceName}`, JSON.stringify(heartbeat), (err) => {
+    mqttClient.publish(`heartbeat/${serviceName}/${serviceId}`, JSON.stringify(heartbeat), (err) => {
         if (err) {
             console.error('Failed to publish heartbeat:', err);
         }

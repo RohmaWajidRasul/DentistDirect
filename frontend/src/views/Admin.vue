@@ -1,17 +1,17 @@
 <template>
     <div>
-        <div v-if="numberOfUsers">
+        <h3 v-if="numberOfUsers">
             Number of active users: {{ numberOfUsers }}
-        </div>
-        <div v-else>
+        </h3>
+        <h3 v-else>
             Number of active users: 0
-        </div>
-        <div v-if="numberOfAppointments">
+        </h3>
+        <h3 v-if="numberOfAppointments">
             Number of available appointments: {{ numberOfAppointments }}
-        </div>
-        <div v-else>
+        </h3>
+        <h3 v-else>
             Number of available appointments: 0
-        </div>
+        </h3>
         <div v-if="registry">
             <table class="table">
                 <thead>
@@ -24,7 +24,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="(instances, serviceName) in registry" :key="serviceName">
-                        <th scope="row">{{ serviceName }}</th>
+                        <th scope="row">{{ serviceName.replace("-", " ") }}</th>
                         <td>{{ Object.keys(instances).length }}</td>
                         <td>{{ getRequestCountPerService(serviceName) }}</td>
                     </tr>

@@ -42,6 +42,23 @@ const publishRegistration = () => {
     });
 };
 
+const publishHeartbeat = () => {
+    const heartbeat = {
+        service: `${serviceName}`,
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+    };
+
+    mqttClient.publish(`heartbeat/${serviceName}/${serviceId}`, JSON.stringify(heartbeat), (err) => {
+        if (err) {
+            console.error('Failed to publish heartbeat:', err);
+        }
+    });
+};
+
+setInterval(publishHeartbeat, 5000);
+
 const requestTopic = `request/${serviceName}/${serviceId}`;
 
 mqttClient.on('connect', () => {
