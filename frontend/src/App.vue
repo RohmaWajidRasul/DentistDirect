@@ -43,21 +43,24 @@ export default {
     },
     handleAuthAction() {
       if (this.isLoggedIn()) {
-        console.log('Signing out')
+        console.log('Signing out');
 
         const user = JSON.parse(localStorage.getItem("user"));
-        this.unsubscribeFromNotifications(user.userId)
+        this.unsubscribeFromNotifications(user.userId);
 
-        localStorage.removeItem('user') // removes the localStorage key & value
-        localStorage.removeItem('calendarId') // removes the localStorage key & value
-        localStorage.removeItem('motifications') // removes the localStorage key & value
+        localStorage.removeItem('user'); // removes the localStorage key & value
+        localStorage.removeItem('calendarId'); // removes the localStorage key & value
+        localStorage.removeItem('motifications'); // removes the localStorage key & value
 
-        this.loggedIn = false // Update loggedIn status
-        this.globalState.isLoggedIn = false
-        this.$router.push('/')
+        window.dispatchEvent(new Event('logged-out'));
+
+
+        this.loggedIn = false; // Update loggedIn status
+        this.globalState.isLoggedIn = false;
+        this.$router.push('/');
       } else {
-        console.log('Redirecting to login')
-        this.$router.push('/login')
+        console.log('Redirecting to login');
+        this.$router.push('/login');
       }
     },
     

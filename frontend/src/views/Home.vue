@@ -6,11 +6,12 @@
     <h1 class ="welcome-text">
       Your dentist finder in Gothenburg!
     </h1>
-    <div v-if="true" class ="row">
-      <!-- If the user is logged in, show personalized home page -->
-        <card text="My Appointments" link="my-appointments" class="left-card"></card>
-        <card text="Book Appointment" link="slots" imgsrc="booking"></card>
+    <div v-if="loggedIn" class="row cards-container">
+      <card text="My Appointments" link="my-appointments" imgsrc="/find_appointment_2.png"></card>
+      <card text="Book Appointment" link="slots" imgsrc="/find_appointment_2.png"></card>
+      <card text="Inbox" link="inbox" imgsrc="/mail3.png"></card>
     </div>
+
     <div v-else>
       <!-- If the user is not logged in, show generic home page -->
       <b-container fluid>
@@ -36,17 +37,26 @@ import MapComponent from '../components/MapComponent.vue';
       },
       checkLoginStatus() {
         this.$router.go() // Reload the component to reflect the new state
-      }
+      },
+      isLoggedIn() {
+      const loggedIn = !!localStorage.getItem('user') // Converts the value into a boolean
+      return loggedIn
+    },
+
     },
     //async created() {
     //  if (this.globalState.isLoggedIn) {
     //  }
     //},
     mounted() {
+      this.loggedIn = this.isLoggedIn();
       window.addEventListener('authChange', this.checkLoginStatus)
+      window.addEventListener('logged-out', this.checkLoginStatus)
     },
     beforeUnmount() {
       window.removeEventListener('authChange', this.checkLoginStatus)
+      window.removeEventListener('logged-out', this.checkLoginStatus)
+
     },
     setup() {
       const globalState = inject('globalState')
@@ -54,7 +64,7 @@ import MapComponent from '../components/MapComponent.vue';
     },
     data() {
       return {
-        // isLoggedIn: this.$isLoggedIn,
+        loggedIn: false,
         showModal: false,
         showLoginPrompt: false,
       }
@@ -135,6 +145,14 @@ import MapComponent from '../components/MapComponent.vue';
 .Welcome-text {
   font-size: 40;
 }
+
+.cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Optional: adds spacing between the cards */
+  flex-wrap: wrap;
+}
+
 
 @media (width <= 700px) {
   .left-card {

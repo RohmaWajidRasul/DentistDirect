@@ -1,6 +1,6 @@
 <template>
   <div class="card" @click="changePage()">
-    <img src='/find_appointment_2.png'>
+    <img :src="imgsrc" alt="Image" />
     <div class="card-body">
       {{ text }}
     </div>
