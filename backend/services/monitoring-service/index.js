@@ -66,7 +66,7 @@ mqttClient.on('connect', () => {
 mqttClient.on('message', (topic, message) => {
 
     clearTimeout(timer);
-    timer = setTimeout(handleBroker, 30000);
+    timer = setTimeout(handleBroker, 20000);
 
     if (topic.startsWith('heartbeat/')) {
         const serviceName = topic.split('/')[1];
@@ -94,9 +94,12 @@ const handleBroker = () => {
 
     spawnBroker();
 
+    clearTimeout(timer);
+    timer = setTimeout(handleBroker, 20000);
+
 }
 
-let timer = setTimeout(handleBroker, 30000);
+let timer = setTimeout(handleBroker, 20000);
 
 setInterval(() => {
     const currentTime = Date.now();
