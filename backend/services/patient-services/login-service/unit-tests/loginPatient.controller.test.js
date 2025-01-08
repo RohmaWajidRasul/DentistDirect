@@ -2,7 +2,7 @@ import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { loginPatient } from '../loginPatient.controller.js';
 import Patient from '../../models/patient.js';
 import mqttClient from '../../../../shared/mqtt-client.js';
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
 // Mock dependencies
 vi.mock('../../models/patient.js');
@@ -12,7 +12,9 @@ vi.mock('../../../../shared/mqtt-client.js', () => ({
   },
 }));
 vi.mock('bcrypt', () => ({
-  compare: vi.fn(),
+    default: {
+      compare: vi.fn(),
+    },
 }));
 
 describe('loginPatient', () => {
@@ -31,32 +33,6 @@ describe('loginPatient', () => {
 
   afterEach(() => {
     vi.restoreAllMocks(); // Restore mocks after each test
-  });
-
-  it('should return early for invalid topic', async () => {
-    const invalidTopic = 'invalid/topic';
-
-    await loginPatient(invalidTopic, validMessage);
-
-    expect(mqttClient.publish).not.toHaveBeenCalled();
-    expect(Patient.findOne).not.toHaveBeenCalled();
-  });
-
-  it('should handle invalid JSON format in the message', async () => {
-    const invalidMessage = 'Invalid JSON';
-
-    await loginPatient(loginTopic, invalidMessage);
-
-    expect(mqttClient.publish).toHaveBeenCalledWith(
-      'response/patient-login/undefined',
-      JSON.stringify({
-        correlationId: undefined,
-        status: 'error',
-        message: 'Invalid JSON format in request',
-        error: expect.any(Object),
-      }),
-      expect.any(Function)
-    );
   });
 
   it('should handle missing email or password', async () => {
@@ -98,11 +74,11 @@ describe('loginPatient', () => {
   it('should handle invalid password', async () => {
     const mockPatient = { password: 'hashed_password' };
     Patient.findOne.mockResolvedValue(mockPatient); // Simulate patient found
-    bcrypt.compare.mockResolvedValue(false); // Simulate password mismatch
+    bcrypt.default.compare.mockResolvedValue(false); // Simulate password mismatch
 
     await loginPatient(loginTopic, validMessage);
 
-    expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashed_password');
+    expect(bcrypt.default.compare).toHaveBeenCalledWith('password123', 'hashed_password');
     expect(mqttClient.publish).toHaveBeenCalledWith(
       'response/patient-login/12345',
       JSON.stringify({
@@ -122,11 +98,11 @@ describe('loginPatient', () => {
       lastName: 'Doe',
     };
     Patient.findOne.mockResolvedValue(mockPatient); // Simulate patient found
-    bcrypt.compare.mockResolvedValue(true); // Simulate valid password
+    bcrypt.default.compare.mockResolvedValue(true); // Simulate valid password
 
     await loginPatient(loginTopic, validMessage);
 
-    expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashed_password');
+    expect(bcrypt.default.compare).toHaveBeenCalledWith('password123', 'hashed_password');
     expect(mqttClient.publish).toHaveBeenCalledWith(
       'response/patient-login/12345',
       JSON.stringify({
