@@ -5,9 +5,9 @@
       {{ text }}
     </div>
   </div>
-  </template>
+</template>
   
-  <script>
+<script>
   export default {
     props: {
       text: String,
@@ -21,5 +21,5 @@
       }
     }
   }
-  </script>
+</script>
   
