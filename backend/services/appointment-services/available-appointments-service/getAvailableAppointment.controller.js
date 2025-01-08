@@ -63,7 +63,7 @@ export const getAvailableAppointments = async (topic, message) => {
         if (!appointments.length) {
             const noAppointmentsResponse = {
                 correlationId,
-                status: 'error',
+                status: 'success',
                 message: 'No appointments found.',
             };
             return publishAvailabilityResponse(correlationId, noAppointmentsResponse, action);

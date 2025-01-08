@@ -24,10 +24,10 @@ import mqttClient from '../mqttClient.js';
 export default {
     name: "DayContainer",
 
-
     data() {
         return {
             appointments: [],
+            activeRequests: new Set(), 
         };
     },
 
@@ -37,7 +37,6 @@ export default {
 
     methods: {
         getAppointments() {
-
             try {
                 const correlationId = Date.now().toString();
                 const user = JSON.parse(localStorage.getItem("user"));
@@ -71,23 +70,11 @@ export default {
 
                 const timeout = setTimeout(() => {
                     mqttClient.unsubscribe(responseTopic);
-                    //this.showAlert('Server did not respond. Please try again later.', 'error');
                 }, 5000);
 
                 mqttClient.on("message", (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
-                        const response = JSON.parse(message.toString());
-                        console.log("Response received:", response);
-
-                        if (response.status === "success") {
-                            this.appointments = response.appointments;
-                            //this.showAlert('Slots fetched successfully!', 'success');
-                        } else {
-                            console.error("Error response:", response.message);
-                            //this.showAlert(response.message, 'error');
-                        }
-
                         mqttClient.unsubscribe(responseTopic, (err) => {
                             if (err) {
                                 console.error("Failed to unsubscribe from response topic:", err);
@@ -95,17 +82,26 @@ export default {
                                 console.log(`Unsubscribed from response topic: ${responseTopic}`);
                             }
                         });
+
+                        const response = JSON.parse(message.toString());
+                        console.log("Response received:", response);
+
+                        if (response.status === "success") {
+                            this.appointments = response.appointments;
+                        } else {
+                            console.error("Error response:", response.message);
+                        }
                     }
                 });
             } catch (error) {
-                console.error("Error in fatchingBookedAppointments:", error);
+                console.error("Error in fetchingBookedAppointments:", error);
             }
-
         },
-        cancelAppointment(slotid) {
 
+        cancelAppointment(slotid) {
             try {
                 const correlationId = Date.now().toString();
+                this.activeRequests.add(correlationId);
 
                 const payload = {
                     appointmentId: slotid,
@@ -138,22 +134,13 @@ export default {
 
                 const timeout = setTimeout(() => {
                     mqttClient.unsubscribe(responseTopic);
-                    //this.showAlert('Server did not respond. Please try again later.', 'error');
+                    this.activeRequests.delete(correlationId);
                 }, 5000);
 
                 mqttClient.on("message", (topic, message) => {
-                    if (topic === responseTopic) {
+                    if (topic === responseTopic && this.activeRequests.has(correlationId)) {
                         clearTimeout(timeout);
-                        const response = JSON.parse(message.toString());
-                        console.log("Response received:", response);
-                        console.log("Filtered slots response:", response.appointments);
-
-                        if (response.status === "success") {
-                            window.location.reload();
-                        } else {
-                            console.error("Error response:", response.message);
-                            //this.showAlert(response.message, 'error');
-                        }
+                        this.activeRequests.delete(correlationId);
 
                         mqttClient.unsubscribe(responseTopic, (err) => {
                             if (err) {
@@ -162,13 +149,21 @@ export default {
                                 console.log(`Unsubscribed from response topic: ${responseTopic}`);
                             }
                         });
+
+                        const response = JSON.parse(message.toString());
+                        console.log("Response received:", response);
+
+                        if (response.status === "success") {
+                            this.appointments = this.appointments.filter(
+                                (appointment) => appointment._id !== slotid
+                            );                        } else {
+                            console.error("Error response:", response.message);
+                        }
                     }
                 });
             } catch (error) {
-                console.error("Error in fetchSlotsAndDentists:", error);
-                //this.showAlert("An error occurred while fetching slots. Please try again later.", 'error');
+                console.error("Error in cancelAppointment:", error);
             }
-
         },
     },
 };
@@ -186,12 +181,10 @@ export default {
     font-size: 16px;
     border-radius: 8px;
     border: 0px;
-
-
 }
 
 .cancel-button:hover {
-background-color: darkblue;
+    background-color: darkblue;
 }
 
 .day-container {
@@ -201,13 +194,9 @@ background-color: darkblue;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    /* Added for responsiveness*/
     box-sizing: border-box;
-    /* Added for responsiveness*/
     white-space: normal;
-    /* Allow wrapping of text */
     word-wrap: break-word;
-    /* Break long words if necessary */
 }
 
 .top-text {
@@ -227,7 +216,6 @@ background-color: darkblue;
     display: flex;
     flex-direction: column;
     gap: 5px;
-    /* Add spacing between slot items */
     width: 100%;
 }
 
@@ -243,7 +231,6 @@ background-color: darkblue;
     border-radius: 8px;
     border: 1px solid #c3e6cb;
     background-color: #d4edda;
-    /* Green shade */
     transition: transform 0.2s ease;
     overflow: hidden;
     width: 100%;
@@ -264,20 +251,14 @@ background-color: darkblue;
 .slot-dentist {
     margin-bottom: 5px;
     white-space: normal;
-    /* Allow wrapping of text */
     word-wrap: break-word;
-    /* Break long words if necessary */
 }
 
-/* Responsive scaling */
 @media (max-width: 480px) {
-
-    /* Mobile L */
     .available-slot {
         flex-direction: column;
         padding: 10px;
         overflow-y: auto;
-        /* Enable vertical scrolling */
         overflow-x: auto;
     }
 
@@ -289,13 +270,10 @@ background-color: darkblue;
 }
 
 @media (max-width: 320px) {
-    /* Mobile S */
-
     .available-slot {
         flex-direction: column;
         padding: 15px;
         overflow-y: auto;
-        /* Enable vertical scrolling */
         overflow-x: auto;
     }
 
