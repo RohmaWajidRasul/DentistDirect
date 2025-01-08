@@ -11,7 +11,8 @@ import "vue-cal/dist/vuecal.css";
 
 const app = createApp(App);
 const globalState = reactive({
-    isLoggedIn: false
+    isLoggedIn: false,
+    isAdmin: false
   })
 app.provide('globalState', globalState)
 app.use(createBootstrap());

@@ -24,7 +24,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="(instances, serviceName) in registry" :key="serviceName">
-                        <th scope="row">{{ serviceName.replace("-", " ") }}</th>
+                        <th scope="row">{{ serviceName }}</th>
                         <td>{{ Object.keys(instances).length }}</td>
                         <td>{{ getRequestCountPerService(serviceName) }}</td>
                     </tr>

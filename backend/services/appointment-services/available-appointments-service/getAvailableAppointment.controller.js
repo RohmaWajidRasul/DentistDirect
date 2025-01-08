@@ -116,7 +116,7 @@ export const getAvailableAppointments = async (topic, message) => {
 const fetchDentistsInfo = (dentistIds) => {
     return new Promise((resolve, reject) => {
         const correlationId = generateCorrelationId();
-        console.log(correlationId)
+        //console.log(correlationId)
 
         const payload = { dentistIds };
         //console.log("in fetchDentistInfo")
@@ -178,7 +178,7 @@ const fetchDentistsInfo = (dentistIds) => {
 const fetchClinicsInfo = (clinicIds) => {
     return new Promise((resolve, reject) => {
         const correlationId = generateCorrelationId();
-        console.log(correlationId);
+        //console.log(correlationId);
 
         const payload = { clinicIds };
 

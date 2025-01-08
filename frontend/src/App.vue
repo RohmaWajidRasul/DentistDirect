@@ -40,11 +40,10 @@ export default {
     isLoggedIn() {
       const loggedIn = !!localStorage.getItem('user') // Converts the value into a boolean
       console.log('Is user logged in? ', loggedIn)
+      this.globalState.isLoggedIn = loggedIn;
       return loggedIn
     },
-    updateAdminStatus() {
-      this.isAdmin = !this.isAdmin;
-    },
+
     handleAuthAction() {
       if (this.isLoggedIn()) {
         console.log('Signing out')
@@ -59,15 +58,25 @@ export default {
         this.$router.push('/login')
       }
     },
+    isAdminLoggedIn() {
+      if(this.loggedIn) {
+        const user = JSON.parse(localStorage.getItem("user"))
+        console.log(user)
+        this.isAdmin = user.isAdmin;
+      } else {
+        this.isAdmin = false;
+      }
+    },
     updateLoggedInState() {
       this.loggedIn = this.isLoggedIn() // Update loggedIn state when auth changes
+      this.isAdminLoggedIn();
       console.log('Updated login state: ', this.loggedIn)
     }
   },
   mounted() {
     this.loggedIn = this.isLoggedIn() // Set initial login state
+    this.isAdminLoggedIn();
     window.addEventListener('authChange', this.updateLoggedInState)
-    window.addEventListener('admin', this.updateAdminStatus)
   },
   beforeUnmount() {
     window.removeEventListener('authChange', this.updateLoggedInState)
