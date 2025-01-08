@@ -1,8 +1,5 @@
 <template>
   <div class="wrapper">
-    <div v-if="selected && smallScreen" class="back-button" @click="goBack()">
-      back
-    </div>
 
     <div v-if="!selected || !smallScreen" class="message-list">
       <div
@@ -25,6 +22,7 @@
       <notification-contents
         :mailBody="selected.body"
         :createdAt="selected.createdAt"
+        @go-back="goBack" 
       />
     </div>
 
@@ -193,7 +191,7 @@ export default {
 .wrapper {
   display: flex;
   gap: 20px;
-  height: 100vh; /* Full viewport height for the wrapper */
+  height: 100vh;
 }
 
 .message-list {
@@ -204,23 +202,20 @@ export default {
   overflow-y: auto;
   padding-top: 10px;
   box-sizing: border-box;
-  scrollbar-color: #90c3d4 transparent; /* Firefox: Custom scrollbar colors */
-
-
-  /* Hide scrollbar */
-  scrollbar-width: none; /* Firefox: Hide scrollbar */
+  scrollbar-color: #90c3d4 transparent;
+  scrollbar-width: none;
 }
 
 .message-list::-webkit-scrollbar {
-  display: none; /* Chrome, Safari: Hide scrollbar */
+  display: none;
 }
 
 .message-list:hover {
-  scrollbar-width: thin; /* Show thin scrollbar on hover (Firefox) */
+  scrollbar-width: thin;
 }
 
 .message-list:hover::-webkit-scrollbar {
-  display: block; /* Show scrollbar on hover (Chrome, Safari) */
+  display: block;
 }
 
 .message-list:hover::-webkit-scrollbar-thumb {
@@ -234,10 +229,10 @@ export default {
 
 
 .message-body {
-  position: relative; /* Ensure the bubble is positioned relative to this container */
-  padding: 20px; /* Optional padding for the section */
-  width: 100%; /* Ensure the parent takes full width */
-  overflow: hidden; /* Prevent overflow issues */
+  position: relative;
+  padding: 20px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .inbox {
@@ -259,9 +254,11 @@ export default {
 
 .back-button {
   margin-left: 10px;
-  text-align: left;
+  text-align: center;
   cursor: pointer;
   top: 50px;
+  background-color: blue;
+  color: white;
 }
 
 .blue-dot {

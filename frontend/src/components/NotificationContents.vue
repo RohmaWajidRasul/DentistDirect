@@ -1,7 +1,11 @@
 <template>
   <div class="notification-bubble">
+    
     <div class="notification-body">
       {{ mailBody }}
+      <div class="back-button" @click="goBack()">
+        &lt; Back
+      </div>
     </div>
     <div class="created-at">
       Sent at: {{ formattedDate }}
@@ -22,6 +26,11 @@ export default {
       return date.toLocaleString();
     },
   },
+  methods: {
+    goBack() {
+      this.$emit('go-back');
+    },
+  },
 };
 </script>
 
@@ -33,10 +42,14 @@ export default {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   word-wrap: break-word;
   white-space: normal;
-  width: calc(100% - 40px); /* Full width minus 20px on each side */
-  margin: 0 auto; /* Center the bubble horizontally */
-  max-width: 100%; /* Prevent overflowing */
-  box-sizing: border-box; /* Ensure padding is included in the width */
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  max-width: 100%;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  flex-direction: column; 
+
 }
 
 .notification-body {
@@ -48,5 +61,25 @@ export default {
   text-align: right;
   font-size: 0.9rem;
   color: #555;
+  margin-bottom: 30px;
 }
+
+.back-button {
+  position: absolute;
+  bottom: 10px; 
+  right: 10px;
+  background-color: white;
+  color: #5581af;
+  border: 1px solid #5581af;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  align-self: flex-end;
+}
+.back-button:hover {
+  background-color: #f0f0f0;
+}
+
 </style>
