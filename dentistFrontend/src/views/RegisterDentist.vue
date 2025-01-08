@@ -85,47 +85,10 @@
           required
         />
       </div>
-
-      <div class="form-group">
-        <label for="location">Location</label>
-        <input
-          type="text"
-          class="form-control"
-          id="location"
-          v-model="user.location"
-          placeholder="Enter your location"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="latitude">Latitude</label>
-        <input
-          type="number"
-          step="any"
-          class="form-control"
-          id="latitude"
-          v-model="user.latitude"
-          placeholder="Enter latitude"
-          required
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="longitude">Longitude</label>
-        <input
-          type="number"
-          step="any"
-          class="form-control"
-          id="longitude"
-          v-model="user.longitude"
-          placeholder="Enter longitude"
-          required
-        />
-      </div>
-
-      <button type="submit" class="btn btn-primary">Sign Up</button>
+      <div class="btn-hugger">
+      <button type="submit" class="btn btn-primary" :disabled="isLoading">Sign Up</button>
       <span v-if="isLoading">Signing Up...</span>
+      </div>
     </form>
   </div>
 </template>
@@ -145,9 +108,7 @@ export default {
         password: "",
         phoneNumber: "",
         specialization: "",
-        location: "",
-        latitude: null,
-        longitude: null,
+        clinicId: "677d7308d21b0c633e3092b1"
       },
       errorMessages: [],
       alertMessage: null,
@@ -165,10 +126,7 @@ export default {
         "email",
         "phoneNumber",
         "password",
-        "specialization",
-        "location",
-        "latitude",
-        "longitude",
+        "specialization"
       ];
       // Check if all required fields are filled
       requiredFields.forEach((field) => {
@@ -202,18 +160,6 @@ export default {
       if (this.user.specialization && this.user.specialization.length < 3) {
         this.errorMessages.push(
           "Specialization must be at least 3 characters long."
-        );
-      }
-
-      // Validate location
-      if (this.user.location && this.user.location.length < 3) {
-        this.errorMessages.push("Location must be at least 3 characters long.");
-      }
-
-      // Validate latitude and longitude as numbers
-      if (isNaN(this.user.latitude) || isNaN(this.user.longitude)) {
-        this.errorMessages.push(
-          "Latitude and longitude must be valid numbers."
         );
       }
 
@@ -252,4 +198,9 @@ export default {
   },
 };
 </script>
+<style scoped>
+.btn-hugger {
+  margin: 20px;
+}
+</style>
 

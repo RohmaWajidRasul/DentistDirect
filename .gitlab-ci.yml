@@ -4,7 +4,6 @@ image: node:20-alpine
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - node_modules/
     - frontend/node_modules/
     - backend/node_modules/
 
@@ -61,6 +60,7 @@ test-backend:
     PATIENTDB_PRIMARY_URI: "mongodb://mongo:27017/patients"
     DENTISTDB_PRIMARY_URI: "mongodb://mongo:27017/dentists"
     APPOINTMENTDB_PRIMARY_URI: "mongodb://mongo:27017/appointments"
+    CLINICDB_PRIMARY_URI: "mongodb://mongo:27017/clinics"
     MQTT_BROKER_URL_BACKEND: "mqtt://mqtt:1883"
     PORT_DENTIST_API: 5007 
     PORT_GATEWAY: 3000
@@ -72,6 +72,7 @@ test-backend:
     - echo "MONGODB_URI_PATIENTS=$MONGODB_URI_PATIENTS" > ../.env
     - echo "MONGODB_URI_DENTISTS=$MONGODB_URI_DENTISTS" >> ../.env
     - echo "MONGODB_URI_APPOINTMENTS=$MONGODB_URI_APPOINTMENTS" >> ../.env
+    - echo "MONGODB_URI_CLINICS=$MONGODB_URI_CLINICS" >> ../.env
     - echo "MQTT_BROKER_URL_BACKEND=$MQTT_BROKER_URL_BACKEND" >> ../.env
     - echo "PORT_DENTIST_API=$PORT_DENTIST_API" >> ../.env
     - echo "PORT_GATEWAY=$PORT_GATEWAY" >> ../.env

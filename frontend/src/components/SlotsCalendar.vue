@@ -26,6 +26,21 @@
     props: {
       slots: Object,
     },
+    /* watch: {
+      // Watch for changes in the 'slots' prop
+      slots(newSlots) {
+        console.log("Slots prop changed:", newSlots);
+
+        // Only log if the slots prop is not null/undefined
+        if (newSlots) {
+          for (const [week, weekSlots] of Object.entries(newSlots)) {
+            console.log(`Week: ${week}, Week Slots:`, weekSlots);
+          }
+        } else {
+          console.error("Slots data is not available.");
+        }
+      }
+    }, */
     methods: {
       bookSlot(slot) {
         this.$emit("bookSlot", slot);

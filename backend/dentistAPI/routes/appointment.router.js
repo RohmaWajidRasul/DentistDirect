@@ -117,51 +117,41 @@ router.patch("/:appointmentId", (req, res) => {
 
   const correlationId = Date.now().toString();
 
-  let requestTopic;
-  let responseTopic;
-
-  if (status === "canceled") {
-    requestTopic = "request/appointment-management/cancel";
-    responseTopic = `response/appointment-management/canceled/${correlationId}`;
-  } else if (status === "deleted") {
-    requestTopic = "request/appointment-management/delete";
-    responseTopic = `response/appointment-management/deleted/${correlationId}`;
-  }
-
-  const payload = { appointmentId, ...req.body };
-
-  mqttClient.publish(
-    requestTopic,
-    JSON.stringify({ correlationId, payload }),
-    (err) => {
-      if (err) {
-        console.error("Failed to publish request", err);
-        return res.status(500).json({ message: "Failed to publish request" });
-      }
-    }
-  );
-
-  const timeout = setTimeout(() => {
-    mqttClient.unsubscribe(responseTopic);
-    return res
-      .status(504)
-      .json({ message: "Request timeout. No response from server." });
-  }, 5000);
-
-  mqttClient.subscribe(responseTopic, (err) => {
-    if (err) {
-      clearTimeout(timeout);
-      console.error("Failed to subscribe to response topic", err);
-      return res
-        .status(500)
-        .json({ message: "Failed to subscribe to response topic" });
-    }
-  });
-
-  mqttClient.on("message", (topic, message) => {
-    if (topic === responseTopic) {
-      clearTimeout(timeout);
-      mqttClient.unsubscribe(responseTopic);
+    let requestTopic = "request/appointment-management";
+    let responseTopic = `response/appointment-management/updated/${correlationId}`;
+  
+    const payload = { appointmentId, ...req.body };
+  
+    mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
+        if (err) {
+            console.error("Failed to publish request", err);
+            return res
+                .status(500)
+                .json({ message: "Failed to publish request" });
+        }
+    });
+  
+    const timeout = setTimeout(() => {
+        mqttClient.unsubscribe(responseTopic);
+        return res
+          .status(504)
+          .json({ message: "Request timeout. No response from server." });
+    }, 5000);
+    
+    mqttClient.subscribe(responseTopic, (err) => {
+        if (err) {
+            clearTimeout(timeout);
+            console.error("Failed to subscribe to response topic", err);
+            return res
+                .status(500)
+                .json({ message: "Failed to subscribe to response topic" });
+        }  
+    });
+  
+    mqttClient.on("message", (topic, message) => {
+        if (topic === responseTopic) {
+          clearTimeout(timeout);
+          mqttClient.unsubscribe(responseTopic);
 
       const response = JSON.parse(message.toString());
 

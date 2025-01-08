@@ -14,10 +14,6 @@
         <label for="endTime">End Time:</label>
         <input type="time" v-model="formData.endTime" required />
       </div>
-      <div class="form-group">
-        <label for="duration">Duration (minutes):</label>
-        <input type="number" v-model="formData.duration" required />
-      </div>
       <div class="button-div">
         <button type="submit">Create Slot</button>
       </div>
@@ -36,6 +32,7 @@ export default {
     return {
       formData: {
         dentistId: "",
+        clinicId: "",
         date: "",
         startTime: "",
         endTime: "",
@@ -65,7 +62,8 @@ export default {
       try {
         const dentistObject = JSON.parse(dentist);
         this.formData.dentistId = dentistObject._id;
-        console.log("Dentist ID retrieved:", this.formData.dentistId); // Debugging
+        this.formData.clinicId = dentistObject.clinicId;
+        console.log("Dentist ID and clininc ID retrieved:", this.formData.dentistId, this.formData.clinicId); // Debugging
       } catch (error) {
         console.error("Error parsing dentist data from localStorage:", error);
       }
