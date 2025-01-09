@@ -231,7 +231,7 @@ export default {
 
             if (response.status === "success") {
               this.processSlots(response.appointments);
-              this.showAlert("Slots fetched successfully!", "success");
+              //this.showAlert("Slots fetched successfully!", "success");
             } else {
               console.error("Error response:", response);
             }
@@ -365,8 +365,68 @@ export default {
     nextMonth() {
       this.currentDate = addMonths(this.currentDate, 1);
     },
-    bookSlot(slot) {
-      alert(`Slot booked: ${slot.startTime} - ${slot.endTime} on ${slot.date}`);
+    bookSlot(data) {
+      try {
+        const correlationId = Date.now().toString();
+         
+
+        const payload = data.payload;
+
+        console.log("Publishing payload:", payload);
+
+        mqttClient.publish(
+          "request/appointment-management",
+          JSON.stringify({ correlationId, payload }),
+          (err) => {
+            if (err) {
+              console.error("Failed to publish request:", err);
+              throw new Error("Failed to publish request");
+            }
+            console.log(`Request published with correlationId: ${correlationId}`);
+          }
+        );
+
+        const responseTopic = `response/appointment-management/updated/${correlationId}`;
+        mqttClient.subscribe(responseTopic, (err) => {
+          if (err) {
+            console.error("Failed to subscribe to response topic:", err);
+            throw new Error("Failed to subscribe to response topic");
+          }
+          console.log(`Subscribed to response topic: ${responseTopic}`);
+        });
+
+        const timeout = setTimeout(() => {
+          mqttClient.unsubscribe(responseTopic);
+          this.showAlert("Server did not respond. Please try again later.", "error");
+        }, 5000);
+
+        mqttClient.on("message", (topic, message) => {
+          if (topic === responseTopic) {
+            clearTimeout(timeout);
+            const response = JSON.parse(message.toString());
+            console.log("Response received:", response);
+
+            if (response.status === "success") {
+              console.log("success");
+              this.showAlert(data.successMessage);
+            } else if(response.status === "error") {
+              console.error("Error response:", response.message);
+              this.showAlert("Appointment could not be booked");
+            }
+
+            mqttClient.unsubscribe(responseTopic, (err) => {
+              if (err) {
+                console.error("Failed to unsubscribe from response topic:", err);
+              } else {
+                console.log(`Unsubscribed from response topic: ${responseTopic}`);
+              }
+            });
+          }
+        });
+      } catch (error) {
+        console.error("Error in slot card:", error.message);
+        this.showAlert("An error occurred while booking slots. Please try again later.",error);
+      }
     },
   },
 };
