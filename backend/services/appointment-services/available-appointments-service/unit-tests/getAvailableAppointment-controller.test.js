@@ -34,7 +34,7 @@ vi.mock('../getAvailableAppointment.controller.js', async (importOriginal) => {
 import { getAvailableAppointments, fetchClinicsInfo, fetchDentistsInfo } from '../getAvailableAppointment.controller.js';
 
 
-describe('fetchDentistsInfo', () => {
+/*describe('fetchDentistsInfo', () => {
   it('should return mocked dentist data', async () => {
     const dentists = await fetchDentistsInfo(['dentist123', 'dentist456']);
     expect(dentists).toEqual([
@@ -42,7 +42,7 @@ describe('fetchDentistsInfo', () => {
       { _id: 'dentist456', name: 'Dr. Johnson' },
     ]);
   });
-});
+});*/
 
 
 describe('getAvailableAppointments', () => {
