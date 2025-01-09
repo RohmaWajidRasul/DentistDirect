@@ -19,6 +19,7 @@
                 :date="weekDates[day]"
                 :daySlots="weekSlots[weekDates[day]] || []"
                 @show-slot-details="showSlotDetails"
+                @book-slot="bookSlot"
               />
             </td>
           </tr>
@@ -32,6 +33,7 @@
                 :date="weekDates[day]"
                 :daySlots="weekSlots[weekDates[day]] || []"
                 @show-slot-details="showSlotDetails"
+                @book-slot="bookSlot"
               />
       </div>
     </div>
@@ -45,7 +47,7 @@
     name: "WeekContainer",
     components: { DayContainer },
     props: {
-      week: Number,
+      week: String,
       weekSlots: Object,
     },
     computed: {
@@ -70,6 +72,9 @@
       showSlotDetails(slot) {
         this.$emit("show-slot-details", slot);
       },
+      bookSlot(data) {
+        this.$emit("book-slot", data)
+      }
     },
   };
   </script>

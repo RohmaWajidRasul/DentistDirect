@@ -24,11 +24,20 @@ export default {
   },
   methods: {
     bookSlot() {
-      alert(`Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`);
+      //alert(`Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`);
+      const user = JSON.parse(localStorage.getItem("user"));
 
-      this.$emit("book-slot");
+      const data = {
+        successMessage: `Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`,
+        payload: {
+          patientId: user.userId,
+          appointmentId: this.slotInfo.id,
+          status: "booked",
+        }
+      }
+
+      this.$emit("book-slot", data);
       this.$emit("close");
-      this.book();
     },
     async book() {
       try {
