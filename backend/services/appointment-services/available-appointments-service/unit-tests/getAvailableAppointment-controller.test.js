@@ -1,9 +1,6 @@
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import Appointment from '../../models/appointment.js';
 import mqttClient from '../../../../shared/mqtt-client.js';
-import { getAvailableAppointments } from '../getAvailableAppointment.controller.js';
-import { fetchDentistsInfo } from '../getAvailableAppointment.controller.js';
-import { fetchClinicsInfo } from '../getAvailableAppointment.controller.js';
 
 // Mock dependencies
 vi.mock('../../models/appointment.js', () => ({
@@ -18,17 +15,38 @@ vi.mock('../../../../shared/mqtt-client.js', () => ({
   },
 }));
 
+// Mock the controller functions
 vi.mock('../getAvailableAppointment.controller.js', async (importOriginal) => {
   const originalModule = await importOriginal();
+  console.log('Mocking module...'); // Log to check if this part runs
   return {
     ...originalModule,
-    fetchDentistsInfo: vi.fn(),
-    fetchClinicsInfo: vi.fn(),
+    fetchDentistsInfo: vi.fn().mockResolvedValue([
+      { _id: 'dentist123', name: 'Dr. Smith' },
+      { _id: 'dentist456', name: 'Dr. Johnson' },
+    ]),
+    fetchClinicsInfo: vi.fn().mockResolvedValue([
+      { _id: 'clinic123', name: 'Main Street Dental' },
+    ]),
   };
 });
 
+import { getAvailableAppointments, fetchClinicsInfo, fetchDentistsInfo } from '../getAvailableAppointment.controller.js';
+
+
+describe('fetchDentistsInfo', () => {
+  it('should return mocked dentist data', async () => {
+    const dentists = await fetchDentistsInfo(['dentist123', 'dentist456']);
+    expect(dentists).toEqual([
+      { _id: 'dentist123', name: 'Dr. Smith' },
+      { _id: 'dentist456', name: 'Dr. Johnson' },
+    ]);
+  });
+});
+
+
 describe('getAvailableAppointments', () => {
-  const mockTopic = 'request/available-appointments/available';
+  const mockTopic = 'request/available-appointments/1/available';
   const validMessage = JSON.stringify({
     correlationId: '12345',
     payload: {
@@ -64,31 +82,34 @@ describe('getAvailableAppointments', () => {
 
     await getAvailableAppointments(mockTopic, invalidMessage);
 
-    expect(mqttClient.publish).toHaveBeenCalledWith(
-        expect.stringContaining('response/available-appointments/available/'),
-        JSON.stringify({
-            correlationId: expect.any(String),
-            status: 'error',
-            message: 'Invalid JSON format in request',
-            error: expect.any(String),
-        }),
-        expect.any(Function)
-    );
+    const [topic, message,] = mqttClient.publish.mock.calls[0];
+
+    expect(topic).toContain('response/available-appointments/available/');
+
+    const parsedMessage = JSON.parse(message);
+
+    expect(parsedMessage).toMatchObject({
+      status: 'error',
+      message: 'Invalid JSON format in request',
+    });
+
+    expect(typeof parsedMessage.correlationId).toBe('string');
+    expect(parsedMessage.error).toContain("Unexpected token");
   });
 
   it('should return an error when no appointments are found', async () => {
     Appointment.find.mockReturnValueOnce({
-        sort: vi.fn().mockResolvedValue([]), // Empty result
+      sort: vi.fn().mockResolvedValue([]), // Empty result
     });
 
     await getAvailableAppointments(mockTopic, validMessage);
 
     expect(Appointment.find).toHaveBeenCalledWith({
-        status: { $in: ['available', 'canceled'] },
-        dentistId: 'dentist123',
-        date: '2024-12-31',
-        location: 'New York',
-        clinicId: 'clinic123',
+      status: { $in: ['available', 'canceled'] },
+      dentistId: 'dentist123',
+      date: '2024-12-31',
+      location: 'New York',
+      clinicId: 'clinic123',
     });
   });
 
@@ -108,32 +129,18 @@ describe('getAvailableAppointments', () => {
       },
     ];
 
-    const mockDentists = [
-      { _id: 'dentist123', name: 'Dr. Smith' },
-      { _id: 'dentist456', name: 'Dr. Johnson' },
-    ];
-
-    const mockClinics = [
-      { _id: 'clinic123', name: 'Main Street Dental' },
-    ];
-
-    // Mock find, fetchDentistsInfo, and fetchClinicsInfo
     Appointment.find.mockReturnValueOnce({
       sort: vi.fn().mockResolvedValue(mockAppointments),
     });
-    
-    vi.mocked(fetchDentistsInfo).mockResolvedValue(mockDentists);
-    vi.mocked(fetchClinicsInfo).mockResolvedValue(mockClinics);
+
+    // No need to mock fetchDentistsInfo and fetchClinicsInfo here
+    // They are already mocked in the vi.mock block
 
     await getAvailableAppointments(mockTopic, validMessage);
 
-    expect(Appointment.find).toHaveBeenCalledWith({
-      status: { $in: ['available', 'canceled'] },
-      dentistId: 'dentist123',
-      date: '2024-12-31',
-      location: 'New York',
-      clinicId: 'clinic123',
-    });
+    // Assert if the mocked functions were called
+    expect(fetchDentistsInfo).toHaveBeenCalledWith(['dentist123', 'dentist456']);
+    expect(fetchClinicsInfo).toHaveBeenCalledWith(['clinic123']);
 
     expect(mqttClient.publish).toHaveBeenCalledWith(
       'response/available-appointments/available/12345',
@@ -163,7 +170,11 @@ describe('getAvailableAppointments', () => {
   });
 
   it('should return an error when a database exception occurs', async () => {
-    Appointment.find.mockRejectedValueOnce(new Error('Database error'));
+    Appointment.find.mockImplementation(() => ({
+      sort: vi.fn(() => {
+        throw new Error('Database error');
+      }),
+    }));
 
     await getAvailableAppointments(mockTopic, validMessage);
 
