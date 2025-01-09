@@ -24,15 +24,22 @@ export default {
   },
   methods: {
     bookSlot() {
+      const loggedIn = !!localStorage.getItem('user');
       //alert(`Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`);
       const user = JSON.parse(localStorage.getItem("user"));
-
-      const data = {
-        successMessage: `Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`,
-        payload: {
-          patientId: user.userId,
-          appointmentId: this.slotInfo.id,
-          status: "booked",
+      let data;
+      if (loggedIn) {
+        data = {
+          successMessage: `Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`,
+          payload: {
+            patientId: user.userId,
+            appointmentId: this.slotInfo.id,
+            status: "booked",
+          }
+        }
+      } else {
+        data = {
+          successMessage: `Not logged in`,
         }
       }
 

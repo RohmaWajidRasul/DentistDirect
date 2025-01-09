@@ -92,8 +92,8 @@ export default {
 <style scoped>
 
 .badge {
-  background-color: #30355f !important; /* Pale pink */
-  color: #ffffff !important; /* Dark red text color */
+  background-color: #30355f !important;
+  color: #ffffff !important; 
   border-radius: 12px;
   padding: 0.25em 0.5em;
   font-size: 14px;
