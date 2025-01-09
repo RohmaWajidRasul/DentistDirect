@@ -56,7 +56,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .badge {
   margin-left: 8px;
   font-size: 0.8rem;
