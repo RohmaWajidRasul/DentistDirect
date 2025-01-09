@@ -230,7 +230,11 @@ export default {
             console.log("Response received:", response);
 
             if (response.status === "success") {
+              if(response.message == 'No appointments found.') {
+                this.showAlert("No slots available", "error");
+              } else {
               this.processSlots(response.appointments);
+              }
               //this.showAlert("Slots fetched successfully!", "success");
             } else {
               console.error("Error response:", response);
