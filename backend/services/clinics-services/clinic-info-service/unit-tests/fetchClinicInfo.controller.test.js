@@ -1,4 +1,4 @@
-import { vi, describe, it, expect, afterEach } from 'vitest';
+import { vi, describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { fetchClinicInfo } from '../fetchClinicInfo.controller.js';
 import Clinic from '../../models/clinic.js';
 import mqttClient from '../../../../shared/mqtt-client.js';
