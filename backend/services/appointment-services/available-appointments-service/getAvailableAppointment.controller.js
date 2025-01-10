@@ -22,11 +22,12 @@ export const getAvailableAppointments = async (topic, message) => {
         try {
             parsedMessage = JSON.parse(message.toString());
         } catch (error) {
+            correlationId = generateCorrelationId();
             const errorResponse = {
                 correlationId,
                 status: 'error',
                 message: 'Invalid JSON format in request',
-                error
+                error: error.message,
             };
             return publishAvailabilityResponse(correlationId, errorResponse, action);
         }
@@ -34,7 +35,7 @@ export const getAvailableAppointments = async (topic, message) => {
 
         if (!parsedMessage.payload || typeof parsedMessage.payload !== 'object') {
             const errorResponse = {
-                correlationId,
+                correlationId: parsedMessage.correlationId || generateCorrelationId(),
                 status: 'error',
                 message: 'Invalid or missing payload.',
             };
