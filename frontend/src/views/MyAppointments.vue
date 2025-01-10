@@ -69,35 +69,34 @@ export default {
                     console.log(`Subscribed to response topic: ${responseTopic}`);
                 });
 
-                const timeout = setTimeout(() => {
-                    mqttClient.unsubscribe(responseTopic);
-                    //this.showAlert('Server did not respond. Please try again later.', 'error');
-                }, 5000);
-
-                mqttClient.on("message", (topic, message) => {
+                const handleMessage = (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
+                        mqttClient.off("message", handleMessage);
                         const response = JSON.parse(message.toString());
                         console.log("Response received:", response);
                         console.log("Filtered slots response:", response.appointments);
 
                         if (response.status === "success") {
+                            console.log(response.appointments)
                             this.appointments = response.appointments;
-                            //this.showAlert('Slots fetched successfully!', 'success');
+                            this.showAlert('Slots fetched successfully!', 'success');
                         } else {
                             console.error("Error response:", response.message);
                             //this.showAlert(response.message, 'error');
                         }
 
-                        mqttClient.unsubscribe(responseTopic, (err) => {
-                            if (err) {
-                                console.error("Failed to unsubscribe from response topic:", err);
-                            } else {
-                                console.log(`Unsubscribed from response topic: ${responseTopic}`);
-                            }
-                        });
+                        mqttClient.unsubscribe(responseTopic);
                     }
-                });
+                }
+
+                const timeout = setTimeout(() => {
+                    mqttClient.unsubscribe(responseTopic);
+                    mqttClient.off("message", handleMessage);
+                    //this.showAlert('Server did not respond. Please try again later.', 'error');
+                }, 5000);
+
+                mqttClient.on("message", handleMessage);
             } catch (error) {
                 console.error("Error in fetchSlotsAndDentists:", error);
                 //this.showAlert("An error occurred while fetching slots. Please try again later.", 'error');
@@ -138,14 +137,11 @@ export default {
                     console.log(`Subscribed to response topic: ${responseTopic}`);
                 });
 
-                const timeout = setTimeout(() => {
-                    mqttClient.unsubscribe(responseTopic);
-                    //this.showAlert('Server did not respond. Please try again later.', 'error');
-                }, 5000);
-
-                mqttClient.on("message", (topic, message) => {
+                const handleMessage = (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
+                        mqttClient.unsubscribe(responseTopic);
+                        mqttClient.off("message", handleMessage);
                         const response = JSON.parse(message.toString());
                         console.log("Response received:", response);
                         console.log("Filtered slots response:", response.appointments);
@@ -157,16 +153,15 @@ export default {
                             console.error("Error response:", response.message);
                             //this.showAlert(response.message, 'error');
                         }
-
-                        mqttClient.unsubscribe(responseTopic, (err) => {
-                            if (err) {
-                                console.error("Failed to unsubscribe from response topic:", err);
-                            } else {
-                                console.log(`Unsubscribed from response topic: ${responseTopic}`);
-                            }
-                        });
                     }
-                });
+                };
+                const timeout = setTimeout(() => {
+                    mqttClient.unsubscribe(responseTopic);
+                    mqttClient.off("message", handleMessage);
+                    //this.showAlert('Server did not respond. Please try again later.', 'error');
+                }, 5000);
+
+                mqttClient.on("message", handleMessage)
             } catch (error) {
                 console.error("Error in fetchSlotsAndDentists:", error);
                 //this.showAlert("An error occurred while fetching slots. Please try again later.", 'error');
