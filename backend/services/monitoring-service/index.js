@@ -12,6 +12,8 @@ const dbURIs = {
     fallbackPatients: 'mongodb://localhost:27019/patients',
     primaryAppointments: 'mongodb://localhost:27017/appointments',
     fallbackAppointments: 'mongodb://localhost:27019/appointments',
+    primaryClinics: 'mongodb://localhost:27017/clinics',
+    fallbackClinics: 'mongodb://localhost:27019/clinics',
 };
 
 const dbStatus = {};

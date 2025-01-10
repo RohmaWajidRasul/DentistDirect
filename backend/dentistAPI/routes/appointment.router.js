@@ -57,17 +57,9 @@ router.patch("/:appointmentId", (req, res) => {
 
     const correlationId = Date.now().toString();
 
-    let requestTopic;
-    let responseTopic;
-
-    if (status === "canceled") {
-        requestTopic = "request/appointment-management/cancel";
-        responseTopic = `response/appointment-management/canceled/${correlationId}`;
-    } else if (status === "deleted") {
-        requestTopic = "request/appointment-management/delete";
-        responseTopic = `response/appointment-management/deleted/${correlationId}`;
-    }
-
+    let requestTopic = "request/appointment-management";
+    let responseTopic = `response/appointment-management/updated/${correlationId}`;
+  
     const payload = { appointmentId, ...req.body };
   
     mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {

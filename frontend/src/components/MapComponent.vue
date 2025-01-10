@@ -41,11 +41,22 @@ export default {
         }
     }
 
-    const addMarker = (coordinates, dentistName) => {
+    const addMarker = (coordinates, clinicName, clinicId, clinicLocation) => {
         try {
-            console.log('Adding marker at:', coordinates, 'with name:', dentistName)
+            console.log('Adding marker at:', coordinates, 'with name:', clinicName, 'located at:', clinicLocation)
             const marker = L.marker([coordinates.lat, coordinates.lng]).addTo(map)
-            marker.bindPopup(`${dentistName}`).openPopup()
+
+            marker.bindTooltip(`${clinicName} <br> Location: ${clinicLocation}`, {
+                permanent: false, 
+                direction: 'top',
+                className: 'custom-tooltip' 
+            });
+
+            marker.on('click', () => {
+                console.log('Marker clicked:', clinicName);
+                window.location.href = `/slots?clinicId=${clinicId}`;
+            });
+
             markers.push(marker)
         } catch (error) {
             console.error('Error adding marker:', error)
@@ -71,27 +82,35 @@ export default {
     
     }
     
-    const handleDentistData = (topic, message) => {
+    const handleClinicData = (topic, message) => {
         try {
-            console.log('handleDentistData called with topic:', topic);
+            console.log('handleClinicData called with topic:', topic);
             const response = JSON.parse(message.toString())
-            response.dentists.forEach((dentist) => {
-                console.log('Adding dentist:', dentist)
-                console.log('Dentist coordinates:', dentist.latitude, dentist.longitude);
-                    addMarker( {
-                        lat: parseFloat(dentist.latitude), lng: parseFloat(dentist.longitude)
-                    },
-                        `${dentist.location} <br> Dentist: ${dentist.firstName} ${dentist.lastName}` )
+            if(response.status === 'success'){
+                response.clinics.forEach((clinic) => {
+                console.log('Adding clinic:', clinic)
+                console.log('Clinic coordinates:', clinic.latitude, clinic.longitude);
+                    addMarker( 
+                        { lat: parseFloat(clinic.latitude), lng: parseFloat(clinic.longitude)},
+                        clinic.name,
+                        clinic._id,
+                        clinic.location
+                    )
             })
+            } else {
+                console.error('Failed to retrieve clinics:', response.message);
+            }
+            
+            
         } catch (error) {
-            console.error('Error handling dentist data:', error)
+            console.error('Error handling clinc data:', error)
         } 
     }
 
-    const requestDentistData = () => {
+    const requestClinicData = () => {
         correlationId = Date.now().toString()
-        const requestTopic = 'request/dentist-info'
-        const responseTopic = `response/dentist-info/${correlationId}`
+        const requestTopic = 'request/retrieve-clinics'
+        const responseTopic = `response/retrieve-clinics/${correlationId}`
         try {
             mqttClient.subscribe(responseTopic, (err) => {
                 if (err) {
@@ -102,27 +121,25 @@ export default {
             })
             const payload = {
                 correlationId,
-                payload: {
-                dentistIds: [],
-                }
+                payload: {}
             }
             mqttClient.publish(requestTopic, JSON.stringify(payload), (err) => {
                 if (err) {
-                    console.error('Failed to publish dentist data request:', err)
+                    console.error('Failed to publish clinic data request:', err)
                 } else {
                     console.log(`Request published to topic: ${requestTopic}`);
                 }
             })
         } catch (error) {
-            console.error('Error requesting dentist data:', error)
+            console.error('Error requesting clinic data:', error)
         }
     }
 
     mqttClient.on('message', (topic, message) => {
         try {
-            if (topic.startsWith('response/dentist-info/')) {
+            if (topic.startsWith('response/retrieve-clinics/')) {
             console.log('Received response:', topic, message.toString());
-            handleDentistData(topic, message);
+            handleClinicData(topic, message);
             }
         } catch (error) {
             console.error('Error processing MQTT message:', error)
@@ -133,15 +150,15 @@ export default {
     onMounted(() => {
         initializeMap();
         addLocateControl();
-        requestDentistData();
+        requestClinicData();
      })
 
     onBeforeUnmount(() => {
         try {
             if (correlationId) {
-                mqttClient.unsubscribe(`response/dentist-info/${correlationId}`)
+                mqttClient.unsubscribe(`response/retrieve-clinics/${correlationId}`)
             }
-            mqttClient.off('message', handleDentistData)
+            mqttClient.off('message', handleClinicData)
         } catch (error) {
             console.error('Error during unsubscribe', error)
         }

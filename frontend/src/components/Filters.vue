@@ -15,6 +15,8 @@
         track-by="id"
         placeholder="Search and select a dentist"
         @select="updateFilters"
+        @remove="updateFilters"
+
       />
     </div>
 
@@ -31,6 +33,27 @@
         :allow-empty="true"
         placeholder="Search and select a location"
         @select="updateFilters"
+        @remove="updateFilters"
+
+      />
+    </div>
+     <!-- Clinic Filter -->
+     <div class="filter">
+      <label for="clinic">Filter by Clinic:</label>
+      <multiselect
+        id="clinic"
+        v-model="selectedClinic"
+        :options="clinics"
+        :searchable="true"
+        :close-on-select="true"
+        :clear-on-select="true"
+        :allow-empty="true"
+        label="name"
+        track-by="id"
+        placeholder="Select a clinic"
+        @select="updateFilters"
+        @remove="updateFilters"
+
       />
     </div>
   </div>
@@ -52,12 +75,25 @@ export default {
       type: Array,
       required: true,
     },
+    clinics: { 
+      type: Array,
+      required: true,
+    },
+    filters: {
+      type: Object,
+      required: true,
+    },
   },
   data() {
     return {
       selectedDentist: null,
       selectedLocation: null,
+      selectedClinic: this.filters.clinicId || null, 
     };
+  },
+  mounted() {
+    this.selectedClinic = this.filters.clinicId || null;
+
   },
   emits: ["filter-change"],
   methods: {
@@ -67,11 +103,14 @@ export default {
       console.log("Emitting filter change", {
         dentistId: this.selectedDentist?.id || null,
         location: this.selectedLocation || null,
+        clinicId: this.selectedClinic?.id || null, 
       });
 
       this.$emit("update:filters", {
         dentistId: this.selectedDentist?.id || null,
         location: this.selectedLocation || null,
+        clinicId: this.selectedClinic?.id || null, 
+
       });
     },
   },

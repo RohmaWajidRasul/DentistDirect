@@ -38,12 +38,13 @@ export default {
         const payload = {
           patientId: user.userId,
           appointmentId: this.slotInfo.id,
+          status: "booked",
         };
 
         console.log("Publishing payload:", payload);
 
         mqttClient.publish(
-          "request/appointment-management/book",
+          "request/appointment-management",
           JSON.stringify({ correlationId, payload }),
           (err) => {
             if (err) {
@@ -54,7 +55,7 @@ export default {
           }
         );
 
-        const responseTopic = `response/appointment-management/booked/${correlationId}`;
+        const responseTopic = `response/appointment-management/updated/${correlationId}`;
         mqttClient.subscribe(responseTopic, (err) => {
           if (err) {
             console.error("Failed to subscribe to response topic:", err);

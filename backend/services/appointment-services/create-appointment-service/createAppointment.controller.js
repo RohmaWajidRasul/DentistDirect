@@ -26,10 +26,10 @@ export const createAppointment = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request'); 
         }
 
-        const { dentistId, date, startTime, endTime } = parsedMessage.payload;
+        const { dentistId, date, startTime, endTime, clinicId } = parsedMessage.payload;
 
 
-        if (!dentistId || !date || !startTime || !endTime) {
+        if (!dentistId || !date || !startTime || !endTime || !clinicId) {
             const errorResponse = {
                 correlationId,
                 status: 'error',
@@ -60,20 +60,8 @@ export const createAppointment = async (topic, message) => {
             };
             return publishResponse(correlationId, errorResponse);
         }
-       
-        // Check if there already is an appointment created at the same time
-        const existingAppointment = await Appointment.findOne({ dentistId, date, startTime });
-        if (existingAppointment) {
-            const errorResponse = {
-                correlationId,
-                status: 'error',
-                message: 'Appointment already exists at this time.',
-            };
-            return publishResponse(correlationId, errorResponse);
-        }
 
-
-        const appointment = new Appointment({ dentistId, date, startTime, endTime, duration });
+        const appointment = new Appointment({ dentistId, date, startTime, endTime, duration, clinicId});
         await appointment.save();
 
         const successResponse = {

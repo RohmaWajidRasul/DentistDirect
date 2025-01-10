@@ -49,4 +49,5 @@ Thumbs.db
 *.tgz
 
 __pycache__/
+venv/
 

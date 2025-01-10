@@ -8,8 +8,8 @@
             <li v-for="slot in appointments" :key="slot.id" class="slot-item available-slot">
                 <div class="slot-box">
                     <span class="slot-time">Time: {{ slot.startTime }} - {{ slot.endTime }}</span>
-                    <span class="slot-location">Location: {{ slot.dentist.location }}</span>
-                    <span class="slot-dentist">Dentist: {{ slot.dentist.firstName }} {{ slot.dentist.lastName }}</span>
+                    <span class="slot-location">Clinic: {{ slot.clinic.name }}</span>
+                    <span class="slot-dentist">Dentist: {{ slot.dentist?.firstName }} {{ slot.dentist?.lastName }}</span>
                     <span>Date: {{ slot.date }} </span>
                     <button class="cancel-button" @click="cancelAppointment(slot._id)">Cancel</button>
                 </div>
@@ -111,10 +111,11 @@ export default {
 
                 const payload = {
                     appointmentId: slotid,
+                    status: "canceled",
                 };
 
                 console.log("Publishing payload:", payload);
-                const requestTopic = "request/appointment-management/cancel";
+                const requestTopic = "request/appointment-management";
 
                 mqttClient.publish(
                     requestTopic,
@@ -128,7 +129,7 @@ export default {
                     }
                 );
 
-                const responseTopic = `response/appointment-management/canceled/${correlationId}`;
+                const responseTopic = `response/appointment-management/updated/${correlationId}`;
                 mqttClient.subscribe(responseTopic, (err) => {
                     if (err) {
                         console.error("Failed to subscribe to response topic:", err);
