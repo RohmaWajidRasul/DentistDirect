@@ -86,6 +86,7 @@
           <div class="field-bubble">
             <label>Clinic:</label>
             <select v-if="isEditingPreferences" v-model="editedPreferences.clinic">
+              <option value="">None</option>
               <option v-for="clinic in clinics" :key="clinic._id" :value="clinic._id">{{ clinic.name }}</option>
             </select>
             <span v-else>{{ clinicName }}</span>
@@ -107,12 +108,16 @@
               type="date" 
             />
             <span v-else>{{ formattedEndDate }}</span>
+            <button v-if="isEditingPreferences" @click="clearDateRange">
+              Clear
+            </button>
           </div>
 
           <!-- Dentist field -->
           <div class="field-bubble">
             <label>Dentist:</label>
             <select v-if="isEditingPreferences" v-model="editedPreferences.dentist">
+              <option value="">None</option>
               <option v-for="dentist in dentists" :key="dentist._id" :value="dentist._id">{{ dentist.firstName + " " + dentist.lastName }}</option>
             </select>
             <span v-else>{{ dentistName }}</span>
@@ -122,6 +127,7 @@
           <div class="field-bubble">
             <label>Specialization:</label>
             <select v-if="isEditingPreferences" v-model="editedPreferences.specialization">
+              <option value="">None</option>
               <option v-for="spec in specializations" :key="spec">{{ spec }}</option>
             </select>
             <span v-else>{{ preferences.specialization }}</span>
@@ -209,6 +215,7 @@ export default {
         this.user.phoneNumber = currentUser.user.phoneNumber;
         this.user.createdAt = currentUser.user.createdAt;
         this.preferences = currentUser.user.preferences;
+        //console.log(this.preferences.clinic, this.preferences.specialization, this.preferences.dentist, this.preferences.dateRange.endDate, this.preferences.dateRange.startDate)
         this.resetEdits();
         console.log(this.preferences);
 
@@ -329,6 +336,11 @@ export default {
 
       mqttClient.on('message', handleMessage)
       
+    },
+
+    clearDateRange() {
+      this.editedPreferences.dateRange.startDate = null;
+      this.editedPreferences.dateRange.endDate = null;
     },
 
     confirmEdit() {
@@ -610,6 +622,22 @@ input {
   padding: 5px;
   border-radius: 4px;
   border: 1px solid #ccc;
+}
+
+button {
+  margin: 10px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 4px;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #0056b3;
+
 }
 
 .actions button {
