@@ -11,7 +11,7 @@
       <div class="box left-box">
         <h3>Your details</h3>
         <div class="user-info">
-          <div>
+          <div class="field-bubble">
             <label>First Name:</label>
             <input
               v-if="isEditing"
@@ -21,7 +21,7 @@
             <span v-else>{{ user.firstName }}</span>
           </div>
 
-          <div>
+          <div class="field-bubble">
             <label>Last Name:</label>
             <input
               v-if="isEditing"
@@ -31,7 +31,7 @@
             <span v-else>{{ user.lastName }}</span>
           </div>
 
-          <div>
+          <div class="field-bubble">
             <label>Email:</label>
             <input
               v-if="isEditing"
@@ -41,7 +41,7 @@
             <span v-else>{{ user.email }}</span>
           </div>
 
-          <div>
+          <div class="field-bubble">
             <label>Phone Number:</label>
             <input
               v-if="isEditing"
@@ -64,74 +64,59 @@
       <div class="box right-box">
         <h3>Your Preferences</h3>
         <div class="preferences-info">
-          <div>
+          <!-- Clinic field -->
+          <div class="field-bubble">
             <label>Clinic:</label>
-            <input
-              v-if="isEditingPreferences"
-              v-model="editedPreferences.clinic"
-              type="text"
-            />
-            <span v-else>{{ preferences.clinic }}</span>
+            <select v-if="isEditingPreferences" v-model="editedPreferences.clinic">
+              <option v-for="clinic in clinics" :key="clinic._id" :value="clinic._id">{{ clinic.name }}</option>
+            </select>
+            <span v-else>{{ clinicName }}</span>
           </div>
-          <div>
+
+          <!-- Date Range field -->
+          <div class="field-bubble">
             <label>Date Range:</label>
-            <input
-              v-if="isEditingPreferences"
-              v-model="editedPreferences.dateRange.startDate"
-              type="date"
+            <input 
+              v-if="isEditingPreferences" 
+              v-model="editedPreferences.dateRange.startDate" 
+              type="date" 
             />
-            <span v-else>{{ preferences.dateRange.startDate }}</span>
+            <span v-else>{{ formattedStartDate }}</span>
             to
-            <input
-              v-if="isEditingPreferences"
-              v-model="editedPreferences.dateRange.endDate"
-              type="date"
+            <input 
+              v-if="isEditingPreferences" 
+              v-model="editedPreferences.dateRange.endDate" 
+              type="date" 
             />
-            <span v-else>{{ preferences.dateRange.endDate }}</span>
+            <span v-else>{{ formattedEndDate }}</span>
           </div>
-          <div>
+
+          <!-- Dentist field -->
+          <div class="field-bubble">
             <label>Dentist:</label>
-            <input
-              v-if="isEditingPreferences"
-              v-model="editedPreferences.dentist"
-              type="text"
-            />
-            <span v-else>{{ preferences.dentist }}</span>
+            <select v-if="isEditingPreferences" v-model="editedPreferences.dentist">
+              <option v-for="dentist in dentists" :key="dentist._id" :value="dentist._id">{{ dentist.firstName + " " + dentist.lastName }}</option>
+            </select>
+            <span v-else>{{ dentistName }}</span>
           </div>
-          <div>
+
+          <!-- Specialization field -->
+          <div class="field-bubble">
             <label>Specialization:</label>
-            <input
-              v-if="isEditingPreferences"
-              v-model="editedPreferences.specialization"
-              type="text"
-            />
+            <select v-if="isEditingPreferences" v-model="editedPreferences.specialization">
+              <option v-for="spec in specializations" :key="spec">{{ spec }}</option>
+            </select>
             <span v-else>{{ preferences.specialization }}</span>
           </div>
         </div>
 
         <div class="actions">
-          <button
-            v-if="!isEditingPreferences"
-            @click="isEditingPreferences = true"
-          >
-            Edit
-          </button>
-          <button
-            v-if="isEditingPreferences"
-            @click="confirmPreferencesEdit"
-          >
-            Confirm
-          </button>
-          <button
-            v-if="isEditingPreferences"
-            @click="cancelPreferencesEdit"
-          >
-            Cancel
-          </button>
+          <button v-if="!isEditingPreferences" @click="isEditingPreferences = true">Edit</button>
+          <button v-if="isEditingPreferences" @click="confirmPreferencesEdit">Confirm</button>
+          <button v-if="isEditingPreferences" @click="cancelPreferencesEdit">Cancel</button>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -163,11 +148,29 @@ export default {
       newPassword: "",
       clinics: [],
       dentists: [],
+      specializations: null,
       isEditing: false,
       isEditingPreferences: false,
       alertMessage: null,
       alertType: ""
     };
+  },
+  computed: {
+    clinicName() {
+      const clinic = this.clinics.find(c => c._id === this.preferences.clinic);
+      return clinic ? clinic.name : 'Not set';
+    },
+    dentistName() {
+      const dentist = this.dentists.find(d => d._id === this.preferences.dentist);
+      //console.log(dentist.lastName);
+      return dentist ? dentist.firstName + " " + dentist.lastName : 'Not set';
+    },
+    formattedStartDate() {
+      return this.formatDate(this.preferences.dateRange.startDate);
+    },
+    formattedEndDate() {
+      return this.formatDate(this.preferences.dateRange.endDate);
+    }
   },
   mounted() {
     this.getUser();
@@ -188,7 +191,13 @@ export default {
         this.user.createdAt = currentUser.user.createdAt;
         this.preferences = currentUser.user.preferences;
         this.editedUser = { ...this.user };
-        this.editedPreferences = { ...this.preferences };
+        this.editedPreferences = {
+          ...this.preferences,
+          dateRange: {
+            startDate: this.formatDate(this.preferences.dateRange.startDate),
+            endDate: this.formatDate(this.preferences.dateRange.endDate)
+          }
+        };
         console.log(this.preferences);
 
       } else {
@@ -271,6 +280,9 @@ export default {
 
           if (response.status === 'success') {
             this.dentists = response.dentists;
+            this.specializations = [...new Set(response.dentists.map(dentist => dentist.specialization))];
+            //console.log(this.specializations);
+
             //console.log(this.dentists);
             console.log('Dentists retrieved successfully.');
           } else {
@@ -310,7 +322,6 @@ export default {
     confirmEdit() {
       this.isEditing = false;
       this.editUser(); 
-
     },
 
     cancelEdit() {
@@ -322,13 +333,25 @@ export default {
       this.isEditingPreferences = false;
       this.editUser();
     },
+
     cancelPreferencesEdit() {
       this.editedPreferences = { ...this.preferences };
       this.isEditingPreferences = false;
     },
 
     deepEqual(obj1, obj2) {
-      return JSON.stringify(obj1) === JSON.stringify(obj2);
+      if (obj1.clinic !== obj2.clinic) return false;
+
+      // Compare dateRange fields after formatting the dates
+      const format = date => date ? new Date(date).toISOString().split('T')[0] : null;
+      if (format(obj1.dateRange.startDate) !== format(obj2.dateRange.startDate)) return false;
+      console.log("HAAAAAAAAAA",format(obj1.dateRange.startDate) !== format(obj2.dateRange.startDate));
+      if (format(obj1.dateRange.endDate) !== format(obj2.dateRange.endDate)) return false;
+
+      if (obj1.dentist !== obj2.dentist) return false;
+      if (obj1.specialization !== obj2.specialization) return false;
+
+      return true;
     },
 
     editUser() {
@@ -353,7 +376,13 @@ export default {
         updatedFields.phoneNumber = this.editedUser.phoneNumber;
       }
       if (!this.deepEqual(this.editedPreferences, originalPref)) {
-        updatedFields.preferences = this.editedPreferences;
+        updatedFields.preferences = {
+          ...this.editedPreferences,
+          dateRange: {
+            startDate: this.formatDateForPayload(this.editedPreferences.dateRange.startDate),
+            endDate: this.formatDateForPayload(this.editedPreferences.dateRange.endDate)
+          }
+        };
       }
       if (Object.keys(updatedFields).length === 0) {
         this.showAlert('No changes detected.', 'info');
@@ -380,7 +409,13 @@ export default {
             this.user = { ...response.patient };
             this.preferences = { ...response.patient.preferences }; 
             this.editedUser = { ...this.user };
-            this.editedPreferences = { ...this.preferences };
+            this.editedPreferences = {
+              ...this.preferences,
+              dateRange: {
+                startDate: this.formatDate(this.preferences.dateRange.startDate),
+                endDate: this.formatDate(this.preferences.dateRange.endDate)
+              }
+            };            
             localStorage.setItem('user', JSON.stringify({ userId: response.patient._id, email: this.user.email, user: response.patient }));
 
           } else {
@@ -418,10 +453,15 @@ export default {
     formatDate(date) {
       if (!date) return '';
       const d = new Date(date);
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-based
       const year = d.getFullYear();
-      return `${day}-${month}-${year}`;
+      const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are zero-based
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    },
+
+    formatDateForPayload(date) {
+      if (!date) return null;
+      return new Date(date).toISOString();
     },
 
     showAlert(message, type = 'info') {
@@ -433,6 +473,36 @@ export default {
 </script>
 
 <style scoped>
+/* General Bubble Styling */
+.field-bubble {
+  background-color: #cfe6f1; /* Slightly darker shade */
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Rounded Input Fields */
+input[type="text"],
+input[type="email"],
+textarea,
+select {
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Label Above Input Fields */
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+
 .profile-container {
   display: flex;
   justify-content: center;  /* Center the content horizontally */
@@ -454,31 +524,23 @@ export default {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);  /* Subtle shadow around the box */
   width: 100%;  /* Make the boxes flexible */
   max-width: 600px; /* Max width for the boxes */
-  height: 300px;  /* Set a fixed height to make boxes the same size */
   box-sizing: border-box;  /* Ensure padding doesn't cause overflow */
   flex: 1 1 45%; /* Flex grow and shrink to allow boxes to resize equally */
+  min-height: auto;  /* Allow the boxes to grow with the content */
+
 }
 
 .left-box {
-  overflow-y: auto;
-  scrollbar-color: #90c3d4 transparent;
-  scrollbar-width: none;
-}
-
-.left-box:hover {
-  scrollbar-width: thin;
-}
-
-.left-box:hover::-webkit-scrollbar {
-  display: block;
-}
-
-.left-box:hover::-webkit-scrollbar-thumb {
-  background-color: #90c3d4;
-  border-radius: 10px;
+  min-height: auto;  /* Allow the boxes to grow with the content */
+  padding: 20px;  /* Add padding if needed */
+  box-sizing: border-box; 
+  
 }
 
 .right-box {
+  min-height: auto;  /* Allow the boxes to grow with the content */
+  padding: 20px;  /* Add padding if needed */
+  box-sizing: border-box; 
   background-color: #e8f4fa;
 }
 

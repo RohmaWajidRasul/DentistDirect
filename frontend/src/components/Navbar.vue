@@ -61,7 +61,7 @@ export default {
   margin-left: 8px;
   font-size: 0.8rem;
   vertical-align: top;
-  background-color: rgb(131, 186, 248); /* Highlight badge */
+  background-color: rgb(131, 186, 248);
   color: rgb(255, 255, 255);
   padding: 4px 8px;
   border-radius: 12px;
