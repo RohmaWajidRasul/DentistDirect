@@ -19,7 +19,7 @@
                         <th scope="col">Service Name</th>
                         <th scope="col">Number of Instances</th>
                         <th scope="col">Requests</th>
-                        
+
                     </tr>
                 </thead>
                 <tbody>
@@ -83,13 +83,9 @@ export default {
     methods: {
 
         getRegistry() {
-
             try {
-
                 const correlationId = Date.now().toString();
-
                 const requestTopic = "request/registry";
-
                 mqttClient.publish(
                     requestTopic,
                     JSON.stringify({ correlationId }),
@@ -101,9 +97,7 @@ export default {
                         console.log(`Request published with correlationId: ${correlationId}`);
                     }
                 );
-
                 const responseTopic = `response/registry/${correlationId}`;
-
                 mqttClient.subscribe(responseTopic, (err) => {
                     if (err) {
                         console.error("Failed to subscribe to response topic:", err);
@@ -111,39 +105,27 @@ export default {
                     }
                     console.log(`Subscribed to response topic: ${responseTopic}`);
                 });
-
-                const timeout = setTimeout(() => {
-                    mqttClient.unsubscribe(responseTopic);
-                }, 5000);
-
                 const handleMessage = (topic, message) => {
-
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
+                        mqttClient.off("message", handleMessage);
                         const response = JSON.parse(message.toString());
+                        mqttClient.unsubscribe(responseTopic);
 
                         this.registry = response.serviceRegistry
                         this.requestCount = response.requestCount;
-
-                        mqttClient.unsubscribe(responseTopic, (err) => {
-                            if (err) {
-                                console.error("Failed to unsubscribe from response topic:", err);
-                            } else {
-                                console.log(`Unsubscribed from response topic: ${responseTopic}`);
-                            }
-                        });
-                        mqttClient.removeListener("message", handleMessage);
                     }
-
-
                 };
+                const timeout = setTimeout(() => {
+                    mqttClient.unsubscribe(responseTopic);
+                    mqttClient.off("message", handleMessage);
+                    console.log('Server did not respond to get registry request. Please try again later.')
+                }, 5000);
 
                 mqttClient.on("message", handleMessage)
             } catch (error) {
                 console.error("Error in Get Registry:", error);
             }
-
-
         },
         getNumberOfAppointments() {
             try {
@@ -172,13 +154,13 @@ export default {
                     console.log(`Subscribed to response topic: ${responseTopic}`);
                 });
 
-                const timeout = setTimeout(() => {
-                    mqttClient.unsubscribe(responseTopic);
-                }, 5000);
+
 
                 const handleMessage = (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
+                        mqttClient.unsubscribe(responseTopic);
+                        mqttClient.off("message", handleMessage);
                         const response = JSON.parse(message.toString());
 
                         if (response.status === "success") {
@@ -186,18 +168,16 @@ export default {
                         } else {
                             console.error("Error response:", response.message);
                         }
-
-                        mqttClient.unsubscribe(responseTopic, (err) => {
-                            if (err) {
-                                console.error("Failed to unsubscribe from response topic:", err);
-                            } else {
-                                console.log(`Unsubscribed from response topic: ${responseTopic}`);
-                            }
-                        });
-                        mqttClient.removeListener("message", handleMessage);
                     }
                 };
-                mqttClient.on("message", handleMessage)
+
+                const timeout = setTimeout(() => {
+                    mqttClient.unsubscribe(responseTopic);
+                    mqttClient.off("message", handleMessage);
+                    console.log('Server did not respond to get number of appointments. Please try again later.')
+                }, 5000);
+
+                mqttClient.on("message", handleMessage);
             } catch (error) {
                 console.error("Error in Get Numbers of appointments:", error);
             }
@@ -229,13 +209,12 @@ export default {
                     console.log(`Subscribed to response topic: ${responseTopic}`);
                 });
 
-                const timeout = setTimeout(() => {
-                    mqttClient.unsubscribe(responseTopic);
-                }, 5000);
 
                 const handleMessage = (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
+                        mqttClient.unsubscribe(responseTopic);
+                        mqttClient.off("message", handleMessage);
                         const response = JSON.parse(message.toString());
 
                         if (response.status === "success") {
@@ -243,17 +222,15 @@ export default {
                         } else {
                             console.error("Error response:", response.error);
                         }
-
-                        mqttClient.unsubscribe(responseTopic, (err) => {
-                            if (err) {
-                                console.error("Failed to unsubscribe from response topic:", err);
-                            } else {
-                                console.log(`Unsubscribed from response topic: ${responseTopic}`);
-                            }
-                        });
-                        mqttClient.removeListener("message", handleMessage);
                     }
                 };
+
+                const timeout = setTimeout(() => {
+                    mqttClient.unsubscribe(responseTopic);
+                    mqttClient.off("message", handleMessage);
+                    console.log('Server did not respond to get user numbers. Please try again later.')
+                }, 5000);
+
                 mqttClient.on("message", handleMessage);
             } catch (error) {
                 console.error("Error in Get Number of Users:", error.message);
@@ -286,13 +263,11 @@ export default {
                     console.log(`Subscribed to response topic: ${responseTopic}`);
                 });
 
-                const timeout = setTimeout(() => {
-                    mqttClient.unsubscribe(responseTopic);
-                }, 5000);
-
                 const handleMessage = (topic, message) => {
                     if (topic === responseTopic) {
                         clearTimeout(timeout);
+                        mqttClient.unsubscribe(responseTopic);
+                        mqttClient.off("message", handleMessage);
                         const response = JSON.parse(message.toString());
 
                         if (response.status === "success") {
@@ -300,20 +275,18 @@ export default {
                         } else {
                             console.error("Error response:", response.error);
                         }
-
-                        mqttClient.unsubscribe(responseTopic, (err) => {
-                            if (err) {
-                                console.error("Failed to unsubscribe from response topic:", err);
-                            } else {
-                                console.log(`Unsubscribed from response topic: ${responseTopic}`);
-                            }
-                        });
-                        mqttClient.removeListener("message", handleMessage);
                     }
                 };
+
+                const timeout = setTimeout(() => {
+                    mqttClient.unsubscribe(responseTopic);
+                    mqttClient.off("message", handleMessage);
+                    console.log('Server did not respond to logs request. Please try again later.')
+                }, 5000);
+
                 mqttClient.on("message", handleMessage)
             } catch (error) {
-                console.error("Error in Get Logs:", error.message);
+                console.error("Error in Get Logs:", error);
             }
         },
         getRequestCount(serviceId) {
@@ -330,6 +303,8 @@ export default {
             return serviceRequestCount;
         },
         startInterval() {
+            this.stopInterval();
+
             this.dataInterval = setInterval(this.refreshData, 10000);
             this.registryInterval = setInterval(this.getRegistry, 30000);
 
@@ -338,23 +313,24 @@ export default {
             if (this.dataInterval) clearInterval(this.dataInterval);
             if (this.registryInterval) clearInterval(this.registryInterval);
         },
-        refreshData() {
-            this.getNumberOfAppointments();
-            this.getNumberOfUsers();
+        async refreshData() {
+            await this.getNumberOfAppointments();
+            await this.getNumberOfUsers();
             this.getLogs();
         }
 
 
     },
-    mounted() {
-        this.getRegistry();
-        this.getNumberOfAppointments();
-        this.getNumberOfUsers();
-        this.getLogs();
-        this.startInterval();
-    },
+    async mounted() {
+    await Promise.all([
+        this.getRegistry(),
+        this.getNumberOfAppointments(),
+        this.getNumberOfUsers(),
+        this.getLogs()
+    ]);
+    this.startInterval();
+},
     unmounted() {
-        mqttClient.unsubscribe("response/#");
         this.stopInterval();
     }
 }
