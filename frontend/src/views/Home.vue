@@ -9,6 +9,7 @@
     <div v-if="loggedIn" class="row cards-container">
       <card text="My Appointments" link="my-appointments" imgsrc="/find_appointment_2.png"></card>
       <card text="Book Appointment" link="slots" imgsrc="/find_appointment_2.png"></card>
+      <card text="Profile" link="profile" imgsrc="/profile3.png"></card>
       <card text="Inbox" link="inbox" imgsrc="/mail3.png">
         <template v-slot:badge>
           <span v-if="unreadCount > 0" class="badge badge-danger">{{ unreadCount }}</span>

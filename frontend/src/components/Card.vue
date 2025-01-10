@@ -29,6 +29,13 @@
 </script>
 
 <style scoped>
+.card img {
+  width: 100%; /* Make the image fill the width of its container */
+  height: 119px; /* Set a fixed height for the image */
+  object-fit: contain; /* This ensures the image covers the area without distortion */
+  border-radius: 8px; /* Optional: add some rounded corners to the image */
+}
+
 .card-text-container {
   display: inline-flex;
   align-items: center; /* Align the badge vertically with the text */
