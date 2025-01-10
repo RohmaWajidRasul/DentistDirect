@@ -51,6 +51,24 @@
             <span v-else>{{ user.phoneNumber }}</span>
           </div>
 
+          <div v-if="isEditing" class="field-bubble">
+            <label for="password">Password:</label>
+            <div class="password-container">
+              <input
+                type="password"
+                id="password"
+                v-model="newPassword"
+                placeholder="Enter new password"
+                :disabled="!isEditing"
+              />
+              <button @click="togglePasswordVisibility" class="eye-button">
+                <span v-if="isPasswordVisible">👁️</span>
+                <span v-else>🫣</span>
+              </button>
+            </div>
+        
+          </div>
+
         </div>
 
         <div class="actions">
@@ -134,7 +152,7 @@ export default {
         firstName: null,
         lastName: null,
         email: null,
-        phoneNumber: null,
+        phoneNumber: null, 
         createdAt: null
       },
       editedUser: {},
@@ -151,6 +169,7 @@ export default {
       specializations: null,
       isEditing: false,
       isEditingPreferences: false,
+      isPasswordVisible: false,
       alertMessage: null,
       alertType: ""
     };
@@ -190,14 +209,7 @@ export default {
         this.user.phoneNumber = currentUser.user.phoneNumber;
         this.user.createdAt = currentUser.user.createdAt;
         this.preferences = currentUser.user.preferences;
-        this.editedUser = { ...this.user };
-        this.editedPreferences = {
-          ...this.preferences,
-          dateRange: {
-            startDate: this.formatDate(this.preferences.dateRange.startDate),
-            endDate: this.formatDate(this.preferences.dateRange.endDate)
-          }
-        };
+        this.resetEdits();
         console.log(this.preferences);
 
       } else {
@@ -320,7 +332,7 @@ export default {
     },
 
     confirmEdit() {
-      this.isEditing = false;
+      this.isEditing = false;         
       this.editUser(); 
     },
 
@@ -337,6 +349,12 @@ export default {
     cancelPreferencesEdit() {
       this.editedPreferences = { ...this.preferences };
       this.isEditingPreferences = false;
+    },
+
+    togglePasswordVisibility() {
+      this.isPasswordVisible = !this.isPasswordVisible;
+      const passwordField = document.getElementById('password');
+      passwordField.type = this.isPasswordVisible ? 'text' : 'password';
     },
 
     deepEqual(obj1, obj2) {
@@ -384,6 +402,17 @@ export default {
           }
         };
       }
+
+      if (this.newPassword !== "") {
+        if (this.newPassword.length < 8) {
+          this.showAlert('Password must be atleast 8 characters long', 'error');
+          this.resetEdits();
+          return;
+        } else {
+          updatedFields.password = this.newPassword;
+        }
+      }
+
       if (Object.keys(updatedFields).length === 0) {
         this.showAlert('No changes detected.', 'info');
         return;
@@ -408,18 +437,13 @@ export default {
             this.showAlert('Profile edited successfully!', 'success');
             this.user = { ...response.patient };
             this.preferences = { ...response.patient.preferences }; 
-            this.editedUser = { ...this.user };
-            this.editedPreferences = {
-              ...this.preferences,
-              dateRange: {
-                startDate: this.formatDate(this.preferences.dateRange.startDate),
-                endDate: this.formatDate(this.preferences.dateRange.endDate)
-              }
-            };            
+            this.resetEdits(); 
             localStorage.setItem('user', JSON.stringify({ userId: response.patient._id, email: this.user.email, user: response.patient }));
 
           } else {
             this.showAlert('Update failed: ' + response.message, 'error');
+            this.newPassword = "";
+
           }
         }
       };
@@ -428,6 +452,7 @@ export default {
         if (err) {
           this.showAlert('Server is unavailable. Please try again later.', 'error');
           console.error('Failed to subscribe to response topic:', err);
+          this.resetEdits(); 
           return;
         }
       });
@@ -436,6 +461,7 @@ export default {
         if (err) {
           this.showAlert('Failed to send request to server. Please try again later.', 'error');
           console.error('Failed to publish request to MQTT:', err);
+          this.resetEdits(); 
           return;
         }
       });
@@ -443,11 +469,23 @@ export default {
       const timeout = setTimeout(() => {
         mqttClient.unsubscribe(responseTopic);
         mqttClient.off('message', handleMessage);
-
+        this.resetEdits(); 
         this.showAlert('Server did not respond. Please try again later.', 'error');
       }, 5000);
 
       mqttClient.on('message', handleMessage);
+    },
+
+    resetEdits() {
+      this.editedUser = { ...this.user };
+      this.editedPreferences = {
+        ...this.preferences,
+        dateRange: {
+          startDate: this.formatDate(this.preferences.dateRange.startDate),
+          endDate: this.formatDate(this.preferences.dateRange.endDate)
+        }
+      };   
+      this.newPassword = "";
     },
 
     formatDate(date) {
@@ -473,18 +511,34 @@ export default {
 </script>
 
 <style scoped>
-/* General Bubble Styling */
+
 .field-bubble {
-  background-color: #cfe6f1; /* Slightly darker shade */
+  background-color: #cfe6f1;
   padding: 10px;
   border-radius: 8px;
   margin-bottom: 12px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+.password-container {
+  display: flex;
+  align-items: center; /* Vertically center the input and the button */
+  gap: 10px; /* Space between the input and the button */
+}
+
+.eye-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.5rem; /* Adjust size as needed */
+  display: flex;
+  align-items: center;
+}
+
 /* Rounded Input Fields */
 input[type="text"],
 input[type="email"],
+input[type="password"],
 textarea,
 select {
   border: 1px solid #ccc;
@@ -508,10 +562,9 @@ label {
   justify-content: center;  /* Center the content horizontally */
   align-items: center;  /* Center the content vertically */
   gap: 20px;
-  height: 100vh; /* Full height of the viewport */
-  padding: 0 20px;
+  min-height: 100vh; /* Full height of the viewport */
+  padding: 20px;
   flex-wrap: wrap;  /* Allow items to wrap on smaller screens */
-  overflow-y: auto;  /* Enable scrolling if content overflows */
 }
 
 .box {

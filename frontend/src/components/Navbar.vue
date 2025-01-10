@@ -10,8 +10,7 @@
         <!-- If the user is logged in, show Logout -->
         <b-nav-item v-if="loggedIn" @click="handleAuthAction">Logout</b-nav-item>
         <b-nav-item to="/slots" :active-class="active-tab">Available Slots</b-nav-item>
-        <b-nav-item to="/profile" :active-class="active-tab">Profile</b-nav-item>
-        <!-- Inbox with unread notifications badge -->
+        <b-nav-item v-if="loggedIn" to="/profile" :active-class="active-tab">Profile</b-nav-item>
         <b-nav-item v-if="loggedIn" to="/inbox" :active-class="active-tab">
           Inbox
           <span v-if="unreadCount > 0" class="badge badge-danger">{{ unreadCount }}</span>

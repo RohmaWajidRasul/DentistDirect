@@ -1,5 +1,7 @@
 import Patient from '../models/patient.js';
 import mqttClient from '../../../shared/mqtt-client.js';
+import bcrypt from 'bcrypt';
+
 
 export const managePatient = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
@@ -70,6 +72,18 @@ export const managePatient = async (topic, message) => {
                 
                 patient.preferences = updatedPreferences;
                 
+            } else if (key === "password") {
+                if (value.length < 8) {
+                    const errorResponse = {
+                        correlationId,
+                        status: 'error',
+                        message: 'Password must be at least 8 characters long.',
+                    };
+                    return publishResponse(correlationId, errorResponse);
+                }
+
+                const hashedPassword = await bcrypt.hash(value, 10);
+                patient.password = hashedPassword;
 
             } else if (key in patient) {
                 patient[key] = value;
