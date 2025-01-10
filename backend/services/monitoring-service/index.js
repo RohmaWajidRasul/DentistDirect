@@ -73,8 +73,8 @@ mqttClient.on('message', (topic, message) => {
             const heartbeat = JSON.parse(message.toString());
             
             servicesStatus[instanceKey] = {
-                status: heartbeat.status,
-                lastSeen: heartbeat.timestamp,
+                status: heartbeat.status,   
+                lastSeen: Date.now(),
                 uptime: heartbeat.uptime
             };
             //console.log('Heartbeat from', serviceName, serviceId);
