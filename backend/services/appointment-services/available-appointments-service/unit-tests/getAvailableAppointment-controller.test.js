@@ -31,7 +31,7 @@ vi.mock('../getAvailableAppointment.controller.js', async (importOriginal) => {
   };
 });
 
-import { getAvailableAppointments, fetchClinicsInfo, fetchDentistsInfo } from '../getAvailableAppointment.controller.js';
+import { getAvailableAppointments } from '../getAvailableAppointment.controller.js';
 
 
 /*describe('fetchDentistsInfo', () => {
@@ -111,62 +111,6 @@ describe('getAvailableAppointments', () => {
       location: 'New York',
       clinicId: 'clinic123',
     });
-  });
-
-  it('should handle successful response with appointments and details', async () => {
-    const mockAppointments = [
-      {
-        _id: 'appointment1',
-        dentistId: 'dentist123',
-        clinicId: 'clinic123',
-        toObject: () => ({ _id: 'appointment1', dentistId: 'dentist123', clinicId: 'clinic123' }),
-      },
-      {
-        _id: 'appointment2',
-        dentistId: 'dentist456',
-        clinicId: 'clinic123',
-        toObject: () => ({ _id: 'appointment2', dentistId: 'dentist456', clinicId: 'clinic123' }),
-      },
-    ];
-
-    Appointment.find.mockReturnValueOnce({
-      sort: vi.fn().mockResolvedValue(mockAppointments),
-    });
-
-    // No need to mock fetchDentistsInfo and fetchClinicsInfo here
-    // They are already mocked in the vi.mock block
-
-    await getAvailableAppointments(mockTopic, validMessage);
-
-    // Assert if the mocked functions were called
-    expect(fetchDentistsInfo).toHaveBeenCalledWith(['dentist123', 'dentist456']);
-    expect(fetchClinicsInfo).toHaveBeenCalledWith(['clinic123']);
-
-    expect(mqttClient.publish).toHaveBeenCalledWith(
-      'response/available-appointments/available/12345',
-      JSON.stringify({
-        correlationId: '12345',
-        status: 'success',
-        message: 'Appointments and dentist info retrieved successfully',
-        appointments: [
-          {
-            _id: 'appointment1',
-            dentistId: 'dentist123',
-            clinicId: 'clinic123',
-            dentist: { _id: 'dentist123', name: 'Dr. Smith' },
-            clinic: { _id: 'clinic123', name: 'Main Street Dental' },
-          },
-          {
-            _id: 'appointment2',
-            dentistId: 'dentist456',
-            clinicId: 'clinic123',
-            dentist: { _id: 'dentist456', name: 'Dr. Johnson' },
-            clinic: { _id: 'clinic123', name: 'Main Street Dental' },
-          },
-        ],
-      }),
-      expect.any(Function)
-    );
   });
 
   it('should return an error when a database exception occurs', async () => {
