@@ -71,9 +71,9 @@ export const matchPreference = async (topic, message) => {
         const specialization = await fetchDentistSpecialization(dentistId);
 
         const query = {
-            $and: [
+            $or: [
                 {
-                    $or: [
+                    $and: [
                         { "preferences.dateRange.startDate": { $lte: new Date(date) } },
                         { "preferences.dateRange.endDate": { $gte: new Date(date) } },
                     ],
