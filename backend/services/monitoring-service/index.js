@@ -1,5 +1,7 @@
 import mqttClient from '../../shared/mqtt-client.js';
 import { checkDBHealth } from '../../shared/checkDBHealth.js';
+import { spawnBroker } from './dockerBroker.js'
+
 
 //-----Monitoring the health status of databases----------------------
 
@@ -64,6 +66,10 @@ mqttClient.on('connect', () => {
 });
 
 mqttClient.on('message', (topic, message) => {
+
+    clearTimeout(timer);
+    timer = setTimeout(handleBroker, 20000);
+
     if (topic.startsWith('heartbeat/')) {
         const serviceName = topic.split('/')[1];
         const serviceId = topic.split('/')[2];
@@ -85,6 +91,17 @@ mqttClient.on('message', (topic, message) => {
     }
 });
 
+
+const handleBroker = () => {
+
+    spawnBroker();
+
+    clearTimeout(timer);
+    timer = setTimeout(handleBroker, 20000);
+
+}
+
+let timer = setTimeout(handleBroker, 20000);
 
 setInterval(() => {
     const currentTime = Date.now();
