@@ -207,7 +207,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Josefin\",\r\n    \"lastName\": \"Korrman\",\r\n    \"email\": \"josefin.korrman@bigfronts.com\",\r\n    \"password\": \"12345678\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -255,7 +255,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"New\",\r\n    \"lastName\": \"Dentist\",\r\n    \"email\": \"2@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456779\",\r\n    \"specialization\": \"Hygienist\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"New\",\r\n    \"lastName\": \"Dentist\",\r\n    \"email\": \"2@example.com\",\r\n    \"password\": \"12345678\",\r\n    \"phoneNumber\": \"+123456779\",\r\n    \"specialization\": \"Hygienist\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -263,7 +263,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5007/v1/dentists",
+							"raw": "http://localhost:5007/v1/dentists/register",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -271,7 +271,8 @@
 							"port": "5007",
 							"path": [
 								"v1",
-								"dentists"
+								"dentists",
+								"register"
 							]
 						}
 					},
