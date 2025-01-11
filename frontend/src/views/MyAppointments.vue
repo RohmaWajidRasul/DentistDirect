@@ -1,33 +1,49 @@
 <template>
-    <div class="day-container">
-        <p class="top-text">View your booked appointments</p>
-        <div v-if="!appointments || appointments.length === 0" class="no-slots">
-            You have not booked any appointments
+    <div>
+        <Alert v-if="alertMessage" :type="alertType" :message="alertMessage" @close="alertMessage = null" />
+        <div class="day-container">
+            <p class="top-text">View your booked appointments</p>
+            <div v-if="!appointments || appointments.length === 0" class="no-slots">
+                You have not booked any appointments
+            </div>
+            <ul v-else class="slots-list">
+                <li v-for="slot in appointments" :key="slot.id" class="slot-item available-slot">
+                    <div class="slot-box">
+                        <span class="slot-time">Time: {{ slot.startTime }} - {{ slot.endTime }}</span>
+                        <span class="slot-location">Clinic: {{ slot.clinic.name }}</span>
+                        <span class="slot-dentist">Dentist: {{ slot.dentist.firstName }} {{ slot.dentist?.lastName
+                            }}</span>
+                        <span>Date: {{ slot.date }} </span>
+                        <button class="cancel-button" @click="selectedSlotInfo=slot">Cancel</button>
+                    </div>
+                </li>
+            </ul>
         </div>
-        <ul v-else class="slots-list">
-            <li v-for="slot in appointments" :key="slot.id" class="slot-item available-slot">
-                <div class="slot-box">
-                    <span class="slot-time">Time: {{ slot.startTime }} - {{ slot.endTime }}</span>
-                    <span class="slot-location">Clinic: {{ slot.clinic.name }}</span>
-                    <span class="slot-dentist">Dentist: {{ slot.dentist?.firstName }} {{ slot.dentist?.lastName }}</span>
-                    <span>Date: {{ slot.date }} </span>
-                    <button class="cancel-button" @click="cancelAppointment(slot._id)">Cancel</button>
-                </div>
-            </li>   
-        </ul>
+        <CancelCard
+      v-if="selectedSlotInfo"
+      :slotInfo="selectedSlotInfo"
+      @cancel-slot="cancelAppointment"
+      @close="selectedSlotInfo = null"
+    />
     </div>
 </template>
 
 <script>
+import Alert from "../components/Alerts.vue";
+import CancelCard from "../components/CancelCard.vue";
 import mqttClient from '../mqttClient.js';
 
 export default {
     name: "my-appointments",
+    components: { Alert, CancelCard },
 
 
     data() {
         return {
             appointments: [],
+            alertMessage: null,
+            alertType: "success", // alertType = success or error
+            selectedSlotInfo: null
         };
     },
 
@@ -36,6 +52,10 @@ export default {
     },
 
     methods: {
+        showSlotDetails(slotInfo) {
+      //this.$emit("show-slot-details", slotInfo);
+      this.selectedSlotInfo = slotInfo; // Open the SlotCard with the clicked slot
+    },
         getAppointments() {
 
             try {
@@ -75,12 +95,12 @@ export default {
                         mqttClient.off("message", handleMessage);
                         const response = JSON.parse(message.toString());
                         console.log("Response received:", response);
-                        console.log("Filtered slots response:", response.appointments);
+                        console.log("Booked appointments response:", response.appointments);
 
                         if (response.status === "success") {
-                            console.log(response.appointments)
+                            console.log(response.appointments);
                             this.appointments = response.appointments;
-                            this.showAlert('Slots fetched successfully!', 'success');
+                            //this.showAlert('Booked appointments fetched successfully!', 'success');
                         } else {
                             console.error("Error response:", response.message);
                             //this.showAlert(response.message, 'error');
@@ -147,11 +167,13 @@ export default {
                         console.log("Filtered slots response:", response.appointments);
 
                         if (response.status === "success") {
-                            this.appointments = response.appointments;
-                            //this.showAlert('Slots fetched successfully!', 'success');
+                            this.appointments = this.appointments.filter(
+                                (appointment) => appointment._id !== slotid
+                            );
+                            this.showAlert('Appointment canceled successfully!', 'success');
+           
                         } else {
                             console.error("Error response:", response.message);
-                            //this.showAlert(response.message, 'error');
                         }
                     }
                 };
@@ -167,6 +189,10 @@ export default {
                 //this.showAlert("An error occurred while fetching slots. Please try again later.", 'error');
             }
 
+        },
+        showAlert(message, type) {
+            this.alertMessage = message;
+            this.alertType = type;
         },
     },
 };
