@@ -1,11 +1,9 @@
 <template>
   <div class="notification-bubble">
     
-    <div class="notification-body">
-      {{ mailBody }}
-      <div class="back-button" @click="goBack()">
-        &lt; Back
-      </div>
+    <div class="notification-body" v-html="formattedMailBody"></div>
+    <div class="back-button" @click="goBack()">
+      &lt; Back
     </div>
     <div class="created-at">
       Sent at: {{ formattedDate }}
@@ -24,6 +22,76 @@ export default {
     formattedDate() {
       const date = new Date(this.createdAt);
       return date.toLocaleString();
+    },
+    formattedMailBody() {
+      if (!this.mailBody) return "No content available.";
+
+      const normalizedBody = this.mailBody.replace(/\s+/g, ' ').trim();
+      console.log("Normalized MAIL BODY:", normalizedBody);
+
+      const sentences = normalizedBody
+        .split(/(?<=\.)\s+/)
+        .filter(sentence => sentence.trim() !== "");
+
+      console.log(sentences);
+
+      let dentist = '';
+      let specialization = '';
+      let date = '';
+      let formattedBody = '';
+
+      sentences.forEach(sentence => {
+        //console.log("Processing sentence:A", sentence);
+        
+        if (sentence.includes("Dentist:")) {
+          const dentistMatch = sentence.match(/Appointment: Dentist:\s*(.*?)(?=\s*Specialization:|$)/);
+          if (dentistMatch) {
+            //console.log("Match!!!", dentistMatch)
+
+            dentist = dentistMatch[1].trim();
+          }
+        }
+
+        if (sentence.includes("Specialization:")) {
+          const specializationMatch = sentence.match(/Specialization:\s*(.*?)(?=\s*Date:|$)/);
+          if (specializationMatch) {
+            //console.log("Match!!!", specializationMatch)
+
+
+            specialization = specializationMatch[1].trim();
+          }
+        }
+        if (sentence.includes("Date:")) {
+          const dateMatch = sentence.match(/Date:\s*(.*?)(?=\s*\.)/);
+          if (dateMatch) {
+            //console.log("Match!!!", dateMatch)
+
+            date = dateMatch[1].trim();
+          }
+        } 
+
+
+        if (dentist && specialization && date) {
+          //console.log("dentist", dentist, specialization, date)
+          formattedBody += `
+            <strong>Appointment Details:</strong><br>
+            <strong>Dentist:</strong> ${dentist}<br>
+            <strong>Specialization:</strong> ${specialization}<br>
+            <strong>Date:</strong> ${date}<br><br>
+          `;
+          dentist = '';
+          specialization = '';
+          date = '';
+        } else {
+          if (!sentence.includes("Appointment:") && !sentence.includes("Specialization:") && !sentence.includes("Date:")) {
+        formattedBody += sentence + "<br><br>";
+      }
+        }
+      });
+
+      console.log(formattedBody)
+
+      return formattedBody;
     },
   },
   methods: {

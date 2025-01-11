@@ -205,7 +205,7 @@ const sendBookingNotification = (patient, appointment) => {
             subject: "Appointment Booked Successfully",
             body: `You have an appointment on ${new Date(
                 appointment.date
-            ).toLocaleDateString()}.`
+            ).toLocaleDateString()} from ${appointment.startTime} to ${appointment.endTime}.`
         }
     };
 

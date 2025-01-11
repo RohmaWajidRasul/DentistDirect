@@ -21,7 +21,7 @@ const fetchDentistSpecialization = async (dentistId) => {
             try {
                 const response = JSON.parse(message.toString());
                 if (response.status === 'success' && response.dentists.length > 0) {
-                    resolve(response.dentists[0].specialization);
+                    resolve(response.dentists[0]);
                 } else {
                     reject(new Error('Specialization not found or service error'));
                 }
@@ -68,20 +68,26 @@ export const matchPreference = async (topic, message) => {
 
         const { date, dentistId, clinicId, status, patientId } = appointment;
 
-        const specialization = await fetchDentistSpecialization(dentistId);
+        const dentistInfo = await fetchDentistSpecialization(dentistId);
+        const specialization = dentistInfo.specialization;
 
         const query = {
-            $or: [
+            $and: [
                 {
-                    $and: [
-                        { "preferences.dateRange.startDate": { $lte: new Date(date) } },
-                        { "preferences.dateRange.endDate": { $gte: new Date(date) } },
-                    ],
+                    $or: [
+                        {
+                            $and: [
+                                { "preferences.dateRange.startDate": { $lte: new Date(date) } },
+                                { "preferences.dateRange.endDate": { $gte: new Date(date) } },
+                            ],
+                        },
+                        { "preferences.specialization": specialization },
+                    ]
+                   
                 },
                 {
                     $or: [
                         { "preferences.dentist": dentistId },
-                        { "preferences.specialization": specialization },
                         { "preferences.clinic": clinicId },
                     ],
                 },
@@ -97,12 +103,12 @@ export const matchPreference = async (topic, message) => {
                 //console.log(patient._id, patientId)
                 if (status === 'booked') {
                     if (!patient._id.equals(patientId)) {
-                        sendConflictNotification(patient, appointment);                        
+                        sendConflictNotification(patient, appointment, dentistInfo);                        
                     } else {
                         //console.log('Patient is the same, no notification will be sent.');
                     }
                 } else {
-                    sendMatchNotification(patient, appointment);
+                    sendMatchNotification(patient, appointment, dentistInfo);
                 }
             });
         } else {
@@ -113,7 +119,7 @@ export const matchPreference = async (topic, message) => {
     }
 };
 
-const sendMatchNotification = (patient, appointment) => {
+const sendMatchNotification = (patient, appointment, dentistInfo) => {
     const topic = `request/create-notification`;
 
     const correlationId = Date.now().toString();
@@ -122,9 +128,12 @@ const sendMatchNotification = (patient, appointment) => {
         patientId: patient._id,
         notification: {
             subject: "Appointment Match Found",
-            body: `An appointment matching your preferences has been found on ${new Date(
-                appointment.date
-            ).toLocaleDateString()}. Book now to secure your slot!`
+            body: `An appointment matching your preferences has been found. 
+            Appointment: 
+            Dentist: ${ dentistInfo.firstName } ${ dentistInfo.lastName }. 
+            Specialization: ${ dentistInfo.specialization }.
+            Date: ${new Date(appointment.date).toLocaleDateString()}.
+            Book now to secure your slot!`
         }
     };
 
