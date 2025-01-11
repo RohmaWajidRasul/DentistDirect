@@ -15,29 +15,30 @@ export const getAvailableAppointments = async (topic, message) => {
 
   let correlationId;
 
-  try {
-    let parsedMessage;
     try {
-      parsedMessage = JSON.parse(message.toString());
-    } catch (error) {
-      const errorResponse = {
-        correlationId,
-        status: "error",
-        message: "Invalid JSON format in request",
-        error,
-      };
-      return publishAvailabilityResponse(correlationId, errorResponse, action);
-    }
-    correlationId = parsedMessage.correlationId;
+        let parsedMessage; 
+        try {
+            parsedMessage = JSON.parse(message.toString());
+        } catch (error) {
+            correlationId = generateCorrelationId();
+            const errorResponse = {
+                correlationId,
+                status: 'error',
+                message: 'Invalid JSON format in request',
+                error: error.message,
+            };
+            return publishAvailabilityResponse(correlationId, errorResponse, action);
+        }
+        correlationId = parsedMessage.correlationId;
 
-    if (!parsedMessage.payload || typeof parsedMessage.payload !== "object") {
-      const errorResponse = {
-        correlationId,
-        status: "error",
-        message: "Invalid or missing payload.",
-      };
-      return publishAvailabilityResponse(correlationId, errorResponse, action);
-    }
+        if (!parsedMessage.payload || typeof parsedMessage.payload !== 'object') {
+            const errorResponse = {
+                correlationId: parsedMessage.correlationId || generateCorrelationId(),
+                status: 'error',
+                message: 'Invalid or missing payload.',
+            };
+            return publishAvailabilityResponse(correlationId, errorResponse, action);
+        }
 
     const { payload } = parsedMessage;
     const { dentistId = null, date = null, location = null, clinicId = null } = payload;
@@ -75,19 +76,14 @@ export const getAvailableAppointments = async (topic, message) => {
       startTime: 1,
     });
 
-    if (!appointments.length) {
-      const noAppointmentsResponse = {
-        correlationId,
-        status: "error",
-        message: "No appointments found.",
-      };
-
-      return publishAvailabilityResponse(
-        correlationId,
-        noAppointmentsResponse,
-        action
-      );
-    }
+        if (!appointments.length) {
+            const noAppointmentsResponse = {
+                correlationId,
+                status: 'success',
+                message: 'No appointments found.',
+            };
+            return publishAvailabilityResponse(correlationId, noAppointmentsResponse, action);
+        }
 
         const dentistIds = [...new Set(appointments.map(app => app.dentistId.toString()))];
         //console.log ("in getAvailableAppointments")

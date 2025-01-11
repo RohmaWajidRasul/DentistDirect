@@ -1,5 +1,7 @@
 import mqttClient from '../../shared/mqtt-client.js';
 import { checkDBHealth } from '../../shared/checkDBHealth.js';
+import { spawnBroker } from './dockerBroker.js'
+
 
 //-----Monitoring the health status of databases----------------------
 
@@ -22,7 +24,7 @@ const checkDatabases = async () => {
         dbStatus[key] = result;
     }
 
-    console.log('Database statuses:', dbStatus);
+    //console.log('Database statuses:', dbStatus);
 };
 
 setInterval(checkDatabases, 10000); // Check every 10 seconds
@@ -64,6 +66,10 @@ mqttClient.on('connect', () => {
 });
 
 mqttClient.on('message', (topic, message) => {
+
+    clearTimeout(timer);
+    timer = setTimeout(handleBroker, 20000);
+
     if (topic.startsWith('heartbeat/')) {
         const serviceName = topic.split('/')[1];
         const serviceId = topic.split('/')[2];
@@ -71,20 +77,31 @@ mqttClient.on('message', (topic, message) => {
 
         try {
             const heartbeat = JSON.parse(message.toString());
-            console.log(`Received heartbeat from ${instanceKey}:`);
-
             
             servicesStatus[instanceKey] = {
-                status: heartbeat.status,
-                lastSeen: heartbeat.timestamp,
+                status: heartbeat.status,   
+                lastSeen: Date.now(),
                 uptime: heartbeat.uptime
             };
+            //console.log('Heartbeat from', serviceName, serviceId);
+
         } catch (err) {
             console.error('Failed to parse heartbeat message:', err);
         }
     }
 });
 
+
+const handleBroker = () => {
+
+    spawnBroker();
+
+    clearTimeout(timer);
+    timer = setTimeout(handleBroker, 20000);
+
+}
+
+let timer = setTimeout(handleBroker, 20000);
 
 setInterval(() => {
     const currentTime = Date.now();
@@ -103,7 +120,7 @@ setInterval(() => {
             }
         } else {
             servicesStatus[instanceKey].status = 'healthy';
-            console.log(`Instance ${instanceKey} is healthy.`);
+            //console.log(`Instance ${instanceKey} is healthy.`);
         }
     }
 }, HEARTBEAT_TIMEOUT / 2);
@@ -113,7 +130,7 @@ const publishAlert = (serviceName, serviceId) => {
         service: serviceName,
         serviceId,
         status: 'down',
-        timestamp: new Date().toISOString(),
+        timestamp: Date.now(),
     };
 
     mqttClient.publish('alerts/service', JSON.stringify(alert), (err) => {

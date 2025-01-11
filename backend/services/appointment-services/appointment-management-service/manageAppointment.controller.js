@@ -48,7 +48,6 @@ export const manageAppointment = async (topic, message) => {
             return publishResponse(correlationId, errorResponse);
         }
 
-        // Update fields dynamically based on provided keys
         for (const [key, value] of Object.entries(updates)) {
             if (key === "status") {
                 switch (value) {
@@ -61,21 +60,40 @@ export const manageAppointment = async (topic, message) => {
                             };
                             return publishResponse(correlationId, errorResponse);
                         }
-                        appointment.status = 'booked';
-                        break;
-
-                    case 'canceled':
-                        if (appointment.status === 'canceled' || appointment.status === 'deleted') {
+                        if (!updates.patientId) {
                             const errorResponse = {
                                 correlationId,
                                 status: 'error',
-                                message: `Appointment is already ${appointment.status}`,
+                                message: 'Patient ID is required to book the appointment',
                             };
                             return publishResponse(correlationId, errorResponse);
                         }
-                        appointment.patientId = null;
-                        appointment.status = 'canceled';
+                    
+                        appointment.status = 'booked';
+                        appointment.patientId = updates.patientId;
+                        console.log(appointment, updates.patientId);
+                        sendBookingNotification(updates.patientId, appointment);
+                        matchPreference(appointment);
                         break;
+
+                    case 'canceled':
+                        { 
+                            if (!appointment.status === 'booked') {
+                                const errorResponse = {
+                                    correlationId,
+                                    status: 'error',
+                                    message: `Appointment is already ${appointment.status}`,
+                                };
+                                return publishResponse(correlationId, errorResponse);
+                            }
+
+                            notify(appointment, value);
+                            
+                            appointment.patientId = null;
+                            appointment.status = 'canceled';                            
+                            
+                            break; 
+                        }
 
                     case 'deleted':
                         if (appointment.status === 'deleted') {
@@ -85,7 +103,11 @@ export const manageAppointment = async (topic, message) => {
                                 message: 'Appointment is already deleted',
                             };
                             return publishResponse(correlationId, errorResponse);
+                        } else if (appointment.status === 'booked') {
+                            notify(appointment, value)
+
                         }
+
                         appointment.status = 'deleted';
                         break;
 
@@ -99,7 +121,6 @@ export const manageAppointment = async (topic, message) => {
                     }
                 }
             } else if (key in appointment) {
-                // Dynamically update other fields
                 appointment[key] = value;
             } else {
                 const errorResponse = {
@@ -150,3 +171,62 @@ const publishResponse = (correlationId, response) => {
         }
     });
 };
+
+const notify = (appointment, status) => {
+    const correlationId = Date.now().toString();
+    const topic = `request/create-notification`;
+
+    const notification = {
+        body: `Your appointment on ${appointment.date} got ${status}. Please book another appointment to meet your dental needs.`,
+        subject: `Appointment ${status}`,
+    }
+
+    const payload = {
+        patientId: appointment.patientId,
+        notification: notification
+    }
+
+    mqttClient.publish(topic, JSON.stringify({correlationId, payload}), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${topic}:`, err);
+        } else {
+            console.log(`Response sent to ${topic}`);
+        }
+    });
+};
+
+const sendBookingNotification = (patient, appointment) => {
+    const topic = `request/create-notification`;
+    const correlationId = Date.now().toString();
+
+    const payload = {
+        patientId: patient,
+        notification: {
+            subject: "Appointment Booked Successfully",
+            body: `You have an appointment on ${new Date(
+                appointment.date
+            ).toLocaleDateString()}.`
+        }
+    };
+
+    mqttClient.publish(topic, JSON.stringify({correlationId, payload}), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${topic}:`, err);
+        } else {
+            console.log(`Booking notification sent to ${topic}`);
+        }
+    });
+};
+
+const matchPreference = (appointment) => {
+    //const correlationId = Date.now().toString();
+    const requestTopic = `request/monitor-preference`;
+    mqttClient.publish(requestTopic, JSON.stringify(appointment), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${requestTopic}:`, err);
+        } else {
+            console.log(`Response sent to ${requestTopic}`);
+        }
+    });
+};
+

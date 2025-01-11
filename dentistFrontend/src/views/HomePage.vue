@@ -2,7 +2,7 @@
   <div class="home">
     <div>
       <h1>Welcome to the dentist management system</h1>
-      <p>Choose your path in life</p>
+      <p>Make your choice in the menu</p>
     </div>
   </div>
 </template>
@@ -17,5 +17,12 @@ p {
   height: 100vh;
   width: 100vw;
   margin: 0px;
+}
+p {
+  margin-top: 60px;
+}
+h1 {
+  background-color: rgb(217, 249, 249);
+  padding: 40px;
 }
 </style>
