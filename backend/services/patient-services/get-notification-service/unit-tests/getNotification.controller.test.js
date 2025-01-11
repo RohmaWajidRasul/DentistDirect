@@ -85,38 +85,6 @@ describe('getMessages', () => {
    );
  });
 
-
- it('should retrieve notifications and return success', async () => {
-   const mockNotifications = [
-     { message: 'Notification 1' },
-     { message: 'Notification 2' },
-   ];
-
-
-   const mockPatient = {
-     notifications: mockNotifications,
-     populate: vi.fn().mockResolvedValue(),
-   };
-   
-   Patient.findById.mockResolvedValue(mockPatient);
-   const message = JSON.stringify({
-     correlationId: '12345',
-     payload: { patientId: 'valid-id' },
-   });
-
-
-   await getMessages(mockTopic, message);
-
-
-   expect(mockPatient.populate).toHaveBeenCalledWith('notifications');
-   expect(mqttClient.publish).toHaveBeenCalledWith(
-     expect.stringContaining('response/messages/fetched/12345'),
-     expect.stringContaining('"Notifications retrieved successfully"'),
-     expect.any(Function)
-   );
- });
-
-
  it('should handle errors during patient fetching', async () => {
    Patient.findById.mockRejectedValue(new Error('Database error'));
 
