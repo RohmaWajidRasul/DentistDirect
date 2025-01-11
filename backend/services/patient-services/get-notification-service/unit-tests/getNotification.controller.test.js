@@ -1,7 +1,6 @@
 import { describe, it, vi, expect, beforeEach, afterEach } from 'vitest';
 import { getMessages } from '../getNotification.controller.js';
 import Patient from '../../models/patient.js';
-import Notification from '../../models/notification.js';
 import mqttClient from '../../../../shared/mqtt-client.js';
 
 
