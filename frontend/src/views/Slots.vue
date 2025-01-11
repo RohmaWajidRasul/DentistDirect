@@ -114,18 +114,19 @@ export default {
         });
 
         if (!this.mqttMessageHandlerSet) {
-          this.mqttClient.on("message", (topic, message) => {
-            if (topic.startsWith("response/appointment-management/")) {
-              this.handleAppointmentUpdates(topic, message);
-            } else if (topic.startsWith("response/create-appointment/")) {
-              this.handleCreatedAppointments(topic, message);
-            }
-          });
+          this.mqttClient.on("message", this.handleUpdates)
           this.mqttMessageHandlerSet = true;
         }
       } catch (error) {
         console.error("Error subscribing to topics:", error.message);
       }
+    },
+    handleUpdates(topic, message) {
+      if (topic.startsWith("response/appointment-management/")) {
+              this.handleAppointmentUpdates(topic, message);
+            } else if (topic.startsWith("response/create-appointment/")) {
+              this.handleCreatedAppointments(topic, message);
+            }
     },
     unsubscribeFromAppointmentUpdates() {
       const topics = [
@@ -144,7 +145,7 @@ export default {
           });
         });
 
-        this.mqttClient.off("message", this.handleAppointmentUpdates);
+        this.mqttClient.off("message", this.handleUpdates);
       } catch (error) {
         console.error("Error unsubscribing from topic:", error.message);
       }
@@ -218,14 +219,11 @@ export default {
           console.log(`Subscribed to response topic: ${responseTopic}`);
         });
 
-        const timeout = setTimeout(() => {
-          mqttClient.unsubscribe(responseTopic);
-          this.showAlert("Server did not respond. Please try again later.", "error");
-        }, 5000);
-
-        this.mqttClient.on("message", (topic, message) => {
+        const handleMessage = (topic, message) => {
           if (topic === responseTopic) {
             clearTimeout(timeout);
+            mqttClient.unsubscribe(responseTopic);
+            mqttClient.off("message", handleMessage);
             const response = JSON.parse(message.toString());
             console.log("Response received:", response);
 
@@ -239,16 +237,15 @@ export default {
             } else {
               console.error("Error response:", response);
             }
-
-            this.mqttClient.unsubscribe(responseTopic, (err) => {
-              if (err) {
-                console.error("Failed to unsubscribe from response topic:", err);
-              } else {
-                console.log(`Unsubscribed from response topic: ${responseTopic}`);
-              }
-            });
           }
-        });
+        };
+        const timeout = setTimeout(() => {
+            mqttClient.unsubscribe(responseTopic);
+            mqttClient.off("message", handleMessage);
+            this.showAlert("Server did not respond. Please try again later.", "error");
+          }, 5000);
+
+          mqttClient.on("message", handleMessage);
       } catch (error) {
         console.error("Error in fetchSlotsAndDentists:", error.message);
         this.showAlert("An error occurred while fetching slots. Please try again later.", "error");
@@ -400,14 +397,11 @@ export default {
             console.log(`Subscribed to response topic: ${responseTopic}`);
           });
 
-          const timeout = setTimeout(() => {
-            mqttClient.unsubscribe(responseTopic);
-            this.showAlert("Server did not respond. Please try again later.", "error");
-          }, 5000);
-
-          mqttClient.on("message", (topic, message) => {
+          const handleMessage = (topic, message) => {
             if (topic === responseTopic) {
               clearTimeout(timeout);
+              mqttClient.unsubscribe(responseTopic);
+              mqttClient.off("message", handleMessage);
               const response = JSON.parse(message.toString());
               console.log("Response received:", response);
 
@@ -418,16 +412,16 @@ export default {
                 console.error("Error response:", response.message);
                 this.showAlert("Appointment could not be booked");
               }
-
-              mqttClient.unsubscribe(responseTopic, (err) => {
-                if (err) {
-                  console.error("Failed to unsubscribe from response topic:", err);
-                } else {
-                  console.log(`Unsubscribed from response topic: ${responseTopic}`);
-                }
-              });
             }
-          });
+          };
+
+          const timeout = setTimeout(() => {
+            mqttClient.unsubscribe(responseTopic);
+            mqttClient.off("message", handleMessage);
+            this.showAlert("Server did not respond. Please try again later.", "error");
+          }, 5000);
+
+          mqttClient.on("message", handleMessage);
         } catch (error) {
           console.error("Error in slot card:", error.message);
           this.showAlert("An error occurred while booking slots. Please try again later.", "error");
