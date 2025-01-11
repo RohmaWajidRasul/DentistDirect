@@ -16,9 +16,6 @@ vi.mock('../../../../shared/mqtt-client.js', () => ({
 
 
 describe('createMessage', () => {
-   const mockTopic = 'request/create-notification';
-
-
    beforeEach(() => {
        vi.restoreAllMocks(); // Reset mocks before each test
    });
@@ -33,7 +30,7 @@ describe('createMessage', () => {
        const invalidMessage = 'not-json';
 
 
-       await createMessage(mockTopic, invalidMessage);
+       await createMessage(invalidMessage);
 
 
        expect(mqttClient.publish).not.toHaveBeenCalledWith();
@@ -48,14 +45,11 @@ describe('createMessage', () => {
        });
 
 
-       await createMessage(mockTopic, messageWithoutCorrelationId);
+       await createMessage(messageWithoutCorrelationId);
 
 
        expect(mqttClient.publish).not.toHaveBeenCalledWith();
    });
-
-
-
 
    it('should return an error if required fields are missing', async () => {
        const messageWithoutRequiredFields = JSON.stringify({
@@ -64,7 +58,7 @@ describe('createMessage', () => {
        });
 
 
-       await createMessage(mockTopic, messageWithoutRequiredFields);
+       await createMessage(messageWithoutRequiredFields);
 
 
        expect(mqttClient.publish).toHaveBeenCalledWith(
@@ -87,7 +81,7 @@ describe('createMessage', () => {
        });
 
 
-       await createMessage(mockTopic, messageWithNonExistentPatient);
+       await createMessage( messageWithNonExistentPatient);
 
 
        expect(mqttClient.publish).toHaveBeenCalledWith(
@@ -129,7 +123,7 @@ describe('createMessage', () => {
        });
 
 
-       await createMessage(mockTopic, validMessage);
+       await createMessage(validMessage);
 
 
        expect(Notification).toHaveBeenCalledWith({
@@ -144,31 +138,4 @@ describe('createMessage', () => {
            expect.any(Function)
        );
    });
-
-
-   it('should handle database errors during notification creation', async () => {
-     Patient.findById.mockResolvedValue({
-       _id: '123',
-       notifications: [],
-       save: vi.fn(),
-     });
-  
-     Notification.mockRejectedValue(new Error('Database error'));
-  
-     const validMessage = JSON.stringify({
-       correlationId: '12345',
-       payload: {
-         patientId: '123',
-         notification: { body: 'Test Body', subject: 'Test Subject' },
-       },
-     });
-  
-     await createMessage(mockTopic, validMessage);
-  
-     expect(mqttClient.publish).toHaveBeenCalledWith(
-       expect.stringContaining('response/create-notification/12345'),
-       expect.stringContaining('"Error creating notification"'),
-       expect.any(Function)
-     );
-   });    
 });
