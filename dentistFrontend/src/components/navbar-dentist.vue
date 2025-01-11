@@ -28,7 +28,7 @@
           class="nav-menu-item"
           v-if="loggedIn"
           to="/view-booked-slots"
-          >Available Slots</b-nav-item
+          >Appointments</b-nav-item
         >
       </b-navbar-nav>
     </b-collapse>

@@ -9,17 +9,11 @@ import mqttClient from '../mqttClient.js';
 import { onMounted } from 'vue';
 import { onBeforeUnmount } from 'vue';
 
-import L from 'leaflet'; // Import Leaflet first
-import 'leaflet/dist/leaflet.css'; // Base Leaflet CSS
-import * as LocateControl from "leaflet.locatecontrol";
-// Solves conflicting import
-if (LocateControl?.locate && !L.control.locate) {
-    L.Control.Locate = LocateControl.LocateControl || LocateControl
-    L.control.locate = function (options) {
-        return new L.Control.Locate(options)
-    };
-}
-import 'leaflet.locatecontrol/dist/L.Control.Locate.min.css'; // Plugin CSS
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import { LocateControl } from "leaflet.locatecontrol";
+import "leaflet.locatecontrol/dist/L.Control.Locate.min.css";
+
 
 export default {
   name: 'MapComponent',
@@ -65,17 +59,15 @@ export default {
 
     const addLocateControl = () => {
         try {
-            if (L.control.locate) {
-                L.control.locate({
-                    position: 'topleft',
-                    strings: {
-                    title: "Show where I am!"
-                    }
-                }).addTo(map);
-                console.log('Location control added');
-            } else {
-                console.error('Location control not available');
-            }
+            const locateControl = new LocateControl ({
+                position: "topleft",
+                strings: {
+                    title: "Show me where I am!",
+                },
+            });
+            locateControl.addTo(map);
+            console.log("Location control added");
+
         } catch (error) {
             console.error('Error adding location', error)
         }
