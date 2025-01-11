@@ -202,5 +202,8 @@ export default {
 .btn-hugger {
   margin: 20px;
 }
+h2 {
+  padding: 40px;
+}
 </style>
 

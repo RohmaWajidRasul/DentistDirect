@@ -68,4 +68,7 @@ li {
   background-color: #6fd2f3;
   width: 100%;
 }
+h1 {
+  padding: 40px;
+}
 </style>

@@ -74,7 +74,7 @@ export default {
 };
 </script>
   
-  <style scoped>
+<style scoped>
 .form {
   color: black;
   text-align: left;
@@ -101,5 +101,8 @@ button {
   border: 1px solid black;
   border-radius: 4px;
   background-color: #6fd2f3;
+}
+h1 {
+  padding: 40px;
 }
 </style>

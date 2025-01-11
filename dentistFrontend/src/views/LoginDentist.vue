@@ -7,7 +7,7 @@
       :message="alertMessage"
       @close="alertMessage = null"
     />
-    <h2 class="form-title">Login here</h2>
+    <h2 >Login here</h2>
     <form @submit.prevent="handleLogin" class="login-form">
       <div class="form-group">
         <label for="email">Email</label>
@@ -35,8 +35,10 @@
         />
       </div>
 
+      <div class="btn-hugger">
       <button type="submit" class="btn btn-primary">Login</button>
       <span v-if="isLoading">Logging in...</span>
+    </div>
     </form>
   </div>
 </template>
@@ -97,3 +99,18 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+
+h2 {
+  padding: 40px;
+}
+
+.login-form {
+  width: 100%;
+}
+
+.btn-hugger {
+  margin-top: 20px;
+}
+</style>
