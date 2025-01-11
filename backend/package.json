@@ -31,7 +31,8 @@
     "mongoose": "^8.8.1",
     "morgan": "^1.10.0",
     "mqtt": "^5.10.2",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.16"
   },
   "devDependencies": {
     "@babel/cli": "^7.26.4",

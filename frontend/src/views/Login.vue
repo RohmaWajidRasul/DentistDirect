@@ -1,44 +1,44 @@
 <template>
-    <div class="form-container">
-      <!-- Alert Messages -->
-      <Alert
-        v-if="alertMessage"
-        :type="alertType"
-        :message="alertMessage"
-        @close="alertMessage = null"
-      />
-      <h2 class="form-title">Login here</h2>
-      <form @submit.prevent="handleLogin" class="login-form">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            type="email"
-            class="form-control"
-            id="email"
-            v-model="user.email"
-            placeholder="Enter your email"
-            required
-          />
-        </div>
-  
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            type="password"
-            class="form-control"
-            id="password"
-            v-model="user.password"
-            placeholder="Enter your password"
-            required
-          />
-        </div>
-  
-        <button type="submit" class="btn btn-primary">Login</button>
-        <span v-if="isLoading">Logging in...</span>
+  <div class="form-container">
+    <!-- Alert Messages -->
+    <Alert
+      v-if="alertMessage"
+      :type="alertType"
+      :message="alertMessage"
+      @close="alertMessage = null"
+    />
+    <h2 class="form-title">Login here</h2>
+    <form @submit.prevent="handleLogin" class="login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          v-model="user.email"
+          placeholder="Enter your email"
+          required
+        />
+      </div>
 
-      </form>
-    </div>
-  </template>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          v-model="user.password"
+          placeholder="Enter your password"
+          required
+        />
+      </div>
+
+      <button type="submit" class="btn btn-primary">Login</button>
+      <span v-if="isLoading">Logging in...</span>
+
+    </form>
+  </div>
+</template>
   
   <script>
   import mqttClient from '../mqttClient.js';
@@ -107,7 +107,7 @@
   
             if (response.status === 'success') {
               // Store user info in localStorage to keep user in "logged in" state
-              localStorage.setItem('user', JSON.stringify({ userId: response.patient._id, email: this.user.email }));
+              localStorage.setItem('user', JSON.stringify({ userId: response.patient._id, email: this.user.email, user: response.patient }));
              // Store user data in localStorage, to stay in "logged in" state
               window.dispatchEvent(new Event('authChange')) 
               // Redirect to home page
@@ -121,12 +121,12 @@
         });
       },
       showAlert(message, type) {
-      this.alertMessage = message;
-      this.alertType = type;
-    }
+        this.alertMessage = message;
+        this.alertType = type;
+      } 
 
-  }
-};
+    }
+  };
   </script>
   
   <style scoped>

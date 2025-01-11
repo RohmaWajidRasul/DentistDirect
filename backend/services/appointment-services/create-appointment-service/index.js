@@ -47,7 +47,7 @@ const publishRegistration = () => {
 const requestTopic = `request/${serviceName}/${serviceId}`;
 
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Dentist Info Service');
+    console.log('MQTT connected for Create Notifictaion Service');
     publishRegistration();
     mqttClient.subscribe( requestTopic, (err) => {
         if (err) {
@@ -69,7 +69,7 @@ const publishHeartbeat = () => {
     const heartbeat = {
         service: serviceName,
         status: 'healthy',
-        timestamp: new Date().toISOString(),
+        timestamp: Date.now(),
         uptime: process.uptime(),
     };
 

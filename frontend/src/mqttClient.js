@@ -1,8 +1,8 @@
 import mqtt from 'mqtt';
 
 // Use the WebSocket URL for the MQTT broker
-const mqttURL = import.meta.env.VITE_MQTT_BROKER_URL_FRONTEND ||'wss://test.mosquitto.org:8081';
-;
+const mqttURL = import.meta.env.VITE_MQTT_BROKER_URL_FRONTEND ||'ws://localhost:8080';
+
 if (!mqttURL) {
   console.error('MQTT Broker URL is not defined');
 }

@@ -42,8 +42,8 @@
       }
     }, */
     methods: {
-      bookSlot(slot) {
-        this.$emit("bookSlot", slot);
+      bookSlot(data) {
+        this.$emit("book-Slot", data);
       },
     },
   };

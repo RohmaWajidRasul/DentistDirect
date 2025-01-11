@@ -70,6 +70,8 @@ export const createAppointment = async (topic, message) => {
             message: 'Appointment created successfully',
             appointment,
         };
+
+        matchPreference(appointment);
         return publishResponse(correlationId, successResponse);
     } catch (error) {
         if (!correlationId) {
@@ -94,6 +96,18 @@ const publishResponse = (correlationId, response) => {
             console.error(`Failed to publish to ${responseTopic}:`, err);
         } else {
             console.log(`Response sent to ${responseTopic}`);
+        }
+    });
+};
+
+const matchPreference = (appointment) => {
+    //const correlationId = Date.now().toString();
+    const requestTopic = `request/monitor-preference`;
+    mqttClient.publish(requestTopic, JSON.stringify(appointment), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${requestTopic}:`, err);
+        } else {
+            console.log(`Response sent to ${requestTopic}`);
         }
     });
 };
