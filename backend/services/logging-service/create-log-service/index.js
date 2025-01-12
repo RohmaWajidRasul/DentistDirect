@@ -17,10 +17,10 @@ app.use(cors());
 app.use(express.json());
 app.use(morgan('dev')); 
 
-const primaryURI = process.env.PATIENTDB_PRIMARY_URI || 'mongodb://localhost:27017/logs';
-const fallbackURI = process.env.PATIENTDB_FALLBACK_URI || 'mongodb://localhost:27019/logs';
+const primaryURI = process.env.LOGDB_PRIMARY_URI || 'mongodb://localhost:27017/logs';
+const fallbackURI = process.env.LOGDB_FALLBACK_URI || 'mongodb://localhost:27019/logs';
 
-connectDB(primaryURI, fallbackURI, "patientDB");
+connectDB(primaryURI, fallbackURI, "logDB");
 
 const serviceId = uuidv4();
 const serviceName = "create-log";

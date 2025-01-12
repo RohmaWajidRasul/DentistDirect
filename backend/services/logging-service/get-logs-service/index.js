@@ -8,10 +8,10 @@ import mongoose from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 import { getLogs } from './getLogs.controller.js'
 
-const primaryURI = process.env.PATIENTDB_PRIMARY_URI || 'mongodb://localhost:27017/logs';
-const fallbackURI = process.env.PATIENTDB_FALLBACK_URI || 'mongodb://localhost:27019/logs';
+const primaryURI = process.env.LOGDB_PRIMARY_URI || 'mongodb://localhost:27017/logs';
+const fallbackURI = process.env.LOGDB_FALLBACK_URI || 'mongodb://localhost:27019/logs';
 
-connectDB(primaryURI, fallbackURI, "patientDB");
+connectDB(primaryURI, fallbackURI, "logDB");
 
 dotenv.config();
 
