@@ -59,6 +59,7 @@ test-backend:
   variables:
     PATIENTDB_PRIMARY_URI: "mongodb://mongo:27017/patients"
     DENTISTDB_PRIMARY_URI: "mongodb://mongo:27017/dentists"
+    LOGDB_PRIMARY_URI: "mongodb://mongo:27017/logs"
     APPOINTMENTDB_PRIMARY_URI: "mongodb://mongo:27017/appointments"
     CLINICDB_PRIMARY_URI: "mongodb://mongo:27017/clinics"
     MQTT_BROKER_URL_BACKEND: "mqtt://mqtt:1883"
@@ -70,6 +71,7 @@ test-backend:
     - npm ci
     - echo "Creating .env file for tests"
     - echo "MONGODB_URI_PATIENTS=$MONGODB_URI_PATIENTS" > ../.env
+    - echo "MONGODB_URI_LOGS=$MONGODB_URI_LOGS" > ../.env
     - echo "MONGODB_URI_DENTISTS=$MONGODB_URI_DENTISTS" >> ../.env
     - echo "MONGODB_URI_APPOINTMENTS=$MONGODB_URI_APPOINTMENTS" >> ../.env
     - echo "MONGODB_URI_CLINICS=$MONGODB_URI_CLINICS" >> ../.env

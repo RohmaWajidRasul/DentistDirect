@@ -127,17 +127,8 @@ export default {
         }
     }
 
-    mqttClient.on('message', (topic, message) => {
-        try {
-            if (topic.startsWith('response/retrieve-clinics/')) {
-            console.log('Received response:', topic, message.toString());
-            handleClinicData(topic, message);
-            }
-        } catch (error) {
-            console.error('Error processing MQTT message:', error)
-        }
-        
-    })
+    mqttClient.on('message', handleClinicData);
+
 
     onMounted(() => {
         initializeMap();

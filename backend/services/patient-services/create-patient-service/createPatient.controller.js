@@ -1,15 +1,18 @@
 import Patient from '../models/patient.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 import bcrypt from 'bcrypt';
-import nodemailer from 'nodemailer';
+
+let requestTime;
+let requestTopic;
 
 export const createPatient = async (topic, message) => {
     let correlationId; 
 
     console.log(`Service reached ${topic}`);
 
-
     try {
+        requestTime = Date.now();
+        requestTopic = topic;
         let parsedMessage;
         try {
             parsedMessage = JSON.parse(message.toString());
@@ -29,7 +32,7 @@ export const createPatient = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        const { firstName, lastName, SSN, email, password, phoneNumber} = parsedMessage.payload;
+        const { firstName, lastName, SSN, email, password, phoneNumber, isAdmin = false} = parsedMessage.payload;
 
         // Check required fields
         if (!firstName || !lastName || !SSN || !email || !phoneNumber || !password) {
@@ -91,7 +94,8 @@ export const createPatient = async (topic, message) => {
             SSN, 
             email, 
             password: hashedPassword, 
-            phoneNumber 
+            phoneNumber,
+            isAdmin
         });
 
         await newPatient.save();
@@ -102,7 +106,6 @@ export const createPatient = async (topic, message) => {
             message: 'Patient created successfully', 
             newPatient,
         };
-        sendEmail(email);
         return publishResponse(correlationId, successResponse);
 
     } catch (error) {
@@ -123,6 +126,7 @@ export const createPatient = async (topic, message) => {
 
 const publishResponse = (correlationId, response) => {
     const responseTopic = `response/create-patient/${correlationId}`;
+    log(response.status);
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
             console.error(`Failed to publish to ${responseTopic}:`, err);
@@ -132,30 +136,31 @@ const publishResponse = (correlationId, response) => {
     });
 };
 
-const sendEmail = (email) => {
-    console.log("Sending email")
-    const transporter = nodemailer.createTransport({
-        host: 'smtp.office365.com',
-        port: 587,
-        secure: false, // use SSL
-        auth: {
-          user: 'dentistdirect13@outlook.com',  
-          pass: 'mkhbzzsapjiuxeim',
-        }
-      });
+const log = (result) => {
+    const logTopic = "request/create-log"
+    const topicParts = requestTopic.split("/")
+    const serviceName = topicParts[1];
+    const serviceId = topicParts[2];
 
-      const mailOptions = {
-        from: 'dentistdirect13@outlook.com',
-        to: email,
-        subject: 'Sending Email using Node.js',
-        text: 'That was easy!'
+    const payload =  {
+        result,
+        serviceId,
+        serviceName,
+        requestTime,
+    }
+    const correlationId = Date.now();
+
+    const logMessage = {
+        correlationId,
+        payload
       };
+    
 
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log('Error:', error);
+    mqttClient.publish(logTopic, JSON.stringify(logMessage), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${logTopic}:`, err);
         } else {
-          console.log('Email sent:', info.response);
+            console.log(`Request sent to ${logTopic}`);
         }
-      });
+    });
 }

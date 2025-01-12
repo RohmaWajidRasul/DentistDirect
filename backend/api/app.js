@@ -6,6 +6,7 @@ import cors from 'cors';
 import morgan from'morgan';
 import mqttClient from '../shared/mqtt-client.js';
 import clinicRoutes from './routes/clinic.router.js';
+import logRoutes from './routes/logs.router.js'
 
 dotenv.config();
 const app = express();
@@ -21,7 +22,9 @@ app.use('/v1/appointments', appointmentRoutes);
 
 app.use('/v1/patients', patientRoutes); 
 
-app.use('/v1/clinics',clinicRoutes);
+app.use('/v1/clinics', clinicRoutes);
+
+app.use('/v1/logs', logRoutes)
 
 app.use('/*', function (req, res) {
     res.status(404).json({ message: 'Not Found' });

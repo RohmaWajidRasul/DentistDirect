@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 
 const serviceRegistry = {};
 const requestCount = {};
+const longRequestCount = {};
 const lowRequestDurations = {};
 const maxRequests = 50; 
 const minRequests = 5; 
@@ -34,8 +35,11 @@ const servicePaths = {
 
     'create-clinic':path.resolve(__dirname, '../clinics-services/create-clinic-service/index.js'), 
     'retrieve-clinic': path.resolve(__dirname, '../clinics-services/retrieve-clinic-service/index.js'),
-    'fetch-clinic-info': path.resolve(__dirname, '../clinics-services/clinic-info-service/index.js')
-
+    'clinic-info': path.resolve(__dirname, '../clinics-services/clinic-info-service/index.js'),
+    'create-log': path.resolve(__dirname, '../logging-service/create-log-service/index.js'),
+    'get-logs': path.resolve(__dirname, '../logging-service/get-logs-service/index.js'),
+    'get-usernumbers': path.resolve(__dirname, '../logging-service/get-user-numbers-service/index.js'),
+    'delete-logs': path.resolve(__dirname, '../logging-service/delete-log-service/index.js'),
 };
 
 const spawnService = (serviceName) => {
@@ -112,6 +116,7 @@ const handleRequest = (topic, message) => {
     const instances = Object.values(serviceRegistry[serviceName]);
     const selectedInstance = instances[Math.floor(Math.random() * instances.length)];
     requestCount[selectedInstance.serviceId] = (requestCount[selectedInstance.serviceId] || 0) + 1;
+    longRequestCount[selectedInstance.serviceId] = (longRequestCount[selectedInstance.serviceId] || 0) + 1;
 
     let forwardTopic;
 
@@ -168,7 +173,10 @@ const monitorServiceLoad = () => {
     }
 };
 
+
+
 setInterval(monitorServiceLoad, 5000);
+
 
 mqttClient.on('connect', () => {
     mqttClient.subscribe('registry/register', (err) => {
@@ -203,11 +211,34 @@ mqttClient.on('message', (topic, message) => {
         }
 
     } else if (topic.startsWith('alerts/service')) {
-        handleAlert(message);
-    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) ||
-        ((topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
+        handleAlert(topic, message);
+    } else if(topic.startsWith ("request/registry")) {
+        publishRegistry(message);
+    } else if ((topic.startsWith('request/') && topic.split('/').length === 2) || ((topic.startsWith('request/available-appointments')) && topic.split('/').length === 3)) {
         number = number + 1;
         console.log(`request on load balancer ${number} ${topic}`);
         handleRequest(topic, message);
-    }
+    } 
 });
+
+const publishRegistry = (message) => {
+    const parsedMessage = JSON.parse(message.toString());
+    const correlationId = parsedMessage.correlationId;
+
+    const payload = {
+        "serviceRegistry" : serviceRegistry,
+        "requestCount" : longRequestCount
+    }
+
+    mqttClient.publish(`response/registry/${correlationId}`, JSON.stringify(payload), (err) => {
+        if (err) {
+            console.error('Failed to publish registration:', err);
+        } else {
+            console.log('Service registered successfully');
+        }
+    });
+
+    for (const serviceId in longRequestCount) {
+        longRequestCount[serviceId] = 0;
+    }
+}

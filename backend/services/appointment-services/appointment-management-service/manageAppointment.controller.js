@@ -1,6 +1,12 @@
 import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
+
+let requestTime;
+let requestTopic;
+let requestStatus;
+let patientId;
+
 export const manageAppointment = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
 
@@ -8,6 +14,8 @@ export const manageAppointment = async (topic, message) => {
 
     try {
         let parsedMessage;
+        requestTime = Date.now();
+        requestTopic = topic;
         try {
             parsedMessage = JSON.parse(message.toString());
         } catch (error) {
@@ -50,9 +58,11 @@ export const manageAppointment = async (topic, message) => {
 
         for (const [key, value] of Object.entries(updates)) {
             if (key === "status") {
+                requestStatus = value;
                 switch (value) {
                     case 'booked':
                         if (appointment.status === 'booked' || appointment.status === 'deleted') {
+                            patientId = appointment.patientId;
                             const errorResponse = {
                                 correlationId,
                                 status: 'error',
@@ -88,7 +98,8 @@ export const manageAppointment = async (topic, message) => {
                             }
 
                             notify(appointment, value);
-                            
+
+                            patientId = appointment.patientId;
                             appointment.patientId = null;
                             appointment.status = 'canceled';                            
                             
@@ -122,6 +133,8 @@ export const manageAppointment = async (topic, message) => {
                 }
             } else if (key in appointment) {
                 appointment[key] = value;
+            } else if(key == "patientId") {
+                patientId = key;
             } else {
                 const errorResponse = {
                     correlationId,
@@ -170,6 +183,7 @@ const publishResponse = (correlationId, response) => {
             console.log(`Response sent to ${responseTopic}`);
         }
     });
+    log(response.status);
 };
 
 const notify = (appointment, status) => {
@@ -230,3 +244,36 @@ const matchPreference = (appointment) => {
     });
 };
 
+const log = (result) => {
+    try {
+        const logTopic = "request/create-log"
+        const topicParts = requestTopic.split("/");
+        const serviceName = topicParts[1] + " " + requestStatus;
+        const serviceId = topicParts[2];
+  
+        const payload =  {
+            result,
+            serviceId,
+            serviceName,
+            requestTime,
+            patientId
+
+        }
+          const correlationId = Date.now();
+          const logMessage = {
+          correlationId,
+          payload
+        };
+      
+
+        mqttClient.publish(logTopic, JSON.stringify(logMessage), (err) => {
+            if (err) {
+                console.error(`Failed to publish to ${logTopic}:`, err);
+            } else {
+                console.log(`Request sent to ${logTopic}`);
+            }
+        });
+    } catch(error) {
+        console.log(error)
+    }
+}

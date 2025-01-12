@@ -1,6 +1,11 @@
 import Appointment from "../models/appointment.js";
 import mqttClient from "../../../shared/mqtt-client.js";
 
+
+let requestee;
+let requestTime;
+let requestTopic;
+
 export const getAvailableAppointments = async (topic, message) => {
   const topicParts = topic.split("/");
   const action = topicParts[3];
@@ -16,7 +21,9 @@ export const getAvailableAppointments = async (topic, message) => {
   let correlationId;
 
     try {
-        let parsedMessage; 
+        let parsedMessage;
+        requestTime = Date.now();
+        requestTopic = topic;
         try {
             parsedMessage = JSON.parse(message.toString());
         } catch (error) {
@@ -44,6 +51,7 @@ export const getAvailableAppointments = async (topic, message) => {
     const { dentistId = null, date = null, location = null, clinicId = null } = payload;
 
     let query;
+    requestee =  parsedMessage.payload.patientId || null;
 
     if (action === "bookedByDentist") {
       if (!dentistId) {
@@ -58,6 +66,7 @@ export const getAvailableAppointments = async (topic, message) => {
           action
         );
       }
+      requestee = dentistId;
       console.log(`Fetching booked appointments for dentistId: ${dentistId}`);
       query = { status: "booked", dentistId: dentistId };
     } else if (action == "booked") {
@@ -136,9 +145,9 @@ export const getAvailableAppointments = async (topic, message) => {
 };
 
 const fetchDentistsInfo = (dentistIds) => {
-  return new Promise((resolve, reject) => {
-    const correlationId = generateCorrelationId();
-    console.log(correlationId);
+    return new Promise((resolve, reject) => {
+        const correlationId = generateCorrelationId();
+        //console.log(correlationId)
 
     const payload = { dentistIds };
     //console.log("in fetchDentistInfo")
@@ -262,7 +271,7 @@ const fetchPatientsInfo = (patientIds) => {
 const fetchClinicsInfo = (clinicIds) => {
     return new Promise((resolve, reject) => {
         const correlationId = generateCorrelationId();
-        console.log(correlationId);
+        //console.log(correlationId);
 
         const payload = { clinicIds };
 
@@ -321,12 +330,43 @@ const fetchClinicsInfo = (clinicIds) => {
 const generateCorrelationId = () => `corr-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
 const publishAvailabilityResponse = (correlationId, response, action) => {
-  const responseTopic = `response/available-appointments/${action}/${correlationId}`;
-  mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
-    if (err) {
-      console.error(`Failed to publish to ${responseTopic}:`, err);
-    } else {
-      console.log(`Response sent to ${responseTopic}`);
-    }
-  });
+    const responseTopic = `response/available-appointments/${action}/${correlationId}`;
+    mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${responseTopic}:`, err);
+        } else {
+            console.log(`Response sent to ${responseTopic}`);
+        }
+    });
+    log(response.status)
 };
+
+const log = (result) => {
+    const logTopic = "request/create-log"
+    const topicParts = requestTopic.split("/")
+    const serviceName = topicParts[1] + " " + topicParts[3];
+    const serviceId = topicParts[2];
+
+    const payload =  {
+        result,
+        serviceId,
+        serviceName,
+        requestTime,
+        patientId: requestee
+    }
+    const correlationId = Date.now();
+
+    const logMessage = {
+        correlationId,
+        payload
+      };
+    
+
+    mqttClient.publish(logTopic, JSON.stringify(logMessage), (err) => {
+        if (err) {
+            console.error(`Failed to publish to ${logTopic}:`, err);
+        } else {
+            console.log(`Request sent to ${logTopic}`);
+        }
+    });
+}

@@ -90,6 +90,8 @@ export default {
     changeStatus(clicked) {
       if (clicked.status === 'unread') {
         clicked.status = 'read';
+        const user = JSON.parse(localStorage.getItem("user"));
+        const patientId = user.userId;
 
         const correlationId = Date.now().toString();
         const requestTopic = 'request/notification-management';
@@ -100,7 +102,8 @@ export default {
           correlationId,
           payload: {
             notificationId: clicked._id,
-            status: "read"
+            status: "read",
+            patientId: patientId
           }
         };
 
