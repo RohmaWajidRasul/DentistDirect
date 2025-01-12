@@ -5,7 +5,7 @@ import paho.mqtt.client as mqtt
 from locust import User, TaskSet, task, between
 
 class MQTTClientWrapper:
-    def __init__(self, host="192.168.1.78", port=1884):
+    def __init__(self, host="localhost", port=1883):
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
@@ -61,12 +61,12 @@ class ClinicServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("192.168.1.78", 1884)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
     def create_clinic(self):
-        """Simulate dentist registration"""
+        """Simulate clinic registration"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
         request_topic = "request/register-clinic"
@@ -107,7 +107,7 @@ class ClinicServiceTasks(TaskSet):
 
     @task(2)
     def clinic_info(self):
-        """Simulate dentist registration"""
+        """Simulate clinic retrieval"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
         request_topic = "request/clinic-info"
@@ -143,6 +143,42 @@ class ClinicServiceTasks(TaskSet):
                 exception=Exception("No response received"),
             )
 
+    @task(3)
+    def retrieve_clinics(self):
+        """Simulate clinic retrieval"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/retrieve-clinics"
+        response_topic = f"response/retrieve-clinics/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {},
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="retrieve_clinics",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="retrieve_clinics",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
 
 
 class DentistServiceTasks(TaskSet):
@@ -151,7 +187,7 @@ class DentistServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("192.168.1.78", 1884)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
@@ -235,6 +271,45 @@ class DentistServiceTasks(TaskSet):
                 exception=Exception("No response received"),
             )
 
+    @task(3)
+    def login_dentist(self):
+        """Simulate dentist login"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/dentist-login"
+        response_topic = f"response/dentist-login/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "email": f"jane.smith.{uuid.uuid4()}@example.com",
+                "password": "SecurePass123!",
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+         # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="login_dentist",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="login_dentist",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
 
 class PatientServiceTasks(TaskSet):
     def __init__(self, parent):
@@ -242,7 +317,7 @@ class PatientServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("192.168.1.78", 1884)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)
@@ -327,9 +402,9 @@ class PatientServiceTasks(TaskSet):
                 exception=Exception("No response received"),
             )
 
-    @task(2)
+    @task(3)
     def manage_patient(self):
-        """Simulate patient login"""
+        """Simulate patient editing"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
         request_topic = "request/manage-patient"
@@ -365,13 +440,51 @@ class PatientServiceTasks(TaskSet):
                 exception=Exception("No response received"),
             )
 
+    @task(4)
+    def fetch_patient_info(self):
+        """Simulate fetching patient information"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/patient-info"
+        response_topic = f"response/patient-info/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "patientIds": ["131313"]
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="fetch_patient_info",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="fetch_patient_info",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
 class AppointmentServiceTasks(TaskSet):
     def __init__(self, parent):
         super().__init__(parent)
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("192.168.1.78", 1884)
+        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
         self.mqtt_client.connect()
 
     @task(1)

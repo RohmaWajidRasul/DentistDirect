@@ -37,7 +37,12 @@ export default {
       }
 
       const response = await getBookedAppointmentsForDentist(dentistId);
-      this.appointments = response.appointments;
+      if(response.message == "No appointments found.") {
+                                console.log("No Appointments found");
+                            } else {
+                              this.appointments = response.appointments;
+                            }
+      
     } catch (error) {
       console.error("Error loading booked slots:", error);
     }

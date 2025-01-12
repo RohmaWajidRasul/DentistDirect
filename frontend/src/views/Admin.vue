@@ -275,7 +275,7 @@ export default {
                         const response = JSON.parse(message.toString());
 
                         if (response.status === "success") {
-                            this.logs = response.logs.reverse();
+                            this.logs = response.logs;
                         } else {
                             console.error("Error response:", response.error);
                         }

@@ -25,9 +25,13 @@ export const getLogs = async (topic, message) => {
             throw new Error('Correlation ID is missing in the request');
         }
 
-        var date = new Date();
-        date.setMinutes(date.getMinutes() - 5);
-        const logs = await Log.find({ createdAt: { $gte: date } })
+        
+        const logs = await Log.find()
+        .sort({ createdAt: -1 })
+        .limit(100);
+      
+
+          
 
         if (!logs) {
             const errorResponse = {
