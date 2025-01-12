@@ -5,7 +5,7 @@ import paho.mqtt.client as mqtt
 from locust import User, TaskSet, task, between
 
 class MQTTClientWrapper:
-    def __init__(self, host="localhost", port=1884):
+    def __init__(self, host="192.168.1.78", port=1884):
         self.client = mqtt.Client()
         self.client.on_connect = self.on_connect
         self.client.on_message = self.on_message
@@ -55,6 +55,57 @@ class MQTTClientWrapper:
             time.sleep(0.1)
         return None
 
+class ClinicServiceTasks(TaskSet):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.environment = parent.environment  # Pass environment from User class
+
+    def on_start(self):
+        self.mqtt_client = MQTTClientWrapper("192.168.1.78", 1884)
+        self.mqtt_client.connect()
+
+    @task(1)
+    def create_clinic(self):
+        """Simulate dentist registration"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/register-clinic"
+        response_topic = f"response/register-clinic/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "name": "Heartbreak clinic",
+                "location": "Lindholmen, Sweden",
+                "longitude": 14.9383,
+                "latitude": 57.7070
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="create_clinic",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="create_clinic",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
+
 
 class DentistServiceTasks(TaskSet):
     def __init__(self, parent):
@@ -62,7 +113,7 @@ class DentistServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
+        self.mqtt_client = MQTTClientWrapper("192.168.1.78", 1884)
         self.mqtt_client.connect()
 
     @task(1)
@@ -80,7 +131,7 @@ class DentistServiceTasks(TaskSet):
                 "specialization": "Orthodontics",
                 "email": f"john.doe.{uuid.uuid4()}@example.com",
                 "password": "Pass123!",
-                "location": "Main Street Clinic",
+                "clinicId": "131313",
             },
         }
 
@@ -153,7 +204,7 @@ class PatientServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
+        self.mqtt_client = MQTTClientWrapper("192.168.1.78", 1884)
         self.mqtt_client.connect()
 
     @task(1)
@@ -244,7 +295,7 @@ class AppointmentServiceTasks(TaskSet):
         self.environment = parent.environment  # Pass environment from User class
 
     def on_start(self):
-        self.mqtt_client = MQTTClientWrapper("localhost", 1883)
+        self.mqtt_client = MQTTClientWrapper("192.168.1.78", 1884)
         self.mqtt_client.connect()
 
     @task(1)
@@ -252,8 +303,8 @@ class AppointmentServiceTasks(TaskSet):
         """Simulate fetching appointment availability"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/available-appointments"
-        response_topic = f"response/available-appointments/{correlation_id}"
+        request_topic = "request/available-appointments/available"
+        response_topic = f"response/available-appointments/available/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
@@ -298,7 +349,8 @@ class AppointmentServiceTasks(TaskSet):
                 "dentistId": "674f6b44df75ca6c80505206",
                 "date": "2024-12-14",
                 "startTime": "09:00",
-                "endTime": "10:00"
+                "endTime": "10:00",
+                "clinicId": "13131313"
             },
         }
 
@@ -331,15 +383,14 @@ class AppointmentServiceTasks(TaskSet):
         """Simulate booking an appointment"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/appointments/create"
-        response_topic = f"response/appointments/created/{correlation_id}"
+        request_topic = "request/appointment-management"
+        response_topic = f"response/appointment-management/updated/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
-                "dentistId": "1234",
+                "appointmentId": "1234",
                 "patientId": "5678",
-                "timeSlot": "2024-12-14T10:00:00Z",
-                "location": "Main Street Clinic"
+                "status": "booked"
             },
         }
 
@@ -372,13 +423,13 @@ class AppointmentServiceTasks(TaskSet):
         """Simulate canceling an appointment"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/appointments/manage/cancel"
-        response_topic = f"response/appointments/manage/canceled/{correlation_id}"
+        request_topic = "request/appointment-management"
+        response_topic = f"response/appointment-management/updated/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
                 "appointmentId": "abcd1234",
-                "reason": "Patient request"
+                "status": "canceled",
             },
         }
 
@@ -411,12 +462,13 @@ class AppointmentServiceTasks(TaskSet):
         """Simulate deleting an appointment"""
         start_time = time.time()
         correlation_id = str(uuid.uuid4())
-        request_topic = "request/appointments/manage/delete"
-        response_topic = f"response/appointments/manage/deleted/{correlation_id}"
+        request_topic = "request/appointment-management"
+        response_topic = f"response/appointment-management/updated/{correlation_id}"
         payload = {
             "correlationId": correlation_id,
             "payload": {
                 "appointmentId": "abcd1234",
+                "status": "deleted"
             },
         }
 
@@ -446,5 +498,5 @@ class AppointmentServiceTasks(TaskSet):
 
 
 class MixedServiceUser(User):
-    tasks = [DentistServiceTasks, PatientServiceTasks, AppointmentServiceTasks]
+    tasks = [DentistServiceTasks, PatientServiceTasks, AppointmentServiceTasks, ClinicServiceTasks]
     wait_time = between(1, 5)  # Wait between 1 and 5 seconds between tasks
