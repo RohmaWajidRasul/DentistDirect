@@ -105,6 +105,44 @@ class ClinicServiceTasks(TaskSet):
                 exception=Exception("No response received"),
             )
 
+    @task(2)
+    def clinic_info(self):
+        """Simulate dentist registration"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/clinic-info"
+        response_topic = f"response/clinic-info/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "clinicIds": ["674f6b44df75ca6c80505206"],
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+        # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="clinic_info",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="clinic_info",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
 
 
 class DentistServiceTasks(TaskSet):
@@ -284,6 +322,44 @@ class PatientServiceTasks(TaskSet):
             self.environment.events.request.fire(
                 request_type="MQTT",
                 name="login_patient",
+                response_time=response_time,
+                response_length=0,
+                exception=Exception("No response received"),
+            )
+
+    @task(2)
+    def manage_patient(self):
+        """Simulate patient login"""
+        start_time = time.time()
+        correlation_id = str(uuid.uuid4())
+        request_topic = "request/manage-patient"
+        response_topic = f"response/manage-patient/{correlation_id}"
+        payload = {
+            "correlationId": correlation_id,
+            "payload": {
+                "patientId": "131313",
+            },
+        }
+
+        self.mqtt_client.subscribe(response_topic)
+        self.mqtt_client.publish(request_topic, json.dumps(payload))
+
+         # Wait for response and track the time
+        response = self.mqtt_client.wait_for_response(response_topic)
+        response_time = (time.time() - start_time) * 1000  # Convert to ms
+
+        if response:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="manage-patient",
+                response_time=response_time,
+                response_length=len(response),
+                exception=None,
+            )
+        else:
+            self.environment.events.request.fire(
+                request_type="MQTT",
+                name="manage-patient",
                 response_time=response_time,
                 response_length=0,
                 exception=Exception("No response received"),

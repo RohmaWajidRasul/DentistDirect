@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 const serviceId = uuidv4();
-const serviceName = "get-logs";
+const serviceName = "delete-logs";
 
 
 const publishRegistration = () => {
@@ -64,7 +64,7 @@ setInterval(deleteLogs, 3600000)
 
 
 mqttClient.on('connect', () => {
-    console.log('MQTT connected for Get Logs Service');
+    console.log('MQTT connected for Delete Logs Service');
     publishRegistration();
     deleteLogs();
 });

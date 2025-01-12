@@ -164,7 +164,11 @@ export default {
                         const response = JSON.parse(message.toString());
 
                         if (response.status === "success") {
+                            if(response.message == "No appointments found.") {
+                                console.log("No Appointments found");
+                            } else {
                             this.numberOfAppointments = response.appointments.length;
+                            }
                         } else {
                             console.error("Error response:", response.message);
                         }

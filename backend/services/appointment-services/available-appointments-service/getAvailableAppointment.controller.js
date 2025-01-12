@@ -238,7 +238,6 @@ const fetchClinicsInfo = (clinicIds) => {
 const generateCorrelationId = () => `corr-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
 
 const publishAvailabilityResponse = (correlationId, response, action) => {
-    log(response.status)
     const responseTopic = `response/available-appointments/${action}/${correlationId}`;
     mqttClient.publish(responseTopic, JSON.stringify(response), (err) => {
         if (err) {
@@ -247,6 +246,7 @@ const publishAvailabilityResponse = (correlationId, response, action) => {
             console.log(`Response sent to ${responseTopic}`);
         }
     });
+    log(response.status)
 };
 
 const log = (result) => {

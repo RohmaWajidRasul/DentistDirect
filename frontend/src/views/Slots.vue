@@ -160,7 +160,7 @@ export default {
           console.log("Appointment updated successfully, refreshing slots.");
           this.fetchSlotsAndDentists();
         } else {
-          console.error("Error in appointment update:", response.message);
+          //console.error("Error in appointment update:", response.message);
         }
       } catch (error) {
         console.error("Error processing appointment update:", error.message);
@@ -177,10 +177,7 @@ export default {
           );
           this.fetchSlotsAndDentists();
         } else {
-          console.error(
-            "Error in created appointment response:",
-            response.message
-          );
+          //console.error("Error in created appointment response:", response.message);
         }
       } catch (error) {
         console.error(
