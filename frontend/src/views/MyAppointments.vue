@@ -157,7 +157,7 @@ export default {
                 });
 
                 const handleMessage = (topic, message) => {
-                    if (topic === responseTopic && this.activeRequests.has(correlationId) {
+                    if (topic === responseTopic && this.activeRequests.has(correlationId)) {
                         clearTimeout(timeout);
                         this.activeRequests.delete(correlationId);
                         mqttClient.unsubscribe(responseTopic);

@@ -24,7 +24,7 @@
     methods: {
         cancelSlot() {
   
-        this.$emit("cancel-slot", this.slotInfo);
+        this.$emit("cancel-slot", this.slotInfo._id);
         this.$emit("close");
       },
     },
