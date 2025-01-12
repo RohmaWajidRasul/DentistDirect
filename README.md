@@ -64,7 +64,7 @@ Full deployment instructions will be added in future milestones.
 ## System Design
 #### Software Diagram
 The diagram illustrates the system architecture, highlighting interactions between components:
-![Component diagram](assets/Milestone2-Component-Diagram.drawio.png)
+![Component diagram](assets/Component-Diagram.drawio.png)
 
 ## Setup and Get Started
 - **Clone the Repository with SSH**
