@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "fc524e05-8848-4a15-8adc-fe435e75cdeb",
+		"_postman_id": "436b5807-63f9-42d2-ba9f-deaaafe096f8",
 		"name": "Dentist Direct API",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "38097583"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38096965"
 	},
 	"item": [
 		{
@@ -184,14 +184,26 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Josefin\",\r\n    \"lastName\": \"Korrman\",\r\n    \"email\": \"josefin.korrman@bigfronts.com\",\r\n    \"password\": \"12345678\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "http://localhost:5007/v1/dentists"
+						"url": {
+							"raw": "http://localhost:5007/v1/dentists/register",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"dentists",
+								"register"
+							]
+						}
 					},
 					"response": []
 				},
@@ -220,7 +232,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"New\",\r\n    \"lastName\": \"Dentist\",\r\n    \"email\": \"2@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456779\",\r\n    \"specialization\": \"Hygienist\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"New\",\r\n    \"lastName\": \"Dentist\",\r\n    \"email\": \"2@example.com\",\r\n    \"password\": \"12345678\",\r\n    \"phoneNumber\": \"+123456779\",\r\n    \"specialization\": \"Hygienist\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -228,7 +240,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5007/v1/dentists",
+							"raw": "http://localhost:5007/v1/dentists/register",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -236,7 +248,8 @@
 							"port": "5007",
 							"path": [
 								"v1",
-								"dentists"
+								"dentists",
+								"register"
 							]
 						}
 					},
@@ -422,6 +435,64 @@
 							}
 						},
 						"url": "http://localhost:5007/v1/appointments/{{appointment1_Id}}"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dentist-Patient Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5007/v1/appointments/booked/6777f84b0205b0076c71e78f",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"appointments",
+								"booked",
+								"6777f84b0205b0076c71e78f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Dentist",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"carina.korrman@bigfronts.com\",\n  \"password\": \"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5007/v1/dentists/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"dentists",
+								"login"
+							]
+						}
 					},
 					"response": []
 				}
@@ -685,6 +756,17 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"variable": [
+		{
+			"key": "dentist",
+			"value": "dentist1_Id"
+		},
+		{
+			"key": "appointment2_Id",
+			"value": "",
+			"type": "default"
 		}
 	]
 }
