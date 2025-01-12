@@ -114,18 +114,19 @@ export default {
         });
 
         if (!this.mqttMessageHandlerSet) {
-          this.mqttClient.on("message", (topic, message) => {
-            if (topic.startsWith("response/appointment-management/")) {
-              this.handleAppointmentUpdates(topic, message);
-            } else if (topic.startsWith("response/create-appointment/")) {
-              this.handleCreatedAppointments(topic, message);
-            }
-          });
+          this.mqttClient.on("message", this.handleUpdates)
           this.mqttMessageHandlerSet = true;
         }
       } catch (error) {
         console.error("Error subscribing to topics:", error.message);
       }
+    },
+    handleUpdates(topic, message) {
+      if (topic.startsWith("response/appointment-management/")) {
+              this.handleAppointmentUpdates(topic, message);
+            } else if (topic.startsWith("response/create-appointment/")) {
+              this.handleCreatedAppointments(topic, message);
+            }
     },
     unsubscribeFromAppointmentUpdates() {
       const topics = [
@@ -144,7 +145,7 @@ export default {
           });
         });
 
-        this.mqttClient.off("message", this.handleAppointmentUpdates);
+        this.mqttClient.off("message", this.handleUpdates);
       } catch (error) {
         console.error("Error unsubscribing from topic:", error.message);
       }
@@ -227,34 +228,33 @@ export default {
           console.log(`Subscribed to response topic: ${responseTopic}`);
         });
 
-        const timeout = setTimeout(() => {
-          mqttClient.unsubscribe(responseTopic);
-          this.showAlert("Server did not respond. Please try again later.", "error");
-        }, 5000);
-
-        this.mqttClient.on("message", (topic, message) => {
+        const handleMessage = (topic, message) => {
           if (topic === responseTopic) {
             clearTimeout(timeout);
+            mqttClient.unsubscribe(responseTopic);
+            mqttClient.off("message", handleMessage);
             const response = JSON.parse(message.toString());
             console.log("Response received:", response);
 
             if (response.status === "success") {
-              this.processSlots(response.appointments);
-              this.showAlert("Slots fetched successfully!", "success");
-            } else {
-              console.error("Error response:", response.message);
-              this.showAlert(response.message, "error");
-            }
-
-            this.mqttClient.unsubscribe(responseTopic, (err) => {
-              if (err) {
-                console.error("Failed to unsubscribe from response topic:", err);
+              if(response.message == 'No appointments found.') {
+                this.showAlert("No slots available", "error");
               } else {
-                console.log(`Unsubscribed from response topic: ${responseTopic}`);
+              this.processSlots(response.appointments);
               }
-            });
+              //this.showAlert("Slots fetched successfully!", "success");
+            } else {
+              console.error("Error response:", response);
+            }
           }
-        });
+        };
+        const timeout = setTimeout(() => {
+            mqttClient.unsubscribe(responseTopic);
+            mqttClient.off("message", handleMessage);
+            this.showAlert("Server did not respond. Please try again later.", "error");
+          }, 5000);
+
+          mqttClient.on("message", handleMessage);
       } catch (error) {
         console.error("Error in fetchSlotsAndDentists:", error.message);
         this.showAlert("An error occurred while fetching slots. Please try again later.", "error");
@@ -375,8 +375,72 @@ export default {
     nextMonth() {
       this.currentDate = addMonths(this.currentDate, 1);
     },
-    bookSlot(slot) {
-      alert(`Slot booked: ${slot.startTime} - ${slot.endTime} on ${slot.date}`);
+    bookSlot(data) {
+      if (data.successMessage !== `Not logged in`) {
+        try {
+          const correlationId = Date.now().toString();
+          
+
+          const payload = data.payload;
+
+          console.log("Publishing payload:", payload);
+
+          mqttClient.publish(
+            "request/appointment-management",
+            JSON.stringify({ correlationId, payload }),
+            (err) => {
+              if (err) {
+                console.error("Failed to publish request:", err);
+                throw new Error("Failed to publish request");
+              }
+              console.log(`Request published with correlationId: ${correlationId}`);
+            }
+          );
+
+          const responseTopic = `response/appointment-management/updated/${correlationId}`;
+          mqttClient.subscribe(responseTopic, (err) => {
+            if (err) {
+              console.error("Failed to subscribe to response topic:", err);
+              throw new Error("Failed to subscribe to response topic");
+            }
+            console.log(`Subscribed to response topic: ${responseTopic}`);
+          });
+
+          const handleMessage = (topic, message) => {
+            if (topic === responseTopic) {
+              clearTimeout(timeout);
+              mqttClient.unsubscribe(responseTopic);
+              mqttClient.off("message", handleMessage);
+              const response = JSON.parse(message.toString());
+              console.log("Response received:", response);
+
+              if (response.status === "success") {
+                console.log("success");
+                this.showAlert(data.successMessage);
+              } else if(response.status === "error") {
+                console.error("Error response:", response.message);
+                this.showAlert("Appointment could not be booked");
+              }
+            }
+          };
+
+          const timeout = setTimeout(() => {
+            mqttClient.unsubscribe(responseTopic);
+            mqttClient.off("message", handleMessage);
+            this.showAlert("Server did not respond. Please try again later.", "error");
+          }, 5000);
+
+          mqttClient.on("message", handleMessage);
+        } catch (error) {
+          console.error("Error in slot card:", error.message);
+          this.showAlert("An error occurred while booking slots. Please try again later.", "error");
+        }
+      } else {
+        this.showAlert("Log in to book an appointment!", "error");
+        setTimeout(() => {
+          this.$router.push('/login');
+        }, 1000);
+      }
     },
   },
 };

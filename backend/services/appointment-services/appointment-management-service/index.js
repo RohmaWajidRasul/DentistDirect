@@ -70,7 +70,7 @@ const publishHeartbeat = () => {
     const heartbeat = {
         service: serviceName,
         status: 'healthy',
-        timestamp: new Date().toISOString(),
+        timestamp: Date.now(),
         uptime: process.uptime(),
     };
 

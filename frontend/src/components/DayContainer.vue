@@ -24,6 +24,7 @@
       v-if="selectedSlotInfo"
       :slotInfo="selectedSlotInfo"
       @close="selectedSlotInfo = null"
+      @book-slot="bookSlot"
     />
   </div>
 </template>
@@ -56,6 +57,9 @@ export default {
       //this.$emit("show-slot-details", slotInfo);
       this.selectedSlotInfo = slotInfo; // Open the SlotCard with the clicked slot
     },
+    bookSlot(data) {
+      this.$emit("book-slot", data)
+    }
   },
 };
 </script>

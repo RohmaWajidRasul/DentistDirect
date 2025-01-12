@@ -24,11 +24,27 @@ export default {
   },
   methods: {
     bookSlot() {
-      alert(`Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`);
+      const loggedIn = !!localStorage.getItem('user');
+      //alert(`Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`);
+      const user = JSON.parse(localStorage.getItem("user"));
+      let data;
+      if (loggedIn) {
+        data = {
+          successMessage: `Dentist appointment ${this.slotInfo.startTime} - ${this.slotInfo.endTime} was successfully booked!`,
+          payload: {
+            patientId: user.userId,
+            appointmentId: this.slotInfo.id,
+            status: "booked",
+          }
+        }
+      } else {
+        data = {
+          successMessage: `Not logged in`,
+        }
+      }
 
-      this.$emit("book-slot");
+      this.$emit("book-slot", data);
       this.$emit("close");
-      this.book();
     },
     async book() {
       try {
@@ -43,19 +59,9 @@ export default {
 
         console.log("Publishing payload:", payload);
 
-        mqttClient.publish(
-          "request/appointment-management",
-          JSON.stringify({ correlationId, payload }),
-          (err) => {
-            if (err) {
-              console.error("Failed to publish request:", err);
-              throw new Error("Failed to publish request");
-            }
-            console.log(`Request published with correlationId: ${correlationId}`);
-          }
-        );
-
+        const requestTopic = "request/appointment-management";
         const responseTopic = `response/appointment-management/updated/${correlationId}`;
+
         mqttClient.subscribe(responseTopic, (err) => {
           if (err) {
             console.error("Failed to subscribe to response topic:", err);
@@ -64,15 +70,26 @@ export default {
           console.log(`Subscribed to response topic: ${responseTopic}`);
         });
 
+        mqttClient.publish(
+          requestTopic,
+          JSON.stringify({ correlationId, payload }),
+          (err) => {
+            if (err) {
+              console.error("Failed to publish request:", err);
+              throw new Error("Failed to publish request");
+            }
+            console.log(`Request published with correlationId: ${correlationId} ${requestTopic}`);
+          }
+        );
+
+        const timeout = setTimeout(() => {
+          mqttClient.unsubscribe(responseTopic);
+          this.showAlert('Server did not respond. Please try again later.');
+        }, 5000);
+
         mqttClient.on("message", (topic, message) => {
           if (topic === responseTopic) {
-            const response = JSON.parse(message.toString());
-            console.log("Response received:", response);
-
-            if (response.status !== "success") {
-              console.error("Error response:", response.message);
-            }
-
+            clearTimeout(timeout);
             mqttClient.unsubscribe(responseTopic, (err) => {
               if (err) {
                 console.error("Failed to unsubscribe from response topic:", err);
@@ -80,6 +97,14 @@ export default {
                 console.log(`Unsubscribed from response topic: ${responseTopic}`);
               }
             });
+
+            const response = JSON.parse(message.toString());
+            console.log("Response received:", response);
+
+            if (response.status !== "success") {
+              console.error("Error response:", response.message);
+            }
+            
           }
         });
       } catch (error) {

@@ -36,7 +36,34 @@ const patientSchema = new Schema({
     isAdmin: {
         type: Boolean,
         default: false,
-    }
+    },
+    preferences: {
+        type: {
+            dateRange: {
+                startDate: { type: Date, default: null },
+                endDate: { type: Date, default: null }
+            },
+            dentist: {
+                type: Schema.Types.ObjectId,
+                ref: 'Dentist',
+                default: null
+            },
+            specialization: {
+                type: String,
+                default: ''
+            },
+            clinic: {
+                type: Schema.Types.ObjectId,
+                ref: 'Clinic',
+                default: null
+            }
+        },
+        default: {}
+    },
+    notifications:[{
+        type: Schema.Types.ObjectId,
+        ref: "Notification"
+    }]
 });
 
 const Patient = mongoose.model('Patient', patientSchema);

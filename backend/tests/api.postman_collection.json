@@ -60,6 +60,67 @@
 					"response": []
 				},
 				{
+					"name": "Create a clinic Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();",
+									"let clinicId = jsonData.newClinic._id;",
+									"pm.environment.set(\"clinic2_Id\", clinicId);",
+									"",
+									"",
+									"pm.test(\"Create a clinic\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Capio Vårdcentral Selma\",\n  \"location\": \"Selma Lagerlöfs torg 1\",\n  \"longitude\": 11.981067,\n  \"latitude\": 57.749501\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/clinics",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"clinics"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Retrieve all clinics",
 					"event": [
 						{
@@ -135,6 +196,53 @@
 					"response": []
 				},
 				{
+					"name": "Create Dentist Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();\r",
+									"let dentistId = jsonData.newDentist._id;\r",
+									"pm.environment.set(\"dentist2_Id\", dentistId);\r",
+									"\r",
+									"pm.test(\"Create a dentist\", function(){\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"New\",\r\n    \"lastName\": \"Dentist\",\r\n    \"email\": \"2@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456779\",\r\n    \"specialization\": \"Hygienist\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5007/v1/dentists",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"dentists"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Create Appointment",
 					"event": [
 						{
@@ -159,7 +267,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2025-01-25\",\r\n    \"startTime\": \"14:00\",\r\n    \"endTime\": \"15:30\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist1_Id}}\",\r\n    \"date\": \"2025-02-26\",\r\n    \"startTime\": \"11:00\",\r\n    \"endTime\": \"11:30\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -203,6 +311,53 @@
 							}
 						},
 						"url": "http://localhost:5007/v1/appointments"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Appointment Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();\r",
+									"let appointmentId = jsonData.appointment._id;\r",
+									"pm.environment.set(\"appointment3_Id\", appointmentId);\r",
+									"\r",
+									"pm.test(\"Create an appointment\", function(){\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist2_Id}}\",\r\n    \"date\": \"2025-01-28\",\r\n    \"startTime\": \"11:00\",\r\n    \"endTime\": \"12:30\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5007/v1/appointments",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"appointments"
+							]
+						}
 					},
 					"response": []
 				},
@@ -308,6 +463,50 @@
 							}
 						},
 						"url": "http://localhost:3000/v1/patients"
+					},
+					"response": []
+				},
+				{
+					"name": "Add preferences",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update preferences\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"preferences\": {\r\n    \"dateRange\": { \r\n      \"startDate\": \"2025-02-10T00:00:00Z\",\r\n      \"endDate\": \"2025-02-15T00:00:00Z\"\r\n    },\r\n    \"dentist\": \"{{dentist1_Id}}\",\r\n    \"specialization\": \"Orthodontist\",\r\n    \"clinic\": \"{{clinic1_Id}}\"\r\n  }\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/patients/{{patient1_Id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"patients",
+								"{{patient1_Id}}"
+							]
+						}
 					},
 					"response": []
 				},
