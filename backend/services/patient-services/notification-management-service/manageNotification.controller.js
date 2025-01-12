@@ -1,14 +1,19 @@
 import mqttClient from '../../../shared/mqtt-client.js';
 import Notification from '../models/notification.js';
 
-
+let requestTime;
+let requestTopic;
+let requestee;
 export const changeMessage = async (topic, message) => {
 
   console.log(`Handling notification on topic: ${topic}`);
 
   let correlationId;
+  
 
   try {
+    requestTime = Date.now();
+    requestTopic = topic;
     let parsedMessage;
     try {
         parsedMessage = JSON.parse(message.toString());
@@ -28,7 +33,8 @@ export const changeMessage = async (topic, message) => {
       throw new Error('Correlation ID is missing in the request');
     }
 
-    const { notificationId, status} = parsedMessage.payload;
+    const { notificationId, status, patientId} = parsedMessage.payload;
+    requestee = patientId;
 
     const notification = await Notification.findById(notificationId);
 
@@ -74,4 +80,39 @@ const publishResponse = (correlationId, response) => {
       console.log(`Response sent to ${responseTopic}`);
     }
   });
+  log(response.status);
 };
+
+const log = (result) => {
+  try {
+      const logTopic = "request/create-log"
+      const topicParts = requestTopic.split("/");
+      const serviceName = topicParts[1];
+      const serviceId = topicParts[2];
+
+      const payload =  {
+          result,
+          serviceId,
+          serviceName,
+          requestTime,
+          patientId: requestee
+      }
+        const correlationId = Date.now();
+        const logMessage = {
+        correlationId,
+        payload
+      };
+    
+
+      mqttClient.publish(logTopic, JSON.stringify(logMessage), (err) => {
+          if (err) {
+              console.error(`Failed to publish to ${logTopic}:`, err);
+          } else {
+              console.log(`Request sent to ${logTopic}`);
+          }
+      });
+  } catch(error) {
+      console.log(error)
+  }
+}
+

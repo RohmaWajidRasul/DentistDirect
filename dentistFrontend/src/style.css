@@ -1,0 +1,60 @@
+:root {
+  --navbar-bg-color: #6fd2f3;
+  --navbar-text-color: #51b2dd;
+  --navbar-active-text-color: #51b2dd;
+  --button-color: #51b2dd;
+  --button-hover-color: #6096BA;
+  --background-color: white;
+  --text-color: #E7ECEF;
+}
+
+#app {
+  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-color);
+}
+
+.active-tab {
+  color: green;
+  font-weight: bold; /* Highlight active tab */
+}
+
+.ml-auto {
+  margin-left: auto !important;
+  color: #E7ECEF;
+ }
+
+/* Navbar Styling */
+.navbar-custom {
+  background-color: var(--navbar-bg-color);
+  color: var(--navbar-text-color);
+}
+
+.navbar-custom a:hover,
+.router-link-exact-active {
+  color: var(--navbar-active-text-color);
+}
+
+/* Background and Button Colors */
+body {
+  background-color: var(--background-color);
+  color: #2C3E50;
+}
+
+.btn-primary {
+  background-color: var(--button-color);
+  border-color: var(--button-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--button-hover-color);
+  border-color: var(--button-hover-color);
+}
+.flex-grow-1 {
+  flex-grow: 1;
+ }

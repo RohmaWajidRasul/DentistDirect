@@ -15,6 +15,7 @@
           Inbox
           <span v-if="unreadCount > 0" class="badge badge-danger">{{ unreadCount }}</span>
         </b-nav-item>
+        <b-nav-item v-if="admin" to="/admin" :active-class="active-tab">Admin</b-nav-item>
       </b-navbar-nav>
     </b-collapse>
   </b-navbar>
@@ -24,6 +25,10 @@
 export default {
   props: {
     loggedIn: {
+      type: Boolean,
+      required: true
+    },
+    admin: {
       type: Boolean,
       required: true
     }

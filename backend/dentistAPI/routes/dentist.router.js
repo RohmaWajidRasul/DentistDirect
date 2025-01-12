@@ -1,71 +1,162 @@
-import express from 'express';
-import mqttClient from '../../shared/mqtt-client.js';
+import express from "express";
+import mqttClient from "../../shared/mqtt-client.js";
 
 const router = express.Router();
 
-router.post('/', (req, res) => {
-    const payload = req.body;
-    const correlationId = Date.now().toString();
+router.post("/register", (req, res) => {
+  const payload = req.body;
+  const correlationId = Date.now().toString();
 
-    const requestTopic = 'request/register-dentist';
-    const responseTopic = `response/register-dentist/${correlationId}`;
+  const requestTopic = "request/register-dentist";
+  const responseTopic = `response/register-dentist/${correlationId}`;
 
-    let responded = false;
-    
-    mqttClient.publish(requestTopic, JSON.stringify({ correlationId, payload }), (err) => {
-        if (err) {
-            if (!responded) {
-                responded = true;
-                return res.status(500).json({ message: 'Failed to publish request to MQTT', error: err.message });
-            }
-        }
-        console.log(`Published request to topic: ${requestTopic}`);
-    });
+  let responded = false;
 
-   
-    const timeout = setTimeout(() => {
+  mqttClient.publish(
+    requestTopic,
+    JSON.stringify({ correlationId, payload }),
+    (err) => {
+      if (err) {
         if (!responded) {
-            responded = true;
-            mqttClient.unsubscribe(responseTopic);
-            return res.status(504).json({ message: 'Request timeout. No response from server.' });
+          responded = true;
+          return res
+            .status(500)
+            .json({
+              message: "Failed to publish request to MQTT",
+              error: err.message,
+            });
         }
-    }, 5000);
+      }
+      console.log(`Published request to topic: ${requestTopic}`);
+    }
+  );
 
-   
-    mqttClient.subscribe(responseTopic, (err) => {
-        if (err) {
-            if (!responded) {
-                responded = true;
-                clearTimeout(timeout);
-                console.error(`Failed to subscribe to topic: ${responseTopic}`, err);
-                return res.status(500).json({ message: 'Failed to subscribe to MQTT response topic', error: err.message });
-            }
-        } else {
-            console.log(`Subscribed to response topic: ${responseTopic}`);
+  const timeout = setTimeout(() => {
+    if (!responded) {
+      responded = true;
+      mqttClient.unsubscribe(responseTopic);
+      return res
+        .status(504)
+        .json({ message: "Request timeout. No response from server." });
+    }
+  }, 5000);
+
+  mqttClient.subscribe(responseTopic, (err) => {
+    if (err) {
+      if (!responded) {
+        responded = true;
+        clearTimeout(timeout);
+        console.error(`Failed to subscribe to topic: ${responseTopic}`, err);
+        return res
+          .status(500)
+          .json({
+            message: "Failed to subscribe to MQTT response topic",
+            error: err.message,
+          });
+      }
+    } else {
+      console.log(`Subscribed to response topic: ${responseTopic}`);
+    }
+  });
+
+  const messageHandler = (topic, message) => {
+    if (topic === responseTopic) {
+      clearTimeout(timeout);
+      mqttClient.unsubscribe(responseTopic);
+      console.log(`Unsubscribed from response topic: ${responseTopic}`);
+
+      const response = JSON.parse(message.toString());
+      if (!responded) {
+        responded = true;
+        res.status(response.status === "success" ? 201 : 500).json(response);
+      }
+    }
+  };
+
+  mqttClient.on("message", messageHandler);
+
+  res.on("finish", () => {
+    mqttClient.off("message", messageHandler);
+  });
+});
+
+router.post("/login", (req, res) => {
+  const payload = req.body;
+  const correlationId = Date.now().toString();
+
+  const requestTopic = "request/dentist-login";
+  const responseTopic = `response/dentist-login/${correlationId}`;
+
+  let responded = false;
+
+  mqttClient.publish(
+    requestTopic,
+    JSON.stringify({ correlationId, payload }),
+    (err) => {
+      if (err) {
+        if (!responded) {
+          responded = true;
+          return res
+            .status(500)
+            .json({
+              message: "Failed to publish login request to MQTT",
+              error: err.message,
+            });
         }
-    });
+      }
+      console.log(`Published login request to topic: ${requestTopic}`);
+    }
+  );
 
-   
-    const messageHandler = (topic, message) => {
-        if (topic === responseTopic) {
-            clearTimeout(timeout);
-            mqttClient.unsubscribe(responseTopic);
-            console.log(`Unsubscribed from response topic: ${responseTopic}`);
+  const timeout = setTimeout(() => {
+    if (!responded) {
+      responded = true;
+      mqttClient.unsubscribe(responseTopic);
+      return res
+        .status(504)
+        .json({ message: "Login request timeout. No response from server." });
+    }
+  }, 5000);
 
-            const response = JSON.parse(message.toString());
-            if (!responded) {
-                responded = true;
-                res.status(response.status === 'success' ? 201 : 500).json(response);
-            }
-        }
-    };
+  mqttClient.subscribe(responseTopic, (err) => {
+    if (err) {
+      if (!responded) {
+        responded = true;
+        clearTimeout(timeout);
+        console.error(
+          `Failed to subscribe to response topic: ${responseTopic}`,
+          err
+        );
+        return res
+          .status(500)
+          .json({
+            message: "Failed to subscribe to MQTT response topic",
+            error: err.message,
+          });
+      }
+    }
+    console.log(`Subscribed to response topic: ${responseTopic}`);
+  });
 
-    mqttClient.on('message', messageHandler);
+  const messageHandler = (topic, message) => {
+    if (topic === responseTopic) {
+      clearTimeout(timeout);
+      mqttClient.unsubscribe(responseTopic);
+      console.log(`Unsubscribed from response topic: ${responseTopic}`);
 
-    
-    res.on('finish', () => {
-        mqttClient.off('message', messageHandler);
-    });
+      const response = JSON.parse(message.toString());
+      if (!responded) {
+        responded = true;
+        res.status(response.status === "success" ? 200 : 401).json(response);
+      }
+    }
+  };
+
+  mqttClient.on("message", messageHandler);
+
+  res.on("finish", () => {
+    mqttClient.off("message", messageHandler);
+  });
 });
 
 export default router;

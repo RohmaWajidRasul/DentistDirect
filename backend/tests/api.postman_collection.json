@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "71e88505-8606-4f1f-9e96-045d054e549e",
+		"_postman_id": "fdbe33d9-a2c7-4fcb-80c6-957b528a17a1",
 		"name": "Dentist Direct API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "38096908"
+		"_exporter_id": "38097583"
 	},
 	"item": [
 		{
@@ -207,7 +207,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"Joe\",\r\n    \"lastName\": \"Joe\",\r\n    \"email\": \"1@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"Josefin\",\r\n    \"lastName\": \"Korrman\",\r\n    \"email\": \"josefin.korrman@bigfronts.com\",\r\n    \"password\": \"12345678\",\r\n    \"phoneNumber\": \"+123456789\",\r\n    \"specialization\": \"Dentist\",\r\n    \"clinicId\": \"{{clinic1_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -215,7 +215,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5007/v1/dentists",
+							"raw": "http://localhost:5007/v1/dentists/register",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -223,7 +223,8 @@
 							"port": "5007",
 							"path": [
 								"v1",
-								"dentists"
+								"dentists",
+								"register"
 							]
 						}
 					},
@@ -254,7 +255,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"firstName\": \"New\",\r\n    \"lastName\": \"Dentist\",\r\n    \"email\": \"2@example.com\",\r\n    \"password\": \"11111111\",\r\n    \"phoneNumber\": \"+123456779\",\r\n    \"specialization\": \"Hygienist\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}\r\n",
+							"raw": "{\r\n    \"firstName\": \"New\",\r\n    \"lastName\": \"Dentist\",\r\n    \"email\": \"2@example.com\",\r\n    \"password\": \"12345678\",\r\n    \"phoneNumber\": \"+123456779\",\r\n    \"specialization\": \"Hygienist\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -262,7 +263,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5007/v1/dentists",
+							"raw": "http://localhost:5007/v1/dentists/register",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -270,7 +271,8 @@
 							"port": "5007",
 							"path": [
 								"v1",
-								"dentists"
+								"dentists",
+								"register"
 							]
 						}
 					},
@@ -318,6 +320,53 @@
 							"path": [
 								"v1",
 								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Patient Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();\r",
+									"let patientId = jsonData.newPatient._id;\r",
+									"pm.environment.set(\"patient1_Id\", patientId);\r",
+									"\r",
+									"pm.test(\"Create a patient\", function(){\r",
+									"    pm.response.to.have.status(201);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Taylor\",\r\n    \"lastName\": \"Smith\",\r\n    \"SSN\": \"200011322013\",\r\n    \"email\": \"Taylor13@example.com\",\r\n    \"password\": \"11121111\",\r\n    \"phoneNumber\": \"+987655521\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/patients",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"patients"
 							]
 						}
 					},
@@ -395,7 +444,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"dentistId\": \"{{dentist2_Id}}\",\r\n    \"date\": \"2025-01-28\",\r\n    \"startTime\": \"11:00\",\r\n    \"endTime\": \"12:30\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}",
+							"raw": "{\r\n    \"dentistId\": \"{{dentist2_Id}}\",\r\n    \"date\": \"2025-01-29\",\r\n    \"startTime\": \"11:00\",\r\n    \"endTime\": \"12:30\",\r\n    \"clinicId\": \"{{clinic2_Id}}\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -412,6 +461,54 @@
 							"path": [
 								"v1",
 								"appointments"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Book Appointment Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let jsonData = pm.response.json();\r",
+									"let appointmentId = jsonData.appointment._id;\r",
+									"pm.environment.set(\"appointmentId_1\", appointmentId);\r",
+									"\r",
+									"pm.test(\"Book an appointment\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"patientId\": \"{{patient1_Id}}\",\r\n    \"status\": \"booked\"\r\n   \r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3000/v1/appointments/{{appointment3_Id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"appointments",
+								"{{appointment3_Id}}"
 							]
 						}
 					},
@@ -500,6 +597,104 @@
 								"v1",
 								"appointments",
 								"{{appointment1_Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Dentist-Patient Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create an appointment\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5007/v1/appointments/booked/{{dentist2_Id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"appointments",
+								"booked",
+								"{{dentist2_Id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login Dentist",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create an appointment\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"josefin.korrman@bigfronts.com\",\n  \"password\": \"12345678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5007/v1/dentists/login",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5007",
+							"path": [
+								"v1",
+								"dentists",
+								"login"
 							]
 						}
 					},
@@ -772,6 +967,91 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "Logs",
+			"item": [
+				{
+					"name": "Get Logs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Book an appointment\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/v1/logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Number of User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Book an appointment\", function(){\r",
+									"    pm.response.to.have.status(200);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3000/v1/logs/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3000",
+							"path": [
+								"v1",
+								"logs",
+								"users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "dentist",
+			"value": "dentist1_Id"
+		},
+		{
+			"key": "appointment2_Id",
+			"value": "",
+			"type": "default"
 		}
 	]
 }

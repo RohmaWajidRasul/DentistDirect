@@ -7,6 +7,7 @@ import Login from'./views/Login.vue'
 import MyAppointments from './views/MyAppointments.vue';
 import Profile from './views/Profile.vue';
 import InboxPage from './components/InboxPage.vue';
+import Admin from './views/Admin.vue';
 
 const routes = [
   { path: '/', name: 'home-page', component: Home },
@@ -21,6 +22,7 @@ const routes = [
   { path: '/my-appointments', name: 'my-appointments', component: MyAppointments },
   { path: '/profile', name: 'profile', component: Profile },
   { path: '/inbox', name: 'inbox', component: InboxPage }, 
+  { path: '/admin', name: 'admin-page', component: Admin }
 ]
 
 const router = createRouter({
