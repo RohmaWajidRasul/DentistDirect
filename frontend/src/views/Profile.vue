@@ -78,21 +78,10 @@
         </div>
       </div>
 
-      <!-- Right box (placeholder for future content) -->
       <div class="box right-box">
         <h3>Your Preferences</h3>
+        <p>Info: With either a date range or specialization, you must also have either a clinic or dentist set, and vice versa, for best results.</p>
         <div class="preferences-info">
-          <!-- Clinic field -->
-          <div class="field-bubble">
-            <label>Clinic:</label>
-            <select v-if="isEditingPreferences" v-model="editedPreferences.clinic">
-              <option value="">None</option>
-              <option v-for="clinic in clinics" :key="clinic._id" :value="clinic._id">{{ clinic.name }}</option>
-            </select>
-            <span v-else>{{ clinicName }}</span>
-          </div>
-
-          <!-- Date Range field -->
           <div class="field-bubble">
             <label>Date Range:</label>
             <input 
@@ -113,7 +102,24 @@
             </button>
           </div>
 
-          <!-- Dentist field -->
+          <div class="field-bubble">
+            <label>Specialization:</label>
+            <select v-if="isEditingPreferences" v-model="editedPreferences.specialization">
+              <option value="">None</option>
+              <option v-for="spec in specializations" :key="spec">{{ spec }}</option>
+            </select>
+            <span v-else>{{ preferences.specialization }}</span>
+          </div>
+
+          <div class="field-bubble">
+            <label>Clinic:</label>
+            <select v-if="isEditingPreferences" v-model="editedPreferences.clinic">
+              <option value="">None</option>
+              <option v-for="clinic in clinics" :key="clinic._id" :value="clinic._id">{{ clinic.name }}</option>
+            </select>
+            <span v-else>{{ clinicName }}</span>
+          </div>
+
           <div class="field-bubble">
             <label>Dentist:</label>
             <select v-if="isEditingPreferences" v-model="editedPreferences.dentist">
@@ -123,15 +129,7 @@
             <span v-else>{{ dentistName }}</span>
           </div>
 
-          <!-- Specialization field -->
-          <div class="field-bubble">
-            <label>Specialization:</label>
-            <select v-if="isEditingPreferences" v-model="editedPreferences.specialization">
-              <option value="">None</option>
-              <option v-for="spec in specializations" :key="spec">{{ spec }}</option>
-            </select>
-            <span v-else>{{ preferences.specialization }}</span>
-          </div>
+          
         </div>
 
         <div class="actions">
@@ -375,7 +373,7 @@ export default {
       // Compare dateRange fields after formatting the dates
       const format = date => date ? new Date(date).toISOString().split('T')[0] : null;
       if (format(obj1.dateRange.startDate) !== format(obj2.dateRange.startDate)) return false;
-      console.log("HAAAAAAAAAA",format(obj1.dateRange.startDate) !== format(obj2.dateRange.startDate));
+      //console.log("HAAAAAAAAAA",format(obj1.dateRange.startDate) !== format(obj2.dateRange.startDate));
       if (format(obj1.dateRange.endDate) !== format(obj2.dateRange.endDate)) return false;
 
       if (obj1.dentist !== obj2.dentist) return false;
@@ -413,6 +411,24 @@ export default {
             endDate: this.formatDateForPayload(this.editedPreferences.dateRange.endDate)
           }
         };
+
+        if(updatedFields.preferences.dateRange.startDate !== null || updatedFields.preferences.specialization !== '' ) {
+          console.log("REACHED", updatedFields.preferences.clinic
+          )
+          if((!updatedFields.preferences.clinic || updatedFields.preferences.clinic === null ) && ( !updatedFields.preferences.dentist || updatedFields.preferences.dentist=== null)) {
+            console.log("REACHED")
+
+            this.showAlert('Must have either a clinic or dentist preference with a date range or specialization', 'error');
+            this.resetEdits();
+            return;
+          }
+        } else {
+          if ((updatedFields.preferences.clinic && updatedFields.preferences.clinic !== null || ( updatedFields.preferences.dentist || updatedFields.preferences.dentist !== null))) {
+            this.showAlert('Must have either a date range or specialization preference with a clinic or dentist', 'error');
+            this.resetEdits();
+            return;
+          }
+        }
       }
 
       if (this.newPassword !== "") {
@@ -597,6 +613,7 @@ label {
 
 .left-box {
   min-height: auto;  /* Allow the boxes to grow with the content */
+  height: 550px;
   padding: 20px;  /* Add padding if needed */
   box-sizing: border-box; 
   

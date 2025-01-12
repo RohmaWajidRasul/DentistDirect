@@ -124,7 +124,7 @@ export default {
             this.updateUnreadCount(response.notifications);
             //console.log(localStorage.getItem('notifications'));
           } else {
-            //this.showAlert('Login failed: ' + response.message, 'error');
+            //alert('Login failed: ' + response.message, 'error');
           }
         }
       });

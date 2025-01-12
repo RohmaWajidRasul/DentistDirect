@@ -2,6 +2,9 @@
   <div class="wrapper">
 
     <div v-if="!selected || !smallScreen" class="message-list">
+      <div v-if="notifications.length == 0" class="no-notifications">
+        You have no notifications.
+      </div>
       <div
         v-for="notification in notifications"
         :key="notification._id"
@@ -207,6 +210,15 @@ export default {
   box-sizing: border-box;
   scrollbar-color: #90c3d4 transparent;
   scrollbar-width: none;
+}
+
+.no-notifications {
+  color: grey;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 18px;
 }
 
 .message-list::-webkit-scrollbar {

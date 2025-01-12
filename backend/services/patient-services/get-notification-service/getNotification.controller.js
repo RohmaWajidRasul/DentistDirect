@@ -37,8 +37,8 @@ export const getMessages = async (topic, message) => {
     const { patientId } = parsedMessage.payload;
     requestee = patientId;
 
-    const patient = await Patient.findById(patientId);
-    await patient.populate("notifications");
+    const patient = await Patient.findById(patientId).populate("notifications");
+    //await patient.populate("notifications");
 
     if (!patient.notifications) {
       const errorResponse = {
