@@ -1,12 +1,18 @@
 import Appointment from '../models/appointment.js';
 import mqttClient from '../../../shared/mqtt-client.js';
 
+let patientId;
+let requestTime;
+let requestTopic;
+
 export const createAppointment = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
 
     let correlationId;
 
     try {
+        requestTime = Date.now();
+        requestTopic = topic;
         let parsedMessage;
         try {
             parsedMessage = JSON.parse(message.toString());
@@ -37,6 +43,7 @@ export const createAppointment = async (topic, message) => {
             };
             return publishResponse(correlationId, errorResponse);
         }
+        patientId = dentistId;
 
         const [startHour, startMinute] = startTime.split(':').map(Number);
         const [endHour, endMinute] = endTime.split(':').map(Number);
@@ -98,6 +105,7 @@ const publishResponse = (correlationId, response) => {
             console.log(`Response sent to ${responseTopic}`);
         }
     });
+    log(response.status)
 };
 
 const matchPreference = (appointment) => {
@@ -111,3 +119,37 @@ const matchPreference = (appointment) => {
         }
     });
 };
+
+const log = (result) => {
+    try {
+        const logTopic = "request/create-log"
+        const topicParts = requestTopic.split("/");
+        const serviceName = topicParts[1];
+        const serviceId = topicParts[2];
+  
+        const payload =  {
+            result,
+            serviceId,
+            serviceName,
+            requestTime,
+            patientId
+
+        }
+          const correlationId = Date.now();
+          const logMessage = {
+          correlationId,
+          payload
+        };
+      
+
+        mqttClient.publish(logTopic, JSON.stringify(logMessage), (err) => {
+            if (err) {
+                console.error(`Failed to publish to ${logTopic}:`, err);
+            } else {
+                console.log(`Request sent to ${logTopic}`);
+            }
+        });
+    } catch(error) {
+        console.log(error)
+    }
+}

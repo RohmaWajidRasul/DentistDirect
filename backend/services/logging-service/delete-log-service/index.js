@@ -66,7 +66,6 @@ setInterval(deleteLogs, 3600000)
 mqttClient.on('connect', () => {
     console.log('MQTT connected for Delete Logs Service');
     publishRegistration();
-    deleteLogs();
 });
 
 

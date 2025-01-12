@@ -3,6 +3,10 @@ import Patient from '../models/patient.js';
 import Notification from '../models/notification.js';
 Notification;
 
+let requestTime;
+let requestTopic;
+let requestee;
+
 export const getMessages = async (topic, message) => {
 
   console.log(`Handling message on topic: ${topic}`);
@@ -10,6 +14,8 @@ export const getMessages = async (topic, message) => {
   let correlationId;
 
   try {
+    requestTime = Date.now();
+    requestTopic = topic;
     let parsedMessage;
     try {
         parsedMessage = JSON.parse(message.toString());
@@ -29,6 +35,7 @@ export const getMessages = async (topic, message) => {
     }
 
     const { patientId } = parsedMessage.payload;
+    requestee = patientId;
 
     const patient = await Patient.findById(patientId);
     await patient.populate("notifications");
@@ -71,4 +78,39 @@ const publishResponse = (correlationId, response) => {
       console.log(`Response sent to ${responseTopic}`);
     }
   });
+  log(response.status);
 };
+
+const log = (result) => {
+  try {
+      const logTopic = "request/create-log"
+      const topicParts = requestTopic.split("/");
+      const serviceName = topicParts[1];
+      const serviceId = topicParts[2];
+
+      const payload =  {
+          result,
+          serviceId,
+          serviceName,
+          requestTime,
+          patientId: requestee
+
+      }
+        const correlationId = Date.now();
+        const logMessage = {
+        correlationId,
+        payload
+      };
+    
+
+      mqttClient.publish(logTopic, JSON.stringify(logMessage), (err) => {
+          if (err) {
+              console.error(`Failed to publish to ${logTopic}:`, err);
+          } else {
+              console.log(`Request sent to ${logTopic}`);
+          }
+      });
+  } catch(error) {
+      console.log(error)
+  }
+}

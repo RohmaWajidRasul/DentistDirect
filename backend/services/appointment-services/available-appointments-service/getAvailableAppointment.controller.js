@@ -2,7 +2,7 @@ import Appointment from "../models/appointment.js";
 import mqttClient from "../../../shared/mqtt-client.js";
 
 
-let patientId;
+let requestee;
 let requestTime;
 let requestTopic;
 
@@ -51,7 +51,7 @@ export const getAvailableAppointments = async (topic, message) => {
     const { dentistId = null, date = null, location = null, clinicId = null } = payload;
 
     let query;
-    patientId =  parsedMessage.payload.patientId || null;
+    requestee =  parsedMessage.payload.patientId || null;
 
     if (action === "bookedByDentist") {
       if (!dentistId) {
@@ -66,6 +66,7 @@ export const getAvailableAppointments = async (topic, message) => {
           action
         );
       }
+      requestee = dentistId;
       console.log(`Fetching booked appointments for dentistId: ${dentistId}`);
       query = { status: "booked", dentistId: dentistId };
     } else if (action == "booked") {
@@ -351,7 +352,7 @@ const log = (result) => {
         serviceId,
         serviceName,
         requestTime,
-        patientId
+        patientId: requestee
     }
     const correlationId = Date.now();
 
