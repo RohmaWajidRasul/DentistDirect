@@ -35,7 +35,7 @@ const servicePaths = {
 
     'create-clinic':path.resolve(__dirname, '../clinics-services/create-clinic-service/index.js'), 
     'retrieve-clinic': path.resolve(__dirname, '../clinics-services/retrieve-clinic-service/index.js'),
-    'fetch-clinic-info': path.resolve(__dirname, '../clinics-services/clinic-info-service/index.js'),
+    'clinic-info': path.resolve(__dirname, '../clinics-services/clinic-info-service/index.js'),
     'create-log': path.resolve(__dirname, '../logging-service/create-log-service/index.js'),
     'get-logs': path.resolve(__dirname, '../logging-service/get-logs-service/index.js'),
     'get-usernumbers': path.resolve(__dirname, '../logging-service/get-user-numbers-service/index.js'),

@@ -131,7 +131,11 @@ export default {
             try {
                 const correlationId = Date.now().toString();
 
-                const payload = {};
+                const user = JSON.parse(localStorage.getItem("user"));
+
+                const payload = {
+                    patientId: user.userId,
+                };
 
                 mqttClient.publish(
                     "request/available-appointments/available",

@@ -5,6 +5,7 @@ import mqttClient from '../../../shared/mqtt-client.js';
 let requestTime;
 let requestTopic;
 let requestStatus;
+let patientId;
 
 export const manageAppointment = async (topic, message) => {
     console.log(`Request received on topic: ${topic}`);
@@ -61,6 +62,7 @@ export const manageAppointment = async (topic, message) => {
                 switch (value) {
                     case 'booked':
                         if (appointment.status === 'booked' || appointment.status === 'deleted') {
+                            patientId = appointment.patientId;
                             const errorResponse = {
                                 correlationId,
                                 status: 'error',
@@ -96,7 +98,8 @@ export const manageAppointment = async (topic, message) => {
                             }
 
                             notify(appointment, value);
-                            
+
+                            patientId = appointment.patientId;
                             appointment.patientId = null;
                             appointment.status = 'canceled';                            
                             
@@ -130,6 +133,8 @@ export const manageAppointment = async (topic, message) => {
                 }
             } else if (key in appointment) {
                 appointment[key] = value;
+            } else if(key == "patientId") {
+                patientId = key;
             } else {
                 const errorResponse = {
                     correlationId,
@@ -251,6 +256,8 @@ const log = (result) => {
             serviceId,
             serviceName,
             requestTime,
+            patientId
+
         }
           const correlationId = Date.now();
           const logMessage = {
